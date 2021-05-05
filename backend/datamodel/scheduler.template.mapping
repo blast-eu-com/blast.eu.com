@@ -1,0 +1,35 @@
+{
+  "index_patterns": "scheduler",
+  "order": 99,
+  "mappings" : {
+    "dynamic": false,
+    "properties" : {
+      "name": { "type": "keyword" },
+      "description": { "type": "text" },
+      "realm": { "type": "keyword" },
+      "scenario_ids": { "type": "keyword" },
+      "status": { "type": "keyword" },
+      "flag_parallel_mode": { "type": "bool" },
+      "recurrence": {
+        "properties": {
+            "day": { "type": "keyword" },
+            "period": {
+                "properties": {
+                    "start": { "type": "date" },
+                    "end": { "type": "date" }
+                }
+            },
+            "min": { "type": "integer" },
+            "date": { "type": "date" }
+        }
+      }
+    }
+  },
+  "settings" : {
+    "index" : {
+        "number_of_shards" : "1",
+        "number_of_replicas" : "0",
+        "refresh_interval": "1s"
+    }
+  }
+}

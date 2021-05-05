@@ -1,0 +1,18 @@
+{
+  "index_patterns": "scriptlang",
+  "order": 99,
+  "mappings" : {
+    "dynamic": false,
+    "properties" : {
+      "name": { "type": "keyword" },
+      "picture": { "type": "keyword" }
+    }
+  },
+  "settings" : {
+    "index" : {
+        "number_of_shards" : "1",
+        "number_of_replicas" : "0",
+        "refresh_interval": "1s"
+    }
+  }
+}

@@ -1,0 +1,95 @@
+<!--
+#   Copyright 2020 Jerome DE LUCCHI
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <!-- start some meta here -->
+        <meta charset="UTF-8">
+        <meta title="Schedule details">
+        <!-- start some link here -->
+        <link rel="icon" href="/img/favicon.ico" />
+        <link rel="stylesheet" type="text/css" href="/css/bootstrap-5.0.0-beta2-dist/css/bootstrap.min.css" />
+        <link rel="stylesheet" type="text/css" href="/js/fancytree-2.38.0/skin-xp/ui.fancytree.min.css"/>
+        <link rel="stylesheet" type="text/css" href="/css/blast.eu.com.css" />
+        <!-- start some script here -->
+        <script src="/js/jquery-1.12.4/jquery-1.12.4.min.js"></script>
+        <script src="/js/popper-1.16.1/popper.min.js"></script>
+        <script src="/js/fancytree-2.38.0/jquery.fancytree-all-deps.min.js"></script>
+        <script src="/js/bootstrap-5.0.0-beta2-dist/js/bootstrap.min.js"></script>
+        <script src="/js/jquery-cookie-1.4.1/jquery.cookie.js"></script>
+        <script src="/js/blast-ui/bootstrap/scheduler/details/ui.js" type="module"></script>
+    </head>
+
+
+    <body class="d-flex flex-column bg-light" margin="0" onload="main();">
+        <!-- Preload -->
+        <div id="preload" class="preload"></div>
+        <script>
+            document.onreadystatechange = function() {
+                if (document.readyState !== 'complete' ) {
+                    document.querySelector('body').style.visibility = 'hidden'
+                    document.querySelector('#preload').style.visibility = 'visible'
+                } else if ( document.readyState === 'complete' ) {
+                    document.querySelector('#preload').style.visibility = 'hidden'
+                    document.querySelector('body').style.visibility = 'visible'
+                }
+            }
+        </script>
+
+        <div class="container p-0 min-vh-100 min-vw-100">
+
+            <div aria-live="polite" aria-atomic="true" style="position: relative; min-height: 100px;">
+                <div id="toaster" style="position: absolute; top: 65px; right: 30px"></div></div>
+
+            <div id="nav_container" class="min-vw-100 bg-dark"
+                 style="position: fixed; top: 0; z-index: 1000"></div>
+
+            <div id="side_nav_container" class="d-inline-block min-vh-100"
+                 style="position: fixed; top: 0; width: 250px; float: left; background-color: #f2f2f2; border-right: 1px solid #e9ecef">
+                <script type="module">
+                    import Nav from "/js/nav.js"
+                    let nav = new Nav()
+                    nav.loadNavBars("scheduler");
+                </script>
+            </div>
+
+            <div class="min-vh-100" style="margin-left: 250px; margin-top: -100px; background-color: #ffffff;">
+                <div class="p-3 me-3">
+                    <nav aria-label="breadcrumb" style="margin-top: 50px; margin-left: -15px" class="min-vw-100">
+                        <ol class="breadcrumb blast-breadcrumb shadow-sm fs-4 text-white">
+                            <li class="breadcrumb-item"><a href="/html/scheduler.html" class="text-white">Scheduler</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">
+                                <span id="navSchedulerName"></span></li>
+                        </ol>
+                    </nav>
+
+                    <div class="card blast-card shadow-sm mt-3 border rounded">
+                        <div class="card-body">
+                            <div class="card-title row">
+                                <div class="col-11"></div>
+                                <div class="col-1">
+                                    <a id="btnDelScheduler" role="button" class="btn btn-primary">Delete</a>
+                                </div>
+                            </div>
+                            <div id="schedulerListInfo" class="card-text"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

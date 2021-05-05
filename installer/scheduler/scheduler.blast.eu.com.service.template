@@ -1,0 +1,16 @@
+[Unit]
+Description=backend scheduler for server.blast.eu.com
+After=network.target
+
+[Service]
+User=%BLAST_BACKEND_USER%
+Group=%BLAST_BACKEND_USER%
+WorkingDirectory=%BLAST_BACKEND_PATH%
+ExecStart=%BLAST_BACKEND_PATH%/scheduler.py
+Restart=always
+KillSignal=SIGQUIT
+Type=simple
+NotifyAccess=all
+
+[Install]
+WantedBy=multi-user.target

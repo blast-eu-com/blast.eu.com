@@ -1,0 +1,35 @@
+[uwsgi]
+# telling user to execute file
+uid = %BLAST_BACKEND_USER%
+
+# telling group to execute file
+gid = %BLAST_BACKEND_GRP%
+
+socket = %BLAST_BACKEND_HOSTNAME%:%BLAST_BACKEND_PORT%
+protocol = %BLAST_BACKEND_PROTOCOL%
+
+# name of project you during "django-admin startproject <name>"
+project_name = backend
+
+# building base path to where project directory is present [In my case this dir is also where my virtual env is]
+base_dir = /opt/blast.eu.com/%(project_name)
+
+# set PYTHONHOME/virtualenv or setting where my virtual enviroment is
+# virtualenv = %(base_dir)
+
+# changing current directory to project directory where manage.py is present
+chdir = %(base_dir)/
+
+# loading wsgi module
+module =  main:app
+
+# enabling master process with n number of child process
+master = true
+processes = 16
+
+# enabling multithreading and assigning threads per process
+enable-threads  = true
+threads = 1
+
+# logger
+logto = %BLAST_BACKEND_LOG_PATH%/backend.log

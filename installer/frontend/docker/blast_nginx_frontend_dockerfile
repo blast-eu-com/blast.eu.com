@@ -1,0 +1,79 @@
+#   Copyright 2020 Jerome DE LUCCHI
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#
+#
+FROM nginx:stable AS BFES
+
+ENV BLAST_FRONTEND_NAME="blast.eu.com"
+ENV BLAST_FRONTEND_ACTIVE_PROTO="HTTP"
+ENV BLAST_BACKEND_HOSTNAME="127.0.0.1"
+ENV BLAST_BACKEND_PORT="28080"
+ENV BLAST_FRONTEND_HTTP_PORT="18080"
+ENV BLAST_FRONTEND_HTTPS_PORT="10443"
+ENV BLAST_FRONTEND_USER="blast"
+ENV BLAST_FRONTEND_GRP="blast"
+ENV BLAST_FRONTEND_GIT_URL="https://github.com/blast-eu-com/blast.eu.com"
+ENV BLAST_FRONTEND_ROOT_PATH="/opt/${BLAST_FRONTEND_NAME}"
+ENV BLAST_FRONTEND_LOG_PATH="/var/log/${BLAST_FRONTEND_NAME}"
+ENV BLAST_FRONTEND_INSTALL_TMP="/tmp/${BLAST_FRONTEND_NAME}"
+ENV BLAST_FRONTEND_PATH="${BLAST_FRONTEND_ROOT_PATH}/frontend"
+ENV BLAST_FRONTEND_RUN_PATH="${BLAST_FRONTEND_PATH}/run"
+ENV BLAST_FRONTEND_USER="blast"
+ENV BLAST_FRONTEND_GRP="blast"
+
+# make the watchman directory containing all static files
+RUN apt-get update \
+	&& apt-get install -y git nginx\
+    && rm -fr /var/cache/apt \
+	&& cd /tmp \
+    && git clone $BLAST_FRONTEND_GIT_URL
+    && mkdir -p ${BLAST_FRONTEND_ROOT_PATH}/frontend \
+    && useradd -m -U -c "blast user" -s "/sbin/nologin" $BLAST_FRONTEND_USER \
+	&& mkdir ${BLAST_FRONTEND_LOG_PATH} ${BLAST_FRONTEND_RUN_PATH} \
+    && cp -pra /tmp/${BLAST_FRONTEND_NAME}/frontend ${BLAST_FRONTEND_ROOT_PATH} \
+    && sed -e "s|%BLAST_BACKEND_HOSTNAME%|${BLAST_BACKEND_HOSTNAME}|g" \
+           -e "s|%BLAST_BACKEND_PORT%|${BLAST_BACKEND_PORT}|g" \
+           -e "s|%BLAST_FRONTEND_PATH%|${BLAST_FRONTEND_PATH}|g" \
+           -e "s|%BLAST_FRONTEND_RUN_PATH%|${BLAST_FRONTEND_RUN_PATH}|g" \
+           -e "s|%BLAST_FRONTEND_LOG_PATH%|${BLAST_FRONTEND_LOG_PATH}|g" \
+           -e "s|%BLAST_FRONTEND_PORT%|${BLAST_FRONTEND_HTTP_PORT}|g" \
+           "${BLAST_FRONTEND_INSTALL_TMP}/installer/frontend/http_blast_frontend.conf.template" >"${BLAST_FRONTEND_PATH}/http_blast_frontend.conf \
+    && sed -e "s|%BLAST_BACKEND_HOSTNAME%|${BLAST_BACKEND_HOSTNAME}|g" \
+           -e "s|%BLAST_BACKEND_PORT%|${BLAST_BACKEND_PORT}|g" \
+           -e "s|%BLAST_FRONTEND_PATH%|${BLAST_FRONTEND_PATH}|g" \
+           -e "s|%BLAST_FRONTEND_RUN_PATH%|${BLAST_FRONTEND_RUN_PATH}|g" \
+           -e "s|%BLAST_FRONTEND_LOG_PATH%|${BLAST_FRONTEND_LOG_PATH}|g" \
+           -e "s|%BLAST_FRONTEND_PORT%|${BLAST_FRONTEND_HTTPS_PORT}|g" \
+           "${BLAST_FRONTEND_INSTALL_TMP}/installer/frontend/https_blast_frontend.conf" >"${BLAST_BACKEND_PATH}/https_blast_frontend.conf" \
+    && chown -R ${BLAST_FRONTEND_USER}:${BLAST_FRONTEND_GRP} ${BLAST_FRONTEND_PATH} ${BLAST_FRONTEND_LOG_PATH} \
+    && case $BLAST_FRONTEND_ACTIVE_PROTO in \
+        HTTP|http) \
+            ln -s ${BLAST_FRONTEND_PATH}/http_blast_frontend.conf ${BLAST_FRONTEND_PATH}/blast_frontend_active.conf \
+            BLAST_FRONTEND_EXPOSE_PORT=${BLAST_FRONTEND_HTTP_PORT} \
+            ;; \
+        HTTPS|https) \
+            ln -s ${BLAST_FRONTEND_PATH}/http_blast_frontend.conf ${BLAST_FRONTEND_PATH}/blast_frontend_active.conf \
+            BLAST_FRONTEND_EXPOSE_PORT=${BLAST_FRONTEND_HTTPS_PORT} \
+            ;; \
+        *) \
+            echo "NOT A VALID ACTIVE PROTO: ${BLAST_FRONTEND_ACTIVE_PROTO}" \
+            exit 1 \
+            ;; \
+    esac \
+
+# expose port http or https
+EXPOSE ${BLAST_FRONTEND_EXPOSE_PORT}
+
+# run nginx
+CMD ["nginx", "-c", "${BLAST_FRONTEND_PATH}/blast_frontend_active.conf"]

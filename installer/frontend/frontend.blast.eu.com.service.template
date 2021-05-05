@@ -1,0 +1,15 @@
+[Unit]
+Description=Nginx instance for frontend.blast.eu.com
+After=network.target
+
+[Service]
+Type=forking
+PIDFile=%BLAST_FRONTEND_RUN_PATH%/nginx.pid
+ExecStartPre=/usr/sbin/nginx -t -q -c %BLAST_FRONTEND_CONFIG_PATH%/blast_frontend_active.conf
+ExecStart=/usr/sbin/nginx -c %BLAST_FRONTEND_CONFIG_PATH%/blast_frontend_active.conf
+ExecStartPost=/bin/sleep 0.1
+ExecReload=/bin/kill -HUP $MAINPID
+ExecStop=/bin/kill -QUIT $MAINPID
+
+[Install]
+WantedBy=multi-user.target

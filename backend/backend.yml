@@ -1,0 +1,81 @@
+# -*- coding:utf-8 -*-
+#   Copyright 2020 Jerome DE LUCCHI
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#
+# Declare here the elasticsearch API configuration
+elasticsearch:
+   ip: 192.168.168.17
+   protocol: http
+   port: 9200
+
+scheduler:
+   logging:
+      # Define the directory where the scheduler logs should be stored
+      # Default value: /var/log/blast.eu.com
+      path: "/var/log/blast.eu.com"
+
+   REST_proxy:
+      # Define the Blast frontend ip address
+      # It is used by scheduler daemon to send the REST API request
+      # Default value: localhost
+      ip: 192.168.168.54
+
+      # Define the Blast frontend protocol
+      # It is used by scheduler daemon to send the RESP API request
+      # Default value: https
+      protocol: http
+
+      # Define the Blast frontend port
+      # It is used by scheduler daemon to send the REST API request
+      # Default value: 443
+      port: 80
+
+   stack:
+      # Define the life duration of the stack
+      # The scheduler process will reload schelude definition every time the reload interval will be reached
+      interval: 60
+      reload: True
+
+   user:
+      # Define the Blast Account email
+      # It is used to login against the Blast backend REST API
+      # If this email is not correct, the scheduler daemon wont be able to authenticate
+      # Default value: scheduler@localhost.localdomain
+      email: "scheduler@localhost.localdomain"
+
+      # Define the Blast Account password
+      # Default value: scheduler
+      password: scheduler
+
+   workers:
+      # Define the Blast scheduler workers
+      # It defines the realms attached to the running worker
+      # The worker id is passed via the scheduler service, see: scheduler service for more details
+      "1":
+         realms:
+            - "default"
+
+backend:
+   manager:
+      scheduler:
+         # Define the max number of parallel script execution per scenario
+         # Default value is : 2
+         # For a one by one script execution per scenario then select the sequential mode
+         max_parallel_scenario_threads: 4
+
+      scenario:
+         # Define the max number of parallel scenario execution per schedule
+         # Default value is : 2
+         # For a one by one scenario execution per schedule then select the sequential mode
+         max_parallel_script_threads: 2

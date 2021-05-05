@@ -1,0 +1,36 @@
+{
+  "index_patterns": "script-report",
+  "order": 99,
+  "mappings" : {
+    "dynamic": false,
+    "properties" : {
+        "execution_id": { "type": "keyword" },
+        "scenario_id": { "type": "keyword" },
+        "script_id": { "type": "keyword" },
+        "node_id": { "type": "keyword" },
+        "name": { "type": "keyword" },
+        "description": { "type": "text" },
+        "realm" : { "type": "keyword" },
+        "output": { "type": "text" },
+        "start_at": { "type": "date" },
+        "end_at": { "type": "date" },
+        "status": { "type": "keyword" },
+        "duration": {
+            "type": "nested",
+            "properties": {
+                "start_at": { "type": "float" },
+                "end_at": { "type": "float" },
+                "time": { "type": "float" },
+                "avg": { "type": "float" }
+            }
+        }
+    }
+  },
+  "settings" : {
+    "index" : {
+        "number_of_shards" : "1",
+        "number_of_replicas" : "0",
+        "refresh_interval": "1s"
+    }
+  }
+}

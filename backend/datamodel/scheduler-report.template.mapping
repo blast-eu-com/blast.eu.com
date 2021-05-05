@@ -1,0 +1,34 @@
+{
+  "index_patterns": "scheduler-report",
+  "order": 99,
+  "mappings" : {
+    "dynamic": false,
+    "properties" : {
+        "execution_id": { "type": "keyword" },
+        "realm": { "type": "keyword" },
+        "scheduler_id": { "type": "keyword" },
+        "name": { "type": "keyword" },
+        "description": { "type": "text" },
+        "scenario_ids": { "type": "keyword" },
+        "status": { "type": "keyword" },
+        "start_at": { "type": "date" },
+        "end_at": { "type": "date" },
+        "duration": {
+            "type": "nested",
+            "properties": {
+                "start_at": { "type": "float" },
+                "end_at": { "type": "float" },
+                "time": { "type": "float" },
+                "avg": { "type": "float" }
+            }
+        }
+    }
+  },
+  "settings" : {
+    "index" : {
+        "number_of_shards" : "1",
+        "number_of_replicas" : "0",
+        "refresh_interval": "1s"
+    }
+  }
+}

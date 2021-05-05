@@ -1,0 +1,31 @@
+{
+  "index_patterns": "node",
+  "order": 99,
+  "mappings" : {
+    "dynamic": false,
+    "properties" : {
+      "description" : { "type" : "text" },
+      "name": { "type" : "keyword" },
+      "ip": { "type": "ip" },
+      "type": { "type": "keyword" },
+      "realm": { "type": "keyword" },
+      "peers": { "type": "ip" },
+      "role": {
+        "type": "nested",
+        "properties": {
+            "port": { "type": "keyword" },
+            "protocol": { "type": "keyword" },
+            "application": { "type": "keyword" },
+            "description": { "type": "keyword" }
+        }
+      }
+    }
+  },
+  "settings" : {
+    "index" : {
+        "number_of_shards" : "1",
+        "number_of_replicas" : "0",
+        "refresh_interval": "1s"
+    }
+  }
+}

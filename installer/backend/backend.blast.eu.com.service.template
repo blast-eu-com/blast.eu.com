@@ -1,0 +1,16 @@
+[Unit]
+Description=uWSGI instance for server.blast.eu.com
+After=network.target
+
+[Service]
+User=%BLAST_BACKEND_USER%
+Group=%BLAST_BACKEND_GRP%
+WorkingDirectory=%BLAST_BACKEND_PATH%
+ExecStart=%BLAST_BACKEND_PATH%/bin/uwsgi --ini %BLAST_BACKEND_PATH%/main.ini --stats %BLAST_BACKEND_TMP_PATH%/uwsgi-statsock
+Restart=always
+KillSignal=SIGQUIT
+Type=notify
+NotifyAccess=all
+
+[Install]
+WantedBy=multi-user.target

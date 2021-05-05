@@ -1,0 +1,21 @@
+{
+  "index_patterns": "portmap",
+  "order": 99,
+  "mappings" : {
+    "dynamic": false,
+    "properties" : {
+        "port":{ "type": "keyword" },
+        "protocol": { "type": "keyword" },
+        "application": { "type": "keyword" },
+        "description": { "type": "keyword" },
+        "realm": { "type" : "keyword" }
+    }
+  },
+  "settings" : {
+    "index" : {
+        "number_of_shards" : "1",
+        "number_of_replicas" : "0",
+        "refresh_interval": "1s"
+    }
+  }
+}

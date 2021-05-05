@@ -1,0 +1,179 @@
+/*
+ *   Copyright 2020 Jerome DE LUCCHI
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+*/
+a {
+    color: #212529;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: none;
+    color: #212529;
+}
+
+a#cluster-img:hover {
+    box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
+    transform: scale(1.02);
+}
+
+a#infrastructure-img:hover {
+    box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
+    transform: scale(1.02);
+}
+
+a#script-img:hover {
+    box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
+    transform: scale(1.02);
+}
+
+a#node-img:hover {
+    box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
+    transform: scale(1.02);
+}
+
+body {
+    overflow: hidden;
+}
+
+.bb {
+    background-color: #f2f2f2;
+}
+
+.mouseHover {
+    cursor: pointer;
+}
+
+.blast-badge {
+    background-color: #FFE873;
+    color: #000;
+    font-size: 100%;
+    margin-top: 1px;
+}
+
+.blast-card {
+    /* background-color: #f2f2f2; */
+    border: 1px solid #e9ecef;
+    border-radius: 0;
+}
+
+.blast-btn {
+    background-color: #FFE873;
+    font-weight: bold;
+    border: solid thin #ced4ea;
+}
+
+.blast-btn-no-shadow {
+    color: #212529;
+    padding: 0;
+}
+
+.blast-btn-no-shadow:hover {
+    color: #212529;
+}
+
+.blast-btn-no-shadow:focus {
+    box-shadow: none
+}
+
+.blast-breadcrumb {
+    background-color: #4B8BBE;
+    border: none;
+    border-radius: 0px;
+    color: white;
+    padding: 10px;
+}
+
+.blast-page-link {
+    background-color: #FFE873;
+    font-weight: bold;
+    border: solid thin #ced4ea;
+    color: #212529;
+}
+
+.blast-page-link:hover {
+    background-color: #FFD43B;
+}
+
+.blast-nav {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+.blast-sidenav {
+    position: fixed;
+    left: 0;
+    width: 12%;
+    float: left;
+    margin-top: -33px;
+    border-right: 1px solid #e9ecef;
+    z-index: 1;
+    background-color: #FFF;
+}
+
+.blast-disp {
+    position: absolute;
+    left: 12%;
+    width: 88%;
+    margin-top: -33px;
+    background-color: #FAFAFA;
+    float: left;
+    z-index: 0;
+}
+
+.blast-card-bg {
+    background-color: #4B8BBE;
+}
+
+/* Preload and spinner */
+#preload {
+  border: 9px solid #f2f2f2;
+  border-radius: 50%;
+  border-top: 9px solid #ffd43b;
+  width: 100px;
+  height: 100px;
+  -webkit-animation: spin 2s linear infinite; /* Safari */
+  animation: spin 2s linear infinite;
+}
+
+/* Safari */
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.preload {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+}
+
+.breadcrumb-item+.breadcrumb-item::before {
+    color: white;
+}
+
+.list-group-item.active {
+    background-color: #4B8BBE;
+    border-color: #4B8BBE;
+}

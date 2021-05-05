@@ -1,0 +1,7 @@
+#
+#
+runtime: python37
+service: rampart
+manual_scaling:
+  instances: 1
+
