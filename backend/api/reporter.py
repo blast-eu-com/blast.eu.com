@@ -20,11 +20,72 @@ import json
 
 class Reporter:
 
-    def __init__(self, ESConnector, report_object=None):
+    def __init__(self, ESConnector, report_type=None):
         self.ES = ESConnector
+        self.DB_INDEX = "report"
+        self.report_type = report_type
 
-        if report_object in ["scheduler", "scenario", "script"]:
-            self.DB_INDEX = str(report_object + '-report')
+    def __add__(self, report: dict):
+        try:
+            avg_query = json.dumps(
+                {
+                    "size": 1000,
+                    "query": {
+                        "bool": {
+                            "must": [
+                                {
+                                    "term": {
+                                        "scheduler_id": report["scheduler_id"]
+                                    }
+                                },
+                                {
+                                    "term": {
+                                        "report_type": self.report_type
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "sort": [
+                        {
+                            "start_at": {
+                                "order": "desc"
+                            }
+                        }
+                    ],
+                    "aggs": {
+                        "average": {
+                            "nested": {
+                                "path": "duration"
+                            },
+                            "aggs": {
+                                "duration": {
+                                    "avg": {
+                                        "field": "duration.time"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            )
+            avg_query_res = self.ES.search(index=self.DB_INDEX, body=avg_query)
+            avg_duration_time = avg_query_res["aggregations"]["average"]["duration"]["value"] \
+                if avg_query_res["aggregations"]["average"]["duration"]["value"] is not None else 0
+            report["duration"]["avg"] = avg_duration_time
+            return self.ES.index(index=self.DB_INDEX, body=report, refresh=True)
+
+        except Exception as e:
+            print(e)
+            return {"failure": str(e)}
+
+    def update(self, report_doc_id: str, report_doc: dict):
+        try:
+            return self.ES.update(index=self.DB_INDEX, id=report_doc_id, body=json.dumps({"doc": report_doc}), refresh=True)
+
+        except Exception as err:
+            print(err)
+            return {"failure": str(err)}
 
     def filter_scroll(self, realm: str, report: dict):
 
@@ -74,7 +135,12 @@ class Reporter:
                                     }
                                 },
                                 {
-                                    "match": {
+                                    "term": {
+                                        "report_type": self.report_type
+                                    }
+                                },
+                                {
+                                    "term": {
                                         "realm": realm
                                     }
                                 }
@@ -154,7 +220,12 @@ class Reporter:
                                     }
                                 },
                                 {
-                                    "match": {
+                                    "term": {
+                                        "report_type": self.report_type
+                                    }
+                                },
+                                {
+                                    "term": {
                                         "realm": realm
                                     }
                                 }
@@ -229,7 +300,12 @@ class Reporter:
                                     }
                                 },
                                 {
-                                    "match": {
+                                    "term": {
+                                        "report_type": self.report_type
+                                    }
+                                },
+                                {
+                                    "term": {
                                         "realm": realm
                                     }
                                 }

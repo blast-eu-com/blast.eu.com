@@ -20,6 +20,7 @@ import threading
 from api import node
 from api import scenario
 from api import scenarioReporter
+from api import reporter
 from api import scriptManager
 from api import script
 
@@ -175,7 +176,7 @@ class ScenarioManager:
             self.scenario_report["end_at"] = datetime.datetime.isoformat(datetime.datetime.utcnow())
             self.scenario_report["duration"]["end_at"] = datetime.datetime.now().timestamp()
             self.scenario_report["duration"]["time"] = self.scenario_report["duration"]["end_at"] - self.scenario_report["duration"]["start_at"]
-            scenario_reporter = scenarioReporter.ScenarioReporter(self.ES)
+            scenario_reporter = reporter.Reporter(self.ES, report_type="scenario")
             resp = scenario_reporter.update(self.scenario_report_id, self.scenario_report)
             return True if resp["result"] == "updated" else False
 
@@ -337,6 +338,7 @@ class ScenarioManager:
         try:
             print(" >>> Enter file:scenarioManager:class:scenarioManager:function:__open_scenario_report")
             self.scenario_report = {
+                "report_type": "scenario",
                 "account_email": scenario["account_email"],
                 "name": scenario["name"],
                 "description": scenario["description"],
@@ -350,7 +352,7 @@ class ScenarioManager:
                     "start_at": datetime.datetime.now().timestamp()
                 }
             }
-            scenario_reporter = scenarioReporter.ScenarioReporter(self.ES)
+            scenario_reporter = reporter.Reporter(self.ES, report_type="scenario")
             resp = scenario_reporter.__add__(self.scenario_report)
             if resp["result"] == "created":
                 self.scenario_report_id = resp["_id"]

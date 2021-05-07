@@ -22,7 +22,7 @@ import subprocess
 from api.discovery import SSH
 from api.setting import Setting, decrypt_password
 from api import script
-from api import scriptReporter
+from api import reporter
 from api import node
 
 
@@ -222,7 +222,7 @@ class ScriptManager:
             self.script_report["status"] = "ended"
             self.script_report["duration"]["end_at"] = datetime.datetime.now().timestamp()
             self.script_report["duration"]["time"] = self.script_report["duration"]["end_at"] - self.script_report["duration"]["start_at"]
-            script_reporter = scriptReporter.ScriptReporter(self.ES)
+            script_reporter = reporter.Reporter(self.ES, report_type="script")
             resp = script_reporter.update(self.script_report_id, self.script_report)
             return True if resp["result"] == "updated" else False
 
@@ -235,7 +235,7 @@ class ScriptManager:
 
         try:
             print(self.script_report_id, self.script_report)
-            script_reporter = scriptReporter.ScriptReporter(self.ES)
+            script_reporter = reporter.Reporter(self.ES, report_type="script")
             resp = script_reporter.update(self.script_report_id, self.script_report)
             return True if resp["result"] == "updated" else False
 
@@ -251,6 +251,7 @@ class ScriptManager:
         try:
             print(" >>> Enter file:scriptManager:class:scriptManager:func:__open_script_report")
             self.script_report = {
+                "report_type": "script",
                 "scenario_id": self.scenario_id,
                 "script_id": self.script_id,
                 "node_id": self.node_id,
@@ -265,7 +266,7 @@ class ScriptManager:
                     "start_at": datetime.datetime.now().timestamp()
                 }
             }
-            script_reporter = scriptReporter.ScriptReporter(self.ES)
+            script_reporter = reporter.Reporter(self.ES, report_type="script")
             resp = script_reporter.__add__(self.script_report)
             if resp["result"] == "created":
                 self.script_report_id = resp["_id"]

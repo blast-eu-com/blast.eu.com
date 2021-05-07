@@ -23,7 +23,7 @@ import datetime
 import threading
 from api import scenario
 from api import scenarioManager
-from api import schedulerReporter
+from api import reporter
 
 
 class SchedulerManager:
@@ -164,7 +164,7 @@ class SchedulerManager:
             self.scheduler_report["status"] = "ended"
             self.scheduler_report["duration"]["end_at"] = datetime.datetime.now().timestamp()
             self.scheduler_report["duration"]["time"] = self.scheduler_report["duration"]["end_at"] - self.scheduler_report["duration"]["start_at"]
-            new_s = schedulerReporter.SchedulerReporter(self.ES)
+            new_s = reporter.Reporter(self.ES, report_type="scheduler")
             resp = new_s.update(self.scheduler_report_id, self.scheduler_report)
             return True if resp["result"] == "updated" else False
 
@@ -289,6 +289,7 @@ class SchedulerManager:
         try:
             print(" >>> Enter file:schedulerManager:class:schedulerManager:func:__open_scheduler_report")
             self._scheduler_report = {
+                "report_type": "scheduler",
                 "scheduler_id": self.scheduler_id,
                 "name": self.scheduler_name,
                 "description": self.scheduler_description,
@@ -301,7 +302,7 @@ class SchedulerManager:
                     "start_at": datetime.datetime.now().timestamp()
                 }
             }
-            new_s = schedulerReporter.SchedulerReporter(self.ES)
+            new_s = reporter.Reporter(self.ES, report_type="scheduler")
             resp = new_s.__add__(self.scheduler_report)
             if resp["result"] == "created":
                 self.scheduler_report_id = resp["_id"]
