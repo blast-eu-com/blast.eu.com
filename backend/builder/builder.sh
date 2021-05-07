@@ -46,14 +46,11 @@ ${BUILDER_PATH}/build_db_node.py
 # BUILD STATISTIC
 ${BUILDER_PATH}/build_db_statistic.py
 
-# BUILD MANAGEMENT
-${BUILDER_PATH}/build_db_managementsce.py
-
-# BUILD MANAGEMENT
-${BUILDER_PATH}/build_db_managementsch.py
-
-# BUILD MANAGEMENT
-${BUILDER_PATH}/build_db_managementscr.py
-
 # BUILD REALM
 ${BUILDER_PATH}/build_db_scheduler.py
+
+# BUILD SCENARIO
+${BUILDER_PATH}/build_db_scenario.py
+
+# BUILD REPORT
+${BUILDER_PATH}/build_db_report.py

@@ -18,22 +18,6 @@
 curl -s -XDELETE http://localhost:9200/scheduler
 curl -s -XDELETE http://localhost:9200/_template/scheduler
 
-# DELETE MANAGEMENT SCENARIO
-curl -s -XDELETE http://localhost:9200/managementsce
-curl -s -XDELETE http://localhost:9200/_template/managementsce
-
-# DELETE MANAGEMENT
-curl -s -XDELETE http://localhost:9200/managementsce
-curl -s -XDELETE http://localhost:9200/_template/managementsce
-
-# DELETE MANAGEMENT
-curl -s -XDELETE http://localhost:9200/managementscr
-curl -s -XDELETE http://localhost:9200/_template/managementscr
-
-# DELETE MANAGEMENT
-curl -s -XDELETE http://localhost:9200/managementsch
-curl -s -XDELETE http://localhost:9200/_template/managementsch
-
 # DELETE STATISTIC
 curl -s -XDELETE http://localhost:9200/statistic
 curl -s -XDELETE http://localhost:9200/_template/statistic
@@ -77,3 +61,7 @@ curl -s -XDELETE http://localhost:9200/_template/node
 # DELETE SCENARIO
 curl -s -XDELETE http://localhost:9200/scenario
 curl -s -XDELETE http://localhost:9200/_template/scenario
+
+# DELETE REPORT
+curl -s -XDELETE http://localhost:9200/report
+curl -s -XDELETE http://localhost:9200/_template/report
