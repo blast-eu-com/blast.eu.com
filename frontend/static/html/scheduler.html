@@ -124,8 +124,8 @@
                                     <div class="card blast-card shadow-sm border mb-3">
                                         <div class="card-body">
                                             <div class="row card-title mb-4">
-                                                <h4 class="col-9">Scheduler the last 5Min</h4>
-                                                <div class="col-2 align-middle">
+                                                <h4 class="col-7"></h4>
+                                                <div class="col-3" align-middle">
                                                     <div class="form-check form-switch">
                                                         <label class="form-check-label" for="switchSchedulerReportLastRefresh">Activate Refresh</label>
                                                         <input class="form-check-input" type="checkbox"
@@ -144,34 +144,23 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                            <canvas class="mb-3" id="schedulerLastChart" width="400" height="50"></canvas>
-                                            <p id="schedulerLast" class="card-text"></p>
-                                        </div>
-                                    </div>
-                                    <div class="card blast-card shadow-sm border">
-                                        <div class="card-body">
-                                            <div class="row card-title mb-4">
-                                                <h4 class="col-9">Scheduler Running</h4>
-                                                <div class="col-2">
-                                                    <div class="form-check form-switch">
-                                                        <input class="form-check-input" type="checkbox"
-                                                               id="switchSchedulerReportRunRefresh"
-                                                               onclick="switchSchedulerReportRunRefresh();">
-                                                        <label class="form-check-label" for="switchSchedulerReportRunRefresh">Activate Refresh</label>
+                                            <div class="card border-0">
+                                                <div class="card-body">
+                                                    <div class="card-title">
+                                                        <h4>Scheduler the last 5Min</h4>
                                                     </div>
-                                                </div>
-                                                <div class="col-1">
-                                                    <select class="form-select" name="intervalSchedulerReportRunRefresh"
-                                                            onchange="intervalSchedulerReportRunRefresh();">
-                                                        <option value="5" selected>5s</option>
-                                                        <option value="15">15s</option>
-                                                        <option value="30">30s</option>
-                                                        <option value="60">1m</option>
-                                                        <option value="300">5m</option>
-                                                    </select>
+                                                    <canvas class="mb-3" id="schedulerLastChart" width="400" height="50"></canvas>
+                                                    <p id="schedulerLast" class="card-text"></p>
                                                 </div>
                                             </div>
-                                            <p id="schedulerOnGoing" class="card-text"></p>
+                                            <div class="card border-0">
+                                                <div class="card-body">
+                                                    <div class="card-title">
+                                                        <h4>Scheduler Running</h4>
+                                                    </div>
+                                                    <p id="schedulerOnGoing" class="card-text"></p>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
