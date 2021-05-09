@@ -32,9 +32,7 @@ from api.reporter import Reporter
 from api.scenario import Scenario
 from api.setting import Setting, Portmap
 from api.scheduler import Scheduler
-from api.scenarioReporter import ScenarioReporter
-from api.schedulerReporter import SchedulerReporter
-from api.scriptReporter import ScriptReporter
+from api.tree import realm_infrastructure_tree
 
 ES = ESConnector().es
 app = Flask(__name__, static_url_path='/static')
@@ -71,7 +69,7 @@ def jwtrequired():
     """ this function is called before processing any request to check the jwt
         except if the request trigger the login endpoint """
     account = Account(ES)
-    if request.path in ["/api/v1/aaa/accounts/login", "/api/v1/aaa/accounts"]:
+    if request.path in ["/api/v1/aaa/accounts/authenticate", "/api/v1/aaa/accounts"]:
         return None
     elif re.match(r'/api/v1/aaa/accounts/profile', request.path) and request.method == "GET":
         account_email = request.args.get('email')
@@ -124,13 +122,13 @@ def aaa_account_delete(ids):
     account_ids = [id.replace("id=", "") for id in ids.split("&")]
     return Response(json.dumps(account.__delete__(account_email, account_ids)))
 
-@app.route('/api/v1/aaa/accounts/login', methods=["POST"])
+@app.route('/api/v1/aaa/accounts/authenticate', methods=["POST"])
 def aaa_login():
     """ this function login an account """
     account = Account(ES)
     account_email = request.get_json()["email"]
     account_password = request.get_json()["password"]
-    return Response(json.dumps(account.login(account_email, account_password)))
+    return Response(json.dumps(account.authenticate(account_email, account_password)))
 
 @app.route('/api/v1/aaa/accounts/profile', methods=["GET"])
 def aaa_load_profile():
@@ -462,6 +460,16 @@ def infrastructure_delete_cluster(realm, id):
     else:
         return Response({"failure": "account identifier and realm is not an active match"})
 
+@app.route('/api/v1/realm/<realm>/infrastructures/tree', methods=["GET"])
+def ream_infrastructure_tree(realm):
+    """ this function returns the tree """
+    account = Account(ES)
+    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    if account.is_active_realm_member(account_email, realm):
+        return Response(json.dumps(realm_infrastructure_tree(ES, realm)))
+    else:
+        return Response({"failure": "account identifier and realm is not an active match"})
+
 # * *********************************************************************************************************
 # *
 # * NODE PART -*- NODE PART -*- NODE PART -*- NODE PART -*- NODE PART -*- NODE PART -*- NODE PART# *
@@ -732,17 +740,6 @@ def scenario_execute_oneshot(realm):
 
     if account.is_active_realm_member(account_email, realm):
         return Response(json.dumps(sco.execute(scenario=scenario, scenario_realm=realm, scenario_id=scenario_id)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
-
-@app.route('/api/v1/realm/<realm>/scenarios/tree', methods=["GET"])
-def scenario_get_tree(realm):
-    """ this function returns the tree """
-    scenario = Scenario(ES)
-    account = Account(ES)
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(scenario.tree(realm)))
     else:
         return Response({"failure": "account identifier and realm is not an active match"})
 
