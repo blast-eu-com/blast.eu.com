@@ -53,9 +53,9 @@ let Scheduler = class {
     get realm() { return this._realm }
     get rawData() { return this._data}
 
-    add = function(formData) {
+    add = (formData) => {
         formData["status"] = "new"
-        return new Promise(function(resolve, reject) {
+        return new Promise((resolve, reject) => {
             $.ajax({
                 url: config.proxyAPI + '/realms/' + config.session.realm + '/schedulers',
                 type: "POST",
@@ -63,10 +63,10 @@ let Scheduler = class {
                 data: JSON.stringify(formData),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
-                success: function(Resp) {
+                success: (Resp) => {
                     if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
                     if (Object.keys(Resp).includes("tokenExpired")) {
-                        account.logoutAccount()
+                        account.logout()
                     } else if (Object.keys(Resp).includes("failure")) {
                         console.log(Resp)
                     } else {
@@ -77,39 +77,41 @@ let Scheduler = class {
         })
     }
 
-    list = function() {
-        return new Promise(function(resolve, reject) {
+    list = () => {
+        return new Promise((resolve, reject) => {
             $.ajax({
                 url: config.proxyAPI + '/realms/' + config.session.realm + '/schedulers',
                 type: "GET",
                 headers: {"Authorization": config.session.httpToken},
                 success: function(Resp) {
                     if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logoutAccount() }
-                    else { resolve(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) {
+                        account.logout()
+                    } else { resolve(Resp) }
                 }
             })
         })
     }
 
-    listByIds = function(schedulerIds) {
-        return new Promise(function(resolve, reject) {
+    listByIds = (schedulerIds) => {
+        return new Promise((resolve, reject) => {
             $.ajax({
                 url: config.proxyAPI + '/realms/' + config.session.realm + '/schedulers/ids',
                 type: "GET",
                 data: {"ids": schedulerIds},
                 headers: {"Authorization": config.session.httpToken},
-                success: function(Resp) {
+                success: (Resp) => {
                     if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logoutAccount() }
-                    else { resolve(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) {
+                        account.logout()
+                    } else { resolve(Resp) }
                 }
             })
         })
     }
 
-    action(data) {
-        return new Promise(function(resolve, reject) {
+    action = (data) => {
+        return new Promise((resolve, reject) => {
             $.ajax({
                 url: config.proxyAPI + '/realms/' + config.session.realm + '/schedulers/action',
                 type: "POST",
@@ -117,10 +119,11 @@ let Scheduler = class {
                 data: JSON.stringify(data),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
-                success: function(Resp) {
+                success: (Resp) => {
                     if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired") ) { account.logoutAccount() }
-                    else { resolve(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired") ) {
+                        account.logout()
+                    } else { resolve(Resp) }
                 }
             })
         })

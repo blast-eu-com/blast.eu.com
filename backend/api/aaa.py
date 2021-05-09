@@ -626,7 +626,7 @@ class Account:
             print(str(e))
             return {"failure": str(e)}
 
-    def login(self, email: str, password: str):
+    def authenticate(self, email: str, password: str):
 
         """ this function login an account and return JWT token """
         try:

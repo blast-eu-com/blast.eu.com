@@ -64,7 +64,7 @@ class Script {
 
 
 
-    add = function (data) {
+    add = (data) => {
         let formData = new FormData()
         formData.append("script_description", data["script_description"])
         formData.append("script_file_data", data["script_file_data"])
@@ -75,7 +75,7 @@ class Script {
         formData.append("script_shareable_realms", data["script_shareable_realms"])
         formData.append("script_type", data["script_type"])
 
-        return new Promise(function (resolve, reject) {
+        return new Promise((resolve, reject) => {
             $.ajax({
                 url: config.proxyAPI + '/realms/' + config.session.realm +'/scripts',
                 type: "POST",
@@ -83,17 +83,18 @@ class Script {
                 data: formData,
                 contentType: false,
                 processData: false,
-                success: function(Resp) {
+                success: (Resp) => {
                     if ( typeof Resp === 'string') { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logoutAccount()
-                        } else { resolve(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) {
+                        account.logout()
+                    } else { resolve(Resp) }
                 }
             })
         })
     }
 
-    delete = function(scriptIds) {
-        return new Promise(function(resolve, reject) {
+    delete = (scriptIds) => {
+        return new Promise((resolve, reject) => {
             $.ajax({
                 url: config.proxyAPI + '/realms/' + config.session.realm + '/scripts',
                 type: "DELETE",
@@ -101,48 +102,51 @@ class Script {
                 data: JSON.stringify({"script_ids": scriptIds}),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
-                success: function(Resp) {
+                success: (Resp) => {
                     if ( typeof Resp == 'string') { Resp = JSON.parse(Resp) }
-                    if ( Object.keys(Resp).includes("tokenExpired")) { account.logoutAccount()
-                        } else { resolve(Resp) }
+                    if ( Object.keys(Resp).includes("tokenExpired")) {
+                        account.logout()
+                    } else { resolve(Resp) }
                 }
             })
         })
     }
 
-    list = function () {
-        return new Promise(function (resolve, reject) {
+    list = () => {
+        return new Promise((resolve, reject) => {
             $.ajax({
                 url: config.proxyAPI + '/realms/' + config.session.realm + '/scripts',
                 type: "GET",
                 headers: {"Authorization": config.session.httpToken},
-                success: function (Resp) {
+                success: (Resp) => {
                     if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logoutAccount()
-                        } else { resolve(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) {
+                        account.logout()
+                    } else { resolve(Resp) }
                 }
             })
         })
     }
 
-    listByIds = function(scriptIds) {
-        return new Promise(function(resolve, reject) {
+    listByIds = (scriptIds) => {
+        return new Promise((resolve, reject) => {
             let idsUrl = []
             for (let idx in scriptIds) { idsUrl.push("id=" + scriptIds[idx]) }
             $.ajax({
-              url: config.proxyAPI + '/realms/' + config.session.realm + '/scripts/' + idsUrl.join('&'),
-              method: "GET",
-              headers: { "Authorization": config.session.httpToken },
-              success: function(Resp) {
-                if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
-                if (Object.keys(Resp).includes("tokenExpired")) { account.logoutAccount()
+                url: config.proxyAPI + '/realms/' + config.session.realm + '/scripts/' + idsUrl.join('&'),
+                method: "GET",
+                headers: { "Authorization": config.session.httpToken },
+                success: (Resp) => {
+                    if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) {
+                        account.logout()
                     } else { resolve(Resp) }
-              }
+                }
             })
         })
     }
 
-    listByNames = function(names) {
+    listByNames = (names) => {
         return new Promise(function(resolve, reject) {
             let namesUrl = []
             for (let id in names ) { namesUrl.push("name=" + names[id]) }
@@ -150,16 +154,17 @@ class Script {
                 url: config.proxyAPI + '/realms/' + config.session.realm + '/scripts/name/' + namesUrl.join("&"),
                 method: "GET",
                 headers: { "Authorization": config.session.httpToken },
-                success: function(Resp) {
+                success: (Resp) => {
                     if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logoutAccount()
-                        } else { resolve(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) {
+                        account.logout()
+                    } else { resolve(Resp) }
                 }
             })
         })
     }
 
-    listByRoles = function(roles) {
+    listByRoles = (roles) => {
         return new Promise(function(resolve, reject) {
             let rolesUrl = []
             for (let idx in rolesUrl) { rolesUrl.push("role=" + rolesUrl[idx]) }
@@ -167,31 +172,33 @@ class Script {
                 url: config.proxyAPI + '/realms/' + config.session.realm + '/scripts/roles/' + rolesUrl.join('&'),
                 method: "GET",
                 headers: { "Authorization": config.session.httpToken },
-                success: function(Resp) {
+                success: (Resp) => {
                     if (typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logoutAccount()
-                        } else { resolve(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) {
+                        account.logout()
+                    } else { resolve(Resp) }
                 }
             })
         })
     }
 
-    listLang = function() {
-        return new Promise(function(resolve, reject) {
+    listLang = () => {
+        return new Promise((resolve, reject) => {
             $.ajax({
                 url: config.proxyAPI + '/scripts/langs',
                 method: "GET",
                 headers: { "Authorization": config.session.httpToken },
-                success: function(Resp) {
+                success: (Resp) => {
                     if (typeof Resp == 'string') { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logoutAccount()
-                        } else { resolve(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) {
+                        account.logout()
+                    } else { resolve(Resp) }
                 }
             })
         })
     }
 
-    load = function(scriptData) {
+    load = (scriptData) => {
         this.id = scriptData["_id"]
         this.name = scriptData["_source"]["name"]
         this.fileName = scriptData["_source"]["filename"]
@@ -206,13 +213,13 @@ class Script {
         }
     }
 
-    listByFilter = function(scriptStr, scriptType) {
+    listByFilter = (scriptStr, scriptType) => {
         let scriptList = []
         let scriptObj = this
-        return new Promise(function(resolve, reject) {
-            scriptObj.list().then(function(Resp) {
+        return new Promise((resolve, reject) => {
+            scriptObj.list().then((Resp) => {
                 if ( Resp["hits"]["hits"].length > 0 ) {
-                    Resp["hits"]["hits"].forEach(function(record) {
+                    Resp["hits"]["hits"].forEach((record) => {
                         let filterType = scriptObj.filterByScriptType(scriptType, record["_source"]["type"])
                         let filterStr = scriptObj.filterByScriptName(scriptStr, record["_source"]["name"])
                         if (filterType && filterStr) { scriptList.push(record) }

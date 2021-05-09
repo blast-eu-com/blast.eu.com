@@ -146,7 +146,7 @@ let Nav = class {
             `
     }
 
-    loadSideNav(pageName) {
+    loadSideNav = (pageName) => {
         $("#side_nav_container").html(this.sidenav)
         if (pageName !== 'home') {
             $("li").removeClass("active")
@@ -156,12 +156,12 @@ let Nav = class {
         }
     }
 
-    loadNavBarProfilePicture() {
+    loadNavBarProfilePicture = () => {
         let accountPicture = (Object.keys(JSON.parse($.cookie("account"))).includes("picture")) ? JSON.parse($.cookie("account"))["picture"] : ""
         window.parent.$("img#dropDownProfileMenuLink").prop("src", config.frontend.httpImgFolder + '/profile/' + accountPicture)
     }
 
-    loadNavBar() {
+    loadNavBar = () => {
 
         let html = ''
         let realmName = JSON.parse($.cookie("realm"))["name"]
@@ -181,12 +181,12 @@ let Nav = class {
         })
     }
 
-    loadNavBars(pageName) {
+    loadNavBars = (pageName) => {
         this.loadSideNav(pageName)
         this.loadNavBar()
     }
 
-    pagePreload() {
+    pagePreload = () => {
         document.onreadystatechange = function() {
             if (document.readyState !== 'complete' ) {
                 document.querySelector('body').style.visibility = 'hidden' ;
@@ -200,14 +200,14 @@ let Nav = class {
 
 let nav = new Nav()
 
-const sideNavActiveMenu = function(pageName) {
+const sideNavActiveMenu = (pageName) => {
     $("li").removeClass("active")
     $("li").removeClass("item-active")
     $("li#" + pageName).addClass("active")
     $("li#" + pageName).addClass("item-active")
 }
 
-const navRealmSwitch = function(realmName) {
+const navRealmSwitch = (realmName) => {
     realm.switch(realmName)
     nav.loadNavBar()
 }

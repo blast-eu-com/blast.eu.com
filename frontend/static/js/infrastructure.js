@@ -180,6 +180,21 @@ let Infrastructure = class {
         })
     }
 
+    tree = function() {
+        return new Promise(function(resolve, reject) {
+            $.ajax({
+                url: config.proxyAPI + '/realm/' + config.session.realm + '/infrastructures/tree',
+                type: "GET",
+                headers: {"Authorization": config.session.httpToken},
+                success: function (Resp) {
+                    if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
+                    if ("tokenExpired" in Resp) { account.logoutAccount()
+                        } else { resolve(Resp) }
+                }
+            })
+        })
+    }
+
     load = function(data) {
         this.id = data["_id"]
         this.name = data["_source"]["name"]

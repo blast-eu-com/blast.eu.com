@@ -44,7 +44,7 @@ let Node = class {
                     if ( typeof Resp === 'string' ) {
                         Resp = JSON.parse(Resp)
                         if (Object.keys(Resp).includes("tokenExpired")) {
-                            account.logoutAccount()
+                            account.logout()
                         } else if (Object.keys(Resp).includes("failure")) {
                             console.log("failure")
                         }
@@ -69,7 +69,7 @@ let Node = class {
                     if ( typeof Resp === 'string' ) {
                         Resp = JSON.parse(Resp)
                         if (Object.keys(Resp).includes("tokenExpired")) {
-                            account.logoutAccount()
+                            account.logout()
                         } else if (Object.keys(Resp).includes("failure")) {
                             console.log("failure")
                         }
@@ -93,7 +93,9 @@ let Node = class {
                 headers: {'Authorization': config.session.httpToken},
                 success: function(Resp) {
                     if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if ( Object.keys(Resp).includes("tokenExpired")) { account.logoutAccount() } else { resolve(Resp) }
+                    if ( Object.keys(Resp).includes("tokenExpired")) {
+                        account.logout()
+                    } else { resolve(Resp) }
                 }
             })
         })
@@ -112,7 +114,9 @@ let Node = class {
                 headers: {'Authorization': config.session.httpToken},
                 success: function(Resp) {
                     if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if ( Object.keys(Resp).includes("tokenExpired")) { account.logoutAccount() } else { resolve(Resp) }
+                    if ( Object.keys(Resp).includes("tokenExpired")) {
+                        account.logout()
+                    } else { resolve(Resp) }
                 }
             })
         })
@@ -127,7 +131,9 @@ let Node = class {
                 data: {"names": names},
                 success: function(Resp) {
                     if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if ( Object.keys(Resp).includes("tokenExpired")) { account.logoutAccount() } else { resolve(Resp) }
+                    if ( Object.keys(Resp).includes("tokenExpired")) {
+                        account.logout()
+                    } else { resolve(Resp) }
                 }
             })
         })
@@ -141,7 +147,9 @@ let Node = class {
                 headers: {'Authorization': config.session.httpToken},
                 success: function(Resp) {
                     if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if ( Object.keys(Resp).includes("tokenExpired")) { account.logoutAccount() } else { resolve(Resp) }
+                    if ( Object.keys(Resp).includes("tokenExpired")) {
+                        account.logout()
+                    } else { resolve(Resp) }
                 }
             })
         })
@@ -156,7 +164,7 @@ let Node = class {
                 success: function(Resp) {
                     if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
                     if ( Object.keys(Resp).includes("tokenExpired")) {
-                        account.logoutAccount()
+                        account.logout()
                     } else { resolve(Resp) }
                 }
             })

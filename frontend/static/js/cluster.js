@@ -60,7 +60,7 @@ let Cluster = class {
                     if ( typeof Resp === 'string' ) {
                         Resp = JSON.parse(Resp)
                         if (Object.keys(Resp).includes("tokenExpired")) {
-                            account.logoutAccount()
+                            account.logout()
                         } else if (Object.keys(Resp).includes("failure")) {
                             console.log("failure")
                         }
@@ -85,7 +85,7 @@ let Cluster = class {
                     if ( typeof Resp === 'string' ) {
                         Resp = JSON.parse(Resp)
                         if (Object.keys(Resp).includes("tokenExpired")) {
-                            account.logoutAccount()
+                            account.logout()
                         } else if (Object.keys(Resp).includes("failure")) {
                             console.log("failure")
                         }
@@ -112,7 +112,7 @@ let Cluster = class {
                     if ( typeof Resp === 'string' ) {
                         Resp = JSON.parse(Resp)
                         if (Object.keys(Resp).includes("tokenExpired")) {
-                            account.logoutAccount()
+                            account.logout()
                         } else if (Object.keys(Resp).includes("failure")) {
                             console.log("failure")
                         }
@@ -137,7 +137,7 @@ let Cluster = class {
                     if ( typeof Resp === 'string' ) {
                         Resp = JSON.parse(Resp)
                         if (Object.keys(Resp).includes("tokenExpired")) {
-                            account.logoutAccount()
+                            account.logout()
                         } else if (Object.keys(Resp).includes("failure")) {
                             console.log("failure")
                         }
@@ -168,7 +168,7 @@ let Cluster = class {
                 success: function(Resp) {
                     if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
                     if (Object.keys(Resp).includes("tokenExpired")) {
-                        account.logoutAccount()
+                        account.logout()
                     } else if (Object.keys(Resp).includes("failure")) {
                         console.log("internal error")
                     } else { resolve(Resp) }
@@ -189,7 +189,7 @@ let Cluster = class {
                 success: function(Resp) {
                     if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
                     if (Object.keys(Resp).includes("tokenExpired")) {
-                        account.logoutAccount()
+                        account.logout()
                     } else if (Object.keys(Resp).includes("failure")) {
                         console.log("internal error")
                     } else { resolve(Resp) }
@@ -210,7 +210,7 @@ let Cluster = class {
                 success: function(Resp) {
                     if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
                     if (Object.keys(Resp).includes("tokenExpired")) {
-                        account.logoutAccount()
+                        account.logout()
                     } else if (Object.keys(Resp).includes("failure")) {
                         console.log("internal error")
                     } else { resolve(Resp) }

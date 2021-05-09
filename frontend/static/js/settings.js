@@ -21,16 +21,15 @@ const Setting = class {
 
     constructor() { }
 
-    list = function() {
-
-        return new Promise(function(resolve, reject) {
+    list = () => {
+        return new Promise((resolve, reject) => {
             $.ajax({
                 url: config.proxyAPI + '/realms/' + config.session.realm + '/settings',
                 type: "GET",
                 headers: {"Authorization": config.session.httpToken},
-                success: function(Resp) {
+                success: (Resp) => {
                     if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if ( "tokenExpired" in Resp ) { account.logoutAccount() }
+                    if ( "tokenExpired" in Resp ) { account.logout() }
                     else if ( "failure" in Resp ) { console.log( Resp["failure"] ) }
                     else { resolve(Resp) }
                 }
@@ -38,9 +37,8 @@ const Setting = class {
         })
     }
 
-    save = function(formData) {
-
-        return new Promise(function(resolve, reject) {
+    save = (formData) => {
+        return new Promise((resolve, reject) => {
             $.ajax({
                 url: config.proxyAPI + '/realms/' + config.session.realm + '/settings/' + config.session.settingId,
                 type: "PUT",
@@ -48,9 +46,9 @@ const Setting = class {
                 data: JSON.stringify(formData),
                 contentType: "Application/JSON; charset=utf-8",
                 dataType: "json",
-                success: function(Resp) {
+                success: (Resp) => {
                     if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if ( "tokenExpired" in Resp ) { account.logoutAccount() }
+                    if ( "tokenExpired" in Resp ) { account.logout() }
                     else if ( "failure" in Resp ) { console.log( Resp["failure"] ) }
                     else { resolve(Resp) }
                 }

@@ -15,7 +15,9 @@
 */
 
 import FrontendConfig from './frontend.js'
+import Account from './aaa.js'
 
+var account = new Account()
 var config = new FrontendConfig()
 
 const Reporter = class {
@@ -60,9 +62,11 @@ const Reporter = class {
                 headers: {'Authorization': config.session.httpToken},
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
-                success: function(Resp) {
+                success: (Resp) => {
                     if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logoutAccount() } else { resolve(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) {
+                        account.logout()
+                    } else { resolve(Resp) }
                 }
             })
         })
@@ -77,25 +81,28 @@ const Reporter = class {
                 headers: {'Authorization': config.session.httpToken},
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
-                success: function(Resp) {
+                success: (Resp) => {
                     if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logoutAccount() } else { resolve(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) {
+                        account.logout()
+                    } else { resolve(Resp) }
                 }
             })
        })
     }
 
     filter_scroll_data = (scroll_id) => {
-       console.log(scroll_id)
        return new Promise((resolve, reject) => {
             $.ajax({
                 url: config.proxyAPI + '/realms/' + config.session.realm + '/reports/filter/scroll/data',
                 type: "GET",
                 data: {"_scroll_id": scroll_id},
                 headers: {'Authorization': config.session.httpToken},
-                success: function(Resp) {
+                success: (Resp) => {
                     if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logoutAccount() } else { resolve(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) {
+                        account.logout()
+                    } else { resolve(Resp) }
                 }
             })
        })

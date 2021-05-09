@@ -47,36 +47,35 @@ let msgAccountFailure =  `
 const Account = class {
 
     constructor() {
-        this.email = undefined
-        this.password = undefined
+        this._email = undefined
+        this._password = undefined
     }
 
-    set accountEmail(accountEmail) { this.email = accountEmail }
-    set accountPassword(accountPassword) { this.password = accountPassword }
+    set email(email) { this._email = email }
+    set password(password) { this._password = password }
 
-    get accountEmail() { return this.email }
-    get accountPassword() { return this.password }
+    get email() { return this._email }
+    get password() { return this._password }
 
-    add = function(formData) {
-
-        return new Promise(function(resolve, reject) {
+    add = (formData) => {
+        return new Promise((resolve, reject) => {
             $.ajax({
                 url: config.proxyAPI + '/aaa/accounts',
                 type: "POST",
                 data: JSON.stringify(formData),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
-                success: function(Resp) {
+                success: (Resp) => {
                     if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logoutAccount()
-                        } else { resolve(Resp)}
+                    if (Object.keys(Resp).includes("tokenExpired")) {
+                        this.logout()
+                    } else { resolve(Resp)}
                 }
             })
         })
     }
 
-    update = function(data) {
-
+    update = (data) => {
         let formData = new FormData()
         formData.append("web_server_path", config.frontend.webServerPath)
         formData.append("account_profile_picture", data["accountPicture"])
@@ -84,7 +83,7 @@ const Account = class {
         formData.append("account_profile_family_name", data["accountFamilyName"])
         formData.append("account_profile_email", data["accountEmail"])
 
-        return new Promise(function(resolve, reject) {
+        return new Promise((resolve, reject) => {
             $.ajax({
                 url: config.proxyAPI + '/aaa/accounts/' + config.session.accountId,
                 type: "PUT",
@@ -92,140 +91,128 @@ const Account = class {
                 headers: {"Authorization": config.session.httpToken},
                 contentType: false,
                 processData: false,
-                success: function(Resp) {
+                success: (Resp) => {
                     if (typeof Resp === 'string') { Resp = JSON.parse(Resp)}
-                    if (Object.keys(Resp).includes("tokenExpired")) {account.logoutAccount()
-                        } else { resolve(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) {
+                        this.logout()
+                    } else { resolve(Resp) }
                 }
             })
         })
     }
 
-    activateRealm = function(realm) {
-
-        return new Promise(function(resolve, reject) {
-            $.ajax({
-                url: config.proxyAPI + '/aaa/accounts/realms/' + realm,
-                type: "POST",
-                headers: {"Authorization": config.session.httpToken},
-                success: function(Resp) {
-                    if (typeof Resp === 'string') { Resp = JSON.parse(Resp)}
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logoutAccount()
-                        } else { resolve(Resp) }
-                }
-            })
-        })
-    }
-
-    delete = function(formData) {
-
-        return new Promise(function(resolve, reject) {
+    delete = (formData) => {
+        return new Promise((resolve, reject) => {
             $.ajax({
                 url: config.proxyAPI + '/aaa/accounts',
                 type: "DELETE",
                 data: JSON.stringify(formData),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
-                success: function(Resp) {
+                success: (Resp) => {
                     if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
-                    if (Objects.keys(Resp).includes("tokenExpired")) { account.logoutAccount()
-                        } else { resolve(Resp)}
+                    if (Objects.keys(Resp).includes("tokenExpired")) {
+                        this.logout()
+                    } else { resolve(Resp)}
                 }
             })
         })
     }
 
-    list = function() {
-
-        return new Promise(function(resolve, reject) {
+    list = () => {
+        return new Promise((resolve, reject) => {
             $.ajax({
                 url: config.proxyAPI + '/aaa/accounts',
                 type: "GET",
                 headers: {"Authorization": config.session.httpToken},
-                success: function(Resp) {
+                success: (Resp) => {
                     if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logoutAccount()
-                        } else { resolve(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) {
+                        this.logout()
+                    } else { resolve(Resp) }
                 }
             })
         })
     }
 
-    listByRealm = function(realm) {
-
-        return new Promise(function(resolve, reject) {
+    listByRealm = (realm) => {
+        return new Promise((resolve, reject) => {
             $.ajax({
                 url: config.proxyAPI + '/realms/' + realm + '/accounts',
                 type: "GET",
                 headers: {"Authorization": config.session.httpToken},
-                success: function(Resp) {
+                success: (Resp) => {
                     if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logoutAccount()
-                        } else { resolve(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) {
+                        this.logout()
+                    } else { resolve(Resp) }
                 }
             })
         })
     }
 
-    listById = function(accountId) {
-
-        return new Promise(function(resolve, reject) {
+    listById = (accountId) => {
+        return new Promise((resolve, reject) => {
             $.ajax({
                 url: config.proxyAPI + '/aaa/accounts/' + config.session.accountId,
                 type: "GET",
                 headers: {"Authorization": config.session.httpToken},
-                success: function(Resp) {
+                success: (Resp) => {
                     if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logoutAccount()
-                        } else { resolve(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) {
+                        this.logout()
+                    } else { resolve(Resp) }
                 }
             })
         })
     }
 
-    getFormData = function() {
+    activateRealm = (realm) => {
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: config.proxyAPI + '/aaa/accounts/realms/' + realm,
+                type: "POST",
+                headers: {"Authorization": config.session.httpToken},
+                success: (Resp) => {
+                    if (typeof Resp === 'string') { Resp = JSON.parse(Resp)}
+                    if (Object.keys(Resp).includes("tokenExpired")) {
+                        this.logout()
+                    } else { resolve(Resp) }
+                }
+            })
+        })
+    }
 
+    // joinRealm = () => { }
+
+    // leaveRealm = () => { }
+
+    // isRealmMember = () => { }
+
+    getFormData = () => {
         return {
-            "email": this.accountEmail,
-            "password": this.accountPassword
+            "email": this.email,
+            "password": this.password
         }
     }
 
-    setFormData = function() {
-
-        this.accountEmail = $("input[name=accountEmail]").val()
-        this.accountPassword = $("input[name=accountPassword]").val()
+    setFormData = () => {
+        this.email = $("input[name=accountEmail]").val()
+        this.password = $("input[name=accountPassword]").val()
     }
 
-    loadAccountProfile = function(accountEmail) {
-
-        return new Promise(function(resolve, reject) {
+    authenticate = (formData) => {
+        return new Promise((resolve, reject) => {
             $.ajax({
-                url: config.proxyAPI + '/aaa/accounts/profile',
-                type: "GET",
-                headers: {"Authorization": 'Bearer ' + $.cookie('jwt')},
-                data: "email=" + accountEmail,
-                success: function(Resp) {
-                    if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
-                    if ( Object.keys(Resp).includes("tokenExpired")) { account.logoutAccount()
-                        } else { resolve(Resp) }
-                }
-            })
-        })
-    }
-
-    login = function(formData) {
-        return new Promise(function(resolve, reject) {
-            $.ajax({
-                url: config.proxyAPI + '/aaa/accounts/login',
+                url: config.proxyAPI + '/aaa/accounts/authenticate',
                 type: "POST",
                 data: JSON.stringify(formData),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
-                success: function(Resp) {
+                success: (Resp) => {
                     if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
                     if (Object.keys(Resp).includes("tokenExpired")) {
-                        account.logoutAccount()
+                        this.logout()
                     } else if (Object.keys(Resp).includes("failure")) {
                         if (Object.values(Resp).includes("AccountPasswordNotCorrect")) {
                             var toasterContent = $("#toaster").html() + msgAccountPasswordFailure
@@ -243,64 +230,64 @@ const Account = class {
         })
     }
 
-    accountCookies = function() {
-
-        let localAccount = this
-        return new Promise(function(resolve, reject) {
-            localAccount.loadAccountProfile(localAccount.accountEmail)
-                .then(function(accountProfile) {
-                    console.log(accountProfile)
-                    $.cookie.json = true
-                    $.cookie('account', accountProfile["account"], {path: "/"})
-                    $.cookie('realm', accountProfile["realm"], {path: "/"})
-                    $.cookie('setting', accountProfile["setting"], {path: "/"})
-                    $.cookie('scriptlangs', accountProfile["scriptlangs"], {path: "/"})
-                    resolve(true)
+    cookies = (email) => {
+        return new Promise((resolve, reject) => {
+            this.profile(email).then((profile) => {
+                $.cookie.json = true
+                $.cookie('account', profile["account"], {path: "/"})
+                $.cookie('realm', profile["realm"], {path: "/"})
+                $.cookie('setting', profile["setting"], {path: "/"})
+                $.cookie('scriptlangs', profile["scriptlangs"], {path: "/"})
+                resolve(true)
             })
         })
     }
 
-    loginAccount = function() {
-
-        let localAccount = this
-        this.setFormData()
-        this.login(this.getFormData())
-            .then(function(accountLoginResult) {
-                if ( Object.keys(accountLoginResult).includes("jwt") ) {
-                    $.cookie('jwt', accountLoginResult["jwt"], {path: "/"})
-                    localAccount.accountCookies()
-                        .then(function(setCookieResult) {
-                            if (setCookieResult) { location.href = "/html/home.html" }
-                        })
+    profile = (email) => {
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: config.proxyAPI + '/aaa/accounts/profile',
+                type: "GET",
+                headers: {"Authorization": 'Bearer ' + $.cookie('jwt')},
+                data: "email=" + email,
+                success: (Resp) => {
+                    if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
+                    if ( Object.keys(Resp).includes("tokenExpired")) {
+                        this.logout()
+                    } else { resolve(Resp) }
                 }
             })
+        })
     }
 
-    logoutAccount = function() {
+    login = () => {
+        this.setFormData()
+        let loginData = this.getFormData()
+        this.authenticate(loginData).then((accountLoginResult) => {
+            if ( Object.keys(accountLoginResult).includes("jwt") ) {
+                $.cookie('jwt', accountLoginResult["jwt"], {path: "/"})
+                this.cookies(loginData["email"]).then((setCookieResult) => {
+                    if (setCookieResult) { location.href = "/html/home.html" }
+                })
+            }
+        })
+    }
+
+    logout = () => {
         window.location.href = "/html/logout.html"
     }
 
-    registerAccount = async function() {
+    register = async () => {
         this.setFormData()
-        let R = await this.add(this.getFormData())
+        let loginData = this.getFormData()
+        let R = await this.add(loginData)
     }
 }
 
 let account = new Account()
-
-const loginAccount = function() {
-    account.loginAccount()
-}
-
-const logoutAccount = function() {
-    account.logoutAccount()
-}
-
-const registerAccount = function() {
-    account.registerAccount()
-        .then(function(resp) {}
-        )
-}
+const loginAccount = function() { account.login() }
+const logoutAccount = function() { account.logout() }
+const registerAccount = function() { account.register().then((resp) => { }) }
 
 window.registerAccount = registerAccount
 window.loginAccount = loginAccount

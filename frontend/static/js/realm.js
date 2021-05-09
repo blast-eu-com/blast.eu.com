@@ -54,7 +54,7 @@ const Realm = class {
                     if ( typeof Resp === 'string' ) {
                         Resp = JSON.parse(Resp)
                         if (Object.keys(Resp).includes("tokenExpired")) {
-                            account.logoutAccount()
+                            account.logout()
                         } else if (Object.keys(Resp).includes("failure")) {
                             console.log("failure")
                         }
@@ -79,7 +79,7 @@ const Realm = class {
                     if ( typeof Resp === 'string' ) {
                         Resp = JSON.parse(Resp)
                         if (Object.keys(Resp).includes("tokenExpired")) {
-                            account.logoutAccount()
+                            account.logout()
                         } else if (Object.keys(Resp).includes("failure")) {
                             console.log("failure")
                         }
@@ -99,7 +99,9 @@ const Realm = class {
                 headers: {'Authorization': config.session.httpToken},
                 success: function(Resp) {
                     if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logoutAccount() } else { resolve(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) {
+                        account.logout()
+                    } else { resolve(Resp) }
                 }
             })
         })
@@ -114,13 +116,15 @@ const Realm = class {
                 headers: {'Authorization': config.session.httpToken},
                 success: function(Resp) {
                     if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logoutAccount() } else { resolve(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) {
+                        account.logout()
+                    } else { resolve(Resp) }
                 }
             })
         })
     }
 
-    load = function(data) {
+    load = (data) => {
         this.id = data["_id"]
         this.name = data["_source"]["name"]
         this.description = data["_source"]["description"]
@@ -128,11 +132,10 @@ const Realm = class {
         this.rawData = data["_source"]
     }
 
-    switch(newRealm) {
-        account.activateRealm(newRealm).then(function(switchRealmResult) {
+    switch = (newRealm) => {
+        account.activateRealm(newRealm).then((switchRealmResult) => {
             if ( switchRealmResult["result"] == "updated" ) {
-                account.accountEmail = config.session.accountEmail
-                account.accountCookies().then(function(setCookieResult) {
+                account.cookies(config.session.accountEmail).then((setCookieResult) => {
                     if ( setCookieResult ) {
                         location.href = "/html/home.html"
                     }
