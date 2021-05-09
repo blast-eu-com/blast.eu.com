@@ -19,7 +19,6 @@ import datetime
 import threading
 from api import node
 from api import scenario
-from api import scenarioReporter
 from api import reporter
 from api import scriptManager
 from api import script
