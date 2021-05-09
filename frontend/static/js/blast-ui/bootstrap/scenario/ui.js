@@ -30,7 +30,7 @@ var scriptFilterAndSelect = new ScriptFilterAndSelect('managementUIScriptFrame')
 function main() {
 
     scenarioForm.render(scenario, scenarioNodesTree, scriptFilterAndSelect)
-    scenarioNodesTree.render(scenario)
+    scenarioNodesTree.render()
     scriptFilterAndSelect.render()
     scenarioLast.render(reporter)
 }

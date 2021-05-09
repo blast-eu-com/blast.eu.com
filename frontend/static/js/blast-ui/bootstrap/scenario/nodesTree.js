@@ -15,8 +15,10 @@
 */
 
 import Node from '../../../node.js'
+import Infrastructure from '../../../infrastructure.js'
 
 var node = new Node()
+var infra = new Infrastructure()
 
 const ScenarioNodesTree = class {
 
@@ -39,8 +41,8 @@ const ScenarioNodesTree = class {
         return nodesId
     }
 
-    addNodeTree = (scenario) => {
-        scenario.loadTreeSource().then((data) => {
+    addNodeTree = () => {
+        infra.tree().then((data) => {
             $("#" + this.parentName).fancytree({
                 "selectMode": 3,
                 "checkbox": true,
@@ -55,8 +57,8 @@ const ScenarioNodesTree = class {
         })
     }
 
-    render = (scenario) => {
-        this.addNodeTree(scenario)
+    render = () => {
+        this.addNodeTree()
     }
 
 }

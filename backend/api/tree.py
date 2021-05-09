@@ -18,7 +18,6 @@
 from api.infra import Infra
 from api.cluster import Cluster
 from api.node import Node
-from api.script import Script
 
 
 def node_subtree(node) -> dict:
@@ -37,7 +36,7 @@ def cluster_subtree(cluster, nodes) -> dict:
     for clu_node in cluster["_source"]["nodes"]:
         for node in nodes["hits"]["hits"]:
             if clu_node["id"] == node["_id"]:
-                cluster_node["children"].append(self.node_subtree(node))
+                cluster_node["children"].append(node_subtree(node))
 
     return cluster_node
 
@@ -55,10 +54,10 @@ def infrastructure_subtree(infra, clusters, nodes) -> dict:
     return infra_node
 
 
-def realm_infrastructure_tree(realm: str) -> list:
+def realm_infrastructure_tree(ESConnector, realm: str) -> list:
 
-    infras = INFRA.__list__(realm)
-    clusters = CLUSTER.__list__(realm)
-    nodes = NODE.__list__(realm)
-    return [self.infrastructure_subtree(infra, clusters, nodes) for infra in infras["hits"]["hits"]]
+    infrastructures = Infra(ESConnector).__list__(realm)
+    clusters = Cluster(ESConnector).__list__(realm)
+    nodes = Node(ESConnector).__list__(realm)
+    return [infrastructure_subtree(infra, clusters, nodes) for infra in infrastructures["hits"]["hits"]]
 

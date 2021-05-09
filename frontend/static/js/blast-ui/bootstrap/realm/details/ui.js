@@ -23,9 +23,9 @@ var realm = new Realm()
 var realmListInfo = new RealmListInfo()
 var realmListMembers = new RealmListMembers()
 
-const setButtonDeleteAction = function(realm) {
-    $('#containerRealmActions').html(`<a id="btnDelRealm" class="btn btn-sm btn-primary ml-auto">Delete</a>`)
-    $('#btnDelRealm').on("click", async function() {
+const setButtonLeaveAction = function(realm) {
+    $('#containerRealmActions').html(`<a id="btnLeaveRealm" class="btn btn-sm btn-primary ml-auto">Delete</a>`)
+    $('#btnLeaveRealm').on("click", async function() {
         let R = await realm.delete(realm.id)
         if ( R["result"] === "deleted" ) { location.href = "/html/realm.html" }
     })
@@ -36,6 +36,10 @@ const setButtonJoinAction = function() {
     $('#btnJoinRealm').on("click", async function() {})
 }
 
+const setPageAction = function() {
+
+}
+
 const setPageTitle = function(realm) {
     $('#navRealmName').html(realm.name)
 }
@@ -44,11 +48,11 @@ async function main() {
     let urlParams = new URLSearchParams(window.location.href.split('?')[1])
     if ( urlParams.has("realm_id") ) {
         let realmId = urlParams.get("realm_id")
+        let realmName = urlParams.get("realm_name")
         let realmData = await realm.listByIds([realmId])
         realm.load(realmData["hits"]["hits"][0])
         setPageTitle(realm)
-        setButtonDeleteAction(realm)
-        setButtonJoinAction()
+        if ( realmName !== "default" ) { setPageAction() }
         realmListInfo.render('realmListInfo', realm)
         realmListMembers.render('realmListMembers', realm)
     }
