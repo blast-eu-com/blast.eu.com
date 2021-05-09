@@ -10,7 +10,8 @@
       "scripts": { "type": "keyword"},
       "nodes": { "type": "keyword" },
       "account_email": { "type": "keyword" },
-      "ansible_first": { "type": "boolean" }
+      "flag_parallel_mode": { "type": "boolean" },
+      "max_parallel_script_threads": { "type": "integer" }
     }
   },
   "settings" : {

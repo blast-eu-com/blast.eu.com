@@ -9,7 +9,7 @@
       "realm": { "type": "keyword" },
       "scenario_ids": { "type": "keyword" },
       "status": { "type": "keyword" },
-      "flag_parallel_mode": { "type": "bool" },
+      "flag_parallel_mode": { "type": "boolean" },
       "recurrence": {
         "properties": {
             "day": { "type": "keyword" },
@@ -20,6 +20,7 @@
                 }
             },
             "min": { "type": "integer" },
+            "sec": { "type": "integer" },
             "date": { "type": "date" }
         }
       }
