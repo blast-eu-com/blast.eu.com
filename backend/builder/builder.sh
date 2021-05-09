@@ -46,7 +46,7 @@ ${BUILDER_PATH}/build_db_node.py
 # BUILD STATISTIC
 ${BUILDER_PATH}/build_db_statistic.py
 
-# BUILD REALM
+# BUILD SCHEDULER
 ${BUILDER_PATH}/build_db_scheduler.py
 
 # BUILD SCENARIO

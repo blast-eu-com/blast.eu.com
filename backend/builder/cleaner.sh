@@ -14,54 +14,59 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 #
+
+ELASTICSEARCH_PROTO="http"
+ELASTICSEARCH_HOSTNAME="192.168.168.17"
+ELASTICSEARCH_PORT="9200"
+
 # DELETE SCHEDULER
-curl -s -XDELETE http://localhost:9200/scheduler
-curl -s -XDELETE http://localhost:9200/_template/scheduler
+curl -s -XDELETE ${ELASTICSEARCH_PROTO}://${ELASTICSEARCH_HOSTNAME}:${ELASTICSEARCH_PORT}/scheduler
+curl -s -XDELETE ${ELASTICSEARCH_PROTO}://${ELASTICSEARCH_HOSTNAME}:${ELASTICSEARCH_PORT}/_template/scheduler
 
 # DELETE STATISTIC
-curl -s -XDELETE http://localhost:9200/statistic
-curl -s -XDELETE http://localhost:9200/_template/statistic
+curl -s -XDELETE ${ELASTICSEARCH_PROTO}://${ELASTICSEARCH_HOSTNAME}:${ELASTICSEARCH_PORT}/statistic
+curl -s -XDELETE ${ELASTICSEARCH_PROTO}://${ELASTICSEARCH_HOSTNAME}:${ELASTICSEARCH_PORT}/_template/statistic
 
 # DELETE ACCOUNT
-curl -s -XDELETE http://localhost:9200/account
-curl -s -XDELETE http://localhost:9200/_template/account
+curl -s -XDELETE ${ELASTICSEARCH_PROTO}://${ELASTICSEARCH_HOSTNAME}:${ELASTICSEARCH_PORT}/account
+curl -s -XDELETE ${ELASTICSEARCH_PROTO}://${ELASTICSEARCH_HOSTNAME}:${ELASTICSEARCH_PORT}/_template/account
 
 # DELETE CLUSTER
-curl -s -XDELETE http://localhost:9200/cluster
-curl -s -XDELETE http://localhost:9200/_template/cluster
+curl -s -XDELETE ${ELASTICSEARCH_PROTO}://${ELASTICSEARCH_HOSTNAME}:${ELASTICSEARCH_PORT}/cluster
+curl -s -XDELETE ${ELASTICSEARCH_PROTO}://${ELASTICSEARCH_HOSTNAME}:${ELASTICSEARCH_PORT}/_template/cluster
 
 # DELETE INFRASTRUCTURE
-curl -s -XDELETE http://localhost:9200/infrastructure
-curl -s -XDELETE http://localhost:9200/_template/infrastructure
+curl -s -XDELETE ${ELASTICSEARCH_PROTO}://${ELASTICSEARCH_HOSTNAME}:${ELASTICSEARCH_PORT}/infrastructure
+curl -s -XDELETE ${ELASTICSEARCH_PROTO}://${ELASTICSEARCH_HOSTNAME}:${ELASTICSEARCH_PORT}/_template/infrastructure
 
 # DELETE SCRIPT
-curl -s -XDELETE http://localhost:9200/script
-curl -s -XDELETE http://localhost:9200/_template/script
+curl -s -XDELETE ${ELASTICSEARCH_PROTO}://${ELASTICSEARCH_HOSTNAME}:${ELASTICSEARCH_PORT}/script
+curl -s -XDELETE ${ELASTICSEARCH_PROTO}://${ELASTICSEARCH_HOSTNAME}:${ELASTICSEARCH_PORT}/_template/script
 
 # DELETE SCRIPTLANG
-curl -s -XDELETE http://localhost:9200/scriptlang
-curl -s -XDELETE http://localhost:9200/_template/scriptlang
+curl -s -XDELETE ${ELASTICSEARCH_PROTO}://${ELASTICSEARCH_HOSTNAME}:${ELASTICSEARCH_PORT}/scriptlang
+curl -s -XDELETE ${ELASTICSEARCH_PROTO}://${ELASTICSEARCH_HOSTNAME}:${ELASTICSEARCH_PORT}/_template/scriptlang
 
 # DELETE SETTING
-curl -s -XDELETE http://localhost:9200/setting
-curl -s -XDELETE http://localhost:9200/_template/setting
+curl -s -XDELETE ${ELASTICSEARCH_PROTO}://${ELASTICSEARCH_HOSTNAME}:${ELASTICSEARCH_PORT}/setting
+curl -s -XDELETE ${ELASTICSEARCH_PROTO}://${ELASTICSEARCH_HOSTNAME}:${ELASTICSEARCH_PORT}/_template/setting
 
 # DELETE MAPPING
-curl -s -XDELETE http://localhost:9200/portmap
-curl -s -XDELETE http://localhost:9200/_template/portmap
+curl -s -XDELETE ${ELASTICSEARCH_PROTO}://${ELASTICSEARCH_HOSTNAME}:${ELASTICSEARCH_PORT}/portmap
+curl -s -XDELETE ${ELASTICSEARCH_PROTO}://${ELASTICSEARCH_HOSTNAME}:${ELASTICSEARCH_PORT}/_template/portmap
 
 # DELETE REALM
-curl -s -XDELETE http://localhost:9200/realm
-curl -s -XDELETE http://localhost:9200/_template/realm
+curl -s -XDELETE ${ELASTICSEARCH_PROTO}://${ELASTICSEARCH_HOSTNAME}:${ELASTICSEARCH_PORT}/realm
+curl -s -XDELETE ${ELASTICSEARCH_PROTO}://${ELASTICSEARCH_HOSTNAME}:${ELASTICSEARCH_PORT}/_template/realm
 
 # DELETE NODE
-curl -s -XDELETE http://localhost:9200/node
-curl -s -XDELETE http://localhost:9200/_template/node
+curl -s -XDELETE ${ELASTICSEARCH_PROTO}://${ELASTICSEARCH_HOSTNAME}:${ELASTICSEARCH_PORT}/node
+curl -s -XDELETE ${ELASTICSEARCH_PROTO}://${ELASTICSEARCH_HOSTNAME}:${ELASTICSEARCH_PORT}/_template/node
 
 # DELETE SCENARIO
-curl -s -XDELETE http://localhost:9200/scenario
-curl -s -XDELETE http://localhost:9200/_template/scenario
+curl -s -XDELETE ${ELASTICSEARCH_PROTO}://${ELASTICSEARCH_HOSTNAME}:${ELASTICSEARCH_PORT}/scenario
+curl -s -XDELETE ${ELASTICSEARCH_PROTO}://${ELASTICSEARCH_HOSTNAME}:${ELASTICSEARCH_PORT}/_template/scenario
 
 # DELETE REPORT
-curl -s -XDELETE http://localhost:9200/report
-curl -s -XDELETE http://localhost:9200/_template/report
+curl -s -XDELETE ${ELASTICSEARCH_PROTO}://${ELASTICSEARCH_HOSTNAME}:${ELASTICSEARCH_PORT}/report
+curl -s -XDELETE ${ELASTICSEARCH_PROTO}://${ELASTICSEARCH_HOSTNAME}:${ELASTICSEARCH_PORT}/_template/report

@@ -28,12 +28,12 @@ __DATAMODEL_DIR = os.path.join(os.path.abspath('..'), 'datamodel')
 __DATAMODEL_REALM_FILE = os.path.join(__DATAMODEL_DIR, 'scriptlang.template.mapping')
 __ES_ADDR = db.ES_PROTOCOL + """://""" + str(db.ES_HOSTNAME) + """:""" + str(db.ES_PORT)
 __SCRIPTLANG = [
-    {"name": "Ansible", "picture": "Ansible.png"},
-    {"name": "Bash", "picture": "Bash.png"},
-    {"name": "Julia", "picture": "Julia.png"},
-    {"name": "Perl", "picture": "Perl.png"},
-    {"name": "Python", "picture": "Python.png"},
-    {"name": "Ruby", "picture": "Ruby.png"}
+    {"name": "Ansible", "picture": "Ansible.svg"},
+    {"name": "Bash", "picture": "Bash.svg"},
+    {"name": "Julia", "picture": "Julia.svg"},
+    {"name": "Perl", "picture": "Perl.svg"},
+    {"name": "Python", "picture": "Python.svg"},
+    {"name": "Ruby", "picture": "Ruby.svg"}
 ]
 
 __CREATE_INDEX_TEMPLATE = """curl -s -XPUT -H \"Content-Type: Application/Json\" """ + __ES_ADDR + """/_template/scriptlang -d@""" + __DATAMODEL_REALM_FILE
