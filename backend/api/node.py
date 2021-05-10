@@ -31,8 +31,8 @@ class Node:
         self.STATISTIC_DATA["object_type"] = 'node'
 
     def __add__(self, account_email: str, realm: str, nodes: list):
-
         """ this function add a new node into the database """
+        print(" >>> Enter file:node:class:Node:function:__add__")
         try:
             resp_nodes_add = []
             self.STATISTIC_DATA["object_action"] = 'create'
@@ -41,9 +41,9 @@ class Node:
             self.STATISTIC_DATA["account_email"] = account_email
             print(nodes)
             for node in nodes:
-                print(node)
                 self.STATISTIC_DATA["object_name"] = node["name"]
-                discovered_data = self.scan(realm, node["name"])
+                host_net_info = node["ip"] if node["scan_by_ip"] else node["hostname"]
+                discovered_data = self.scan(realm, host_net_info)
                 if "failure" not in discovered_data.keys():
                     node["ip"] = discovered_data["ip"]
                     node["role"] = discovered_data["role"]
@@ -62,8 +62,8 @@ class Node:
             return {"failure": str(e)}
 
     def __delete__(self, account_email: str, realm: str, node_ids: list):
-
         """ this function delete an existing node by id """
+        print(" >>> Enter file:node:class:Node:function:__delete__")
         try:
             resp_nodes_del = []
             self.STATISTIC_DATA["object_action"] = 'delete'
@@ -82,30 +82,30 @@ class Node:
             return {"failure": str(e)}
 
     def delete_by_realm(self, data: dict):
-
         """ this function delete all the node that belong the same realm """
+        print(" >>> Enter file:node:class:Node:function:delete_by_realm")
         nodes = self.__list__(data["realm"])
         [self.__delete__({"id": node["_id"], "realm": data["realm"], "account_email": data["account_email"]}) for node in nodes["hits"]["hits"]]
 
     def update(self, id: str, data: str):
-
+        print(" >>> Enter file:node:class:Node:function:update")
         try:
             return self.ES.update(index=self.DB_INDEX, id=id, body=json.dumps({"doc": data}), refresh=True)
 
         except Exception as e:
-            print("backend Exception, file:node:class:node:func:__update__")
+            print("backend Exception, file:node:class:node:func:update")
             print(e)
             return {"failure": e}
 
     def __list__(self, realm: str):
-
         """ this function returns all the node object present in the database """
+        print(" >>> Enter file:node:class:Node:function:__list__")
         try:
             req = json.dumps(
                 {
                     "size": 10000,
                     "query": {
-                        "match": {
+                        "term": {
                             "realm": realm
                         }
                     },
@@ -126,8 +126,8 @@ class Node:
             return {"failure": str(e)}
 
     def list_by_ids(self, realm: str, node_ids: list):
-
         """ this function returns all the node object by id """
+        print(" >>> Enter file:node:class:Node:function:list_by_ids")
         try:
             req = json.dumps(
                 {
@@ -141,7 +141,7 @@ class Node:
                                     }
                                 },
                                 {
-                                    "match": {
+                                    "term": {
                                         "realm": realm
                                     }
                                 }
@@ -165,8 +165,8 @@ class Node:
             return {"failure": str(e)}
 
     def list_by_names(self, realm: str, names: list):
-
         """ this function returns all the node object by name """
+        print(" >>> Enter file:node:class:Node:function:list_by_names")
         try:
             req = json.dumps(
                 {
@@ -175,7 +175,7 @@ class Node:
                         "bool": {
                             "must": [
                                 {
-                                    "match": {
+                                    "term": {
                                         "realm": realm
                                     }
                                 },
@@ -204,8 +204,8 @@ class Node:
             return {"failure": str(e)}
 
     def list_by_ip(self, realm: str, ip: str):
-
         """ this function returns all the node object by ip """
+        print(" >>> Enter file:node:class:Node:function:list_by_ip")
         try:
             req = json.dumps({
                 "size": 10000,
@@ -213,12 +213,12 @@ class Node:
                     "bool": {
                         "must": [
                             {
-                                "match": {
+                                "term": {
                                     "realm": realm
                                 }
                             },
                             {
-                                "match": {
+                                "term": {
                                     "ip": ip
                                 }
                             }
@@ -241,9 +241,8 @@ class Node:
             return {"failure": str(e)}
 
     def map_id_name(self, realm: str, node_ids: list):
-        """
-        This function returns a JSON object of {"id_a": "name_a", "id_b": "name_b", ... }
-        """
+        """ This function returns a JSON object of {"id_a": "name_a", "id_b": "name_b", ... } """
+        print(" >>> Enter file:node:class:Node:function:map_id_name")
         try:
             mapping = {}
             resp = self.list_by_ids(realm, node_ids)
@@ -256,7 +255,7 @@ class Node:
             return {"failure": str(e)}
 
     def scan(self, realm: str, name: str):
-
+        print(" >>> Enter file:node:class:Node:function:scan")
         try:
             settings = self.SETTING.list_by_realm(realm)
             ssh_username = settings["hits"]["hits"][0]["_source"]["ssh"]["username"]
@@ -270,7 +269,7 @@ class Node:
             return {"failure": str(e)}
 
     def rescan(self, data: dict):
-
+        print(" >>> Enter file:node:class:Node:function:rescan")
         try:
             node_data = self.list_by_ids(data["realm"], data["id"].split(" "))["hits"]["hits"][0]["_source"]
             self.STATISTIC_DATA["object_action"] = 'update'
@@ -278,7 +277,8 @@ class Node:
             self.STATISTIC_DATA["timestamp"] = statistic.UTC_time()
             self.STATISTIC_DATA["account_email"] = data["account_email"]
             self.STATISTIC_DATA["realm"] = node_data["realm"]
-            discovered_data = self.scan(node_data["realm"], node_data["name"])
+            host_net_info = node_data["ip"] if node_data["scan_by_ip"] else node_data["hostname"]
+            discovered_data = self.scan(node_data["realm"], host_net_info)
             if "failure" not in discovered_data.keys():
                 node_data["ip"] = discovered_data["ip"]
                 node_data["role"] = discovered_data["role"]
