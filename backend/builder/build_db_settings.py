@@ -27,8 +27,8 @@ from cryptography.fernet import Fernet
 
 
 __REALM = 'default' if len(sys.argv) == 1 else sys.argv[1]
-__SESSION_LOCATION = os.path.join(os.path.abspath('..'), 'session')
-__DATAMODEL_DIR = os.path.join(os.path.abspath('..'), 'datamodel')
+__SESSION_LOCATION = os.path.join(_SERVER_DIR, 'session')
+__DATAMODEL_DIR = os.path.join(_SERVER_DIR, 'datamodel')
 __DATAMODEL_SETTING_FILE = os.path.join(__DATAMODEL_DIR, 'setting.template.mapping')
 __CRYPTO = Fernet.generate_key().decode('utf-8')
 __ES_ADDR = db.ES_PROTOCOL + """://""" + str(db.ES_HOSTNAME) + """:""" + str(db.ES_PORT)
@@ -37,8 +37,8 @@ __SSH_LOCATION = '/tmp/blast'
 
 if not os.path.isdir(__SESSION_LOCATION):
     os.makedirs(__SESSION_LOCATION)
-    uid = getpwnam('blast').pw_uid
-    gid = getpwnam('blast').pw_gid
+    uid = getpwnam('jay').pw_uid
+    gid = getpwnam('jay').pw_gid
     os.chown(__SESSION_LOCATION, uid, gid)
 
 

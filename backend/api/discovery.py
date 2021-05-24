@@ -17,12 +17,14 @@
 
 import paramiko
 from api.setting import Portmap
+from api.db import ESConnector
+
 
 
 class SSH:
 
     def __init__(self, *args, **kwargs):
-        print("class SSH function INIT:", kwargs)
+        print("class SSH function INIT:", args, kwargs)
         self.hostname = args[0]
         self.ssh_username = kwargs["username"] if kwargs["username"] != '' else None
         self.ssh_password = kwargs["password"] if kwargs["password"] != '' else None
@@ -33,10 +35,11 @@ class SSH:
         self.ssh_client.set_missing_host_key_policy(paramiko.client.AutoAddPolicy())
 
     def close_ssh_connection(self):
+        print(" >>> Enter file:discovery:class:SSH:function:close_ssh_connections")
         self.ssh_client.close()
 
     def open_ssh_connection(self) -> bool:
-
+        print(" >>> Enter file:discovery:class:SSH:function:open_ssh_connection")
         try:
             if self.ssh_username and self.ssh_certificate is not None:
                 """ we do prefer certificate instead of password """
@@ -60,7 +63,7 @@ class SSH:
             return False
 
     def open_sftp_connection(self) -> bool:
-
+        print(" >>> Enter file:discovery:class:SSH:function:open_sftp_connection")
         try:
             print('class SSH:open_sftp_connection: ssh_connection successful')
             self.sftp_client = self.ssh_client.open_sftp()
@@ -72,6 +75,7 @@ class SSH:
                 return True
 
     def close_sftp_connection(self):
+        print(" >>> Enter file:discovery:class:SSH:function:close_sft_connection")
         self.close_ssh_connection()
 
 
@@ -173,7 +177,7 @@ class Discovery:
         self.server_roles = []
         self.server_authentication = False
         self.SSH = SSH(self.hostname, **ssh_settings)
-        self.portmap = Portmap()
+        self.portmap = Portmap(ESConnector().es)
         if self.SSH.open_ssh_connection():
             self.server_authentication = True
             self.is_reachable = is_reachable(self.SSH.ssh_client)
@@ -212,24 +216,24 @@ class Discovery:
         self._server_ips = ips
 
     def get_port_role(self, realm, port):
-
         """ this function return the role from the port number """
+        print(" >>> Enter file:discovery:class:Discovery:function:get_port_role")
         role = self.portmap.map_socket(realm, port)
         if role["hits"]["total"]["value"] == 1:
             role["hits"]["hits"][0]["_source"].pop("realm")
             return role["hits"]["hits"][0]["_source"]
 
     def extract_server_peers(self, active_network_connections: list) -> list:
-
         """ extract server peers from active network connections """
+        print(" >>> Enter file:discovery:class:Discovery:function:active_network_connections")
         return list(filter(None, list(dict.fromkeys([
             peer["destination_ip"] for peer in active_network_connections
             if peer["connection_status"] == "ESTABLISHED" and peer["destination_ip"] not in self.server_ips
         ]))))
 
     def extract_server_ips(self) -> list:
-
         """ extract ips from server network settings """
+        print(" >>> Enter file:discovery:class:Discovery:function:extract_server_ips")
         if self.SSH.ssh_client and self.is_reachable and self.is_accessible:
             ssh_command = """ 
                        if [[ `which ifconfig &>/dev/null; echo $?` -eq 0 ]]; then
@@ -242,24 +246,24 @@ class Discovery:
             return list(filter(None, stdout.read().decode("UTF-8").split("\n")))
 
     def extract_server_roles(self, active_network_connections: list) -> list:
-
         """ this function returns the server roles from active network connections """
+        print(" >>> Enter file:discovery:class:Discovery:function:extract_server_roles")
         return list(filter(None, [
             self.get_port_role(self.realm, local["source_port"]) for local in active_network_connections
             if local["connection_status"] == "LISTEN"
         ]))
 
     def start(self):
-
         """ this function starts a sequence of discovery actions """
+        print(" >>> Enter file:discovery:class:Discovery:function:start")
         if len(self.active_network_connection_inventory) > 0:
             self.server_ips = self.extract_server_ips()
             self.server_peers = self.extract_server_peers(self.active_network_connection_inventory)
             self.server_roles = self.extract_server_roles(self.active_network_connection_inventory)
 
     def end(self):
-
         """ this function ends a sequence of discovery actions """
+        print(" >>> Enter file:discovery:class:Discovery:function:end")
         print(self.server_ips, self.server_peers, self.server_roles)
         self.SSH.close_ssh_connection()
 

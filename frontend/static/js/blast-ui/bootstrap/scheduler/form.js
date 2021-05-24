@@ -15,6 +15,9 @@
 */
 
 import Scheduler from '../../../scheduler.js'
+import ScenarioFilterAndSelect from '../scenario/filterAndSelect.js'
+
+var scenarioFilterAndSelect = new ScenarioFilterAndSelect()
 
 var SchedulerForm = class {
 
@@ -35,6 +38,10 @@ var SchedulerForm = class {
             </div>
             <div class="row mb-3">
                 <div id="schedulerExecParallelModeContainer" class="col-md-6"></div>
+            </div>
+            <div class="row mb-3">
+                <label for="schedulerListScenariosContainer" class="form-label">Select the scheduler scenarios to run</label>
+                <div id="schedulerListScenariosContainer" class="col-md-12"></di>
             </div>
         `
         this.inputSchedulerName = `
@@ -88,10 +95,14 @@ var SchedulerForm = class {
             <div id="schedulerParallelModeHelp" class="form-text">Check if you want the scheduler runs the scenario selected in parallel mode.</div>
         `
         this._fd = undefined
+        this._pn = undefined
     }
 
     set formData(fd) { this._fd = fd }
+    set parentName(pn) { this._pn = pn }
+
     get formData() { return this._fd }
+    get parentName() { return this._pn }
 
     setFormData = () => {
         let monday = $("#monday").is(":checked") ? true : false
@@ -125,11 +136,12 @@ var SchedulerForm = class {
         }
     }
 
-    addFrame = (parentName) => {
-        $("#" + parentName).html(this.frame)
+    addFrame = () => {
+        $("#" + this.parentName).html(this.frame)
     }
 
     addForm() {
+        this.addFrame()
         $('#schedulerNameContainer').html(this.inputSchedulerName)
         $('#schedulerDescriptionContainer').html(this.inputSchedulerDescription)
         $('#schedulerExecDayContainer').html(this.schedulerExecDay)
@@ -176,8 +188,9 @@ var SchedulerForm = class {
     }
 
     render = (parentName) => {
-        this.addFrame(parentName)
+        this.parentName = parentName
         this.addForm()
+        scenarioFilterAndSelect.render('schedulerListScenariosContainer')
         this.addFormSelectInterval('min')
         this.addFormSelectInterval('sec')
         this.addFormSelectTime()

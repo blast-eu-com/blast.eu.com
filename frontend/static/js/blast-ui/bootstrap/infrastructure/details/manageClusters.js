@@ -45,7 +45,7 @@ const InfrastructureManageClusters = class {
         `
         let htmlSelectCore = ``
         let htmlSelectFooter = `</select>
-            <button id="btnAddCluster" class="btn blast-btn" onclick="addClusterToInfra()">add</button>\`
+            <button id="btnAddCluster" class="btn blast-btn" onclick="addClusterToInfra()">add</button>
             </div>
         `
         infrastructure.clusters.forEach(function(cluObj) { infraClusters.push(cluObj["name"]) })

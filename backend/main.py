@@ -54,15 +54,6 @@ except KeyError:
     SCHEDULER_EMAIL = "scheduler@localhost.localdomain"
 
 
-def json_cookie_convert(data):
-
-    patterns = {"%7B": "{", "%5B": "[", "%5D": "]", "%3A": ":", "%2C": ",", "%20": " ", "%22": "\"", "%7D": "}",
-                "%40": "@", "%2F": "/"}
-    for k, v in patterns.items():
-        data = data.replace(k, v)
-    return data
-
-
 @app.before_request
 def jwtrequired():
 
@@ -74,7 +65,7 @@ def jwtrequired():
     elif re.match(r'/api/v1/aaa/accounts/profile', request.path) and request.method == "GET":
         account_email = request.args.get('email')
     else:
-        account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+        account_email = json.loads(request.cookies.get('account'))["email"]
     token = request.headers['AUTHORIZATION'].split()[1]
     return None if account.is_valid_token(account_email, token) else Response(json.dumps({"tokenExpired": True}))
 
@@ -105,9 +96,12 @@ def aaa_account_list_by_id(ids):
 def aaa_account_update(id):
     """ this function update an existing account used for profile details """
     account = Account(ES)
+    account_profile_picture = request.form["account_profile_picture"] \
+        if "account_profile_picture" in request.form.keys() else request.files["account_profile_picture"]
+
     account_data = {
         "web_server_path": request.form["web_server_path"],
-        "account_picture": request.files["account_profile_picture"],
+        "account_picture": account_profile_picture,
         "account_first_name": request.form["account_profile_first_name"],
         "account_family_name": request.form["account_profile_family_name"],
         "account_email": request.form["account_profile_email"]
@@ -118,7 +112,7 @@ def aaa_account_update(id):
 def aaa_account_delete(ids):
     """ this function remove an existing account using the aaa endpoint """
     account = Account(ES)
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
     account_ids = [id.replace("id=", "") for id in ids.split("&")]
     return Response(json.dumps(account.__delete__(account_email, account_ids)))
 
@@ -141,7 +135,7 @@ def aaa_account_activate_realm(realm):
     """ this function activate an account realm """
     account = Account(ES)
     realms = request.get_json()
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
     return Response(json.dumps(account.activate_realm(account_email, realm)))
 
 @app.route('/api/v1/realms/<realm>/accounts', methods=["GET"])
@@ -160,9 +154,7 @@ def script_add(realm):
     """ this function add a new ansible playbook """
     script = Script(ES)
     account = Account(ES)
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
-    setting = json.loads(json_cookie_convert(request.cookies.get('setting')))
-    script_location = setting["script"]["location"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
 
     # Build script name based on the script filename
     if len(request.form["script_file_name"].split('.')[:-1]) <= 1:
@@ -175,9 +167,7 @@ def script_add(realm):
         "script_description": request.form["script_description"],
         "script_file_data": request.files["script_file_data"],
         "script_file_name": request.form["script_file_name"],
-        "script_location": script_location,
         "script_name": script_name,
-        "script_roles": request.form["script_roles"],
         "script_shareable": request.form["script_shareable"],
         "script_shareable_realms": request.form["script_shareable_realms"],
         "script_type": request.form["script_type"]
@@ -193,7 +183,7 @@ def script_delete(realm):
     """ this function delete one script identify by given id from the given realm """
     script = Script(ES)
     account = Account(ES)
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
     script_ids = request.get_json()["script_ids"]
 
     if account.is_active_realm_member(account_email, realm):
@@ -206,7 +196,7 @@ def script_list(realm):
     """ this function returns all scripts """
     script = Script(ES)
     account = Account(ES)
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
 
     if account.is_active_realm_member(account_email, realm):
         return Response(json.dumps(script.__list__(realm)))
@@ -218,7 +208,7 @@ def script_list_by_ids(realm, ids):
     """ this function returns the script for the given id """
     script = Script(ES)
     account = Account(ES)
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
     script_ids = [id.replace("id=", "") for id in ids.split('&')]
 
     if account.is_active_realm_member(account_email, realm):
@@ -231,7 +221,7 @@ def script_list_by_names(realm, names):
     """ this function returns the script for the given name """
     script = Script(ES)
     account = Account(ES)
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
     script_names = [name.replace("name=", "") for name in names.split('&')]
 
     if account.is_active_realm_member(account_email, realm):
@@ -244,7 +234,7 @@ def script_list_by_roles(realm, roles):
     """ this function returns the script for the given roles """
     script = Script(ES)
     account = Account(ES)
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
     script_roles = [role.replace("role=", "") for role in roles.split('&')]
 
     if account.is_active_realm_member(account_email, realm):
@@ -267,7 +257,7 @@ def cluster_list(realm):
     """ this function returns all the registered cluster """
     cluster = Cluster(ES)
     account = Account(ES)
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
 
     if account.is_active_realm_member(account_email, realm):
         return Response(json.dumps(cluster.__list__(realm)))
@@ -280,7 +270,7 @@ def cluster_add(realm):
     cluster = Cluster(ES)
     account = Account(ES)
     clusters = request.get_json()["clusters"]
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
 
     if account.is_active_realm_member(account_email, realm):
         return Response(json.dumps(cluster.__add__(account_email, realm, clusters)))
@@ -293,7 +283,7 @@ def cluster_update(realm):
     cluster = Cluster(ES)
     account = Account(ES)
     clusters = request.get_json()
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
 
     if account.is_active_realm_member(account_email, realm):
         return Response(json.dumps(cluster.update(account_email, realm, clusters)))
@@ -305,7 +295,7 @@ def cluster_delete(realm):
     """ this function delete a cluster reference """
     cluster = Cluster(ES)
     account = Account(ES)
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
     cluster_ids = request.get_json()["cluster_ids"]
 
     if account.is_active_realm_member(account_email, realm):
@@ -319,7 +309,7 @@ def cluster_list_by_ids(realm):
 
     cluster = Cluster(ES)
     account = Account(ES)
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
     cluster_ids = request.args.getlist('ids[]')
 
     if account.is_active_realm_member(account_email, realm):
@@ -332,7 +322,7 @@ def cluster_list_node(realm, id):
     """ this function add a cluster node """
     cluster = Cluster(ES)
     account = Account(ES)
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
 
     if account.is_active_realm_member(account_email, realm):
         return Response(json.dumps(cluster.list_nodes(realm, id)))
@@ -345,7 +335,7 @@ def cluster_add_node(realm, id):
     cluster = Cluster(ES)
     account = Account(ES)
     nodes = request.get_json()["nodes"]
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
 
     if account.is_active_realm_member(account_email, realm):
         return Response(json.dumps(cluster.add_nodes(account_email, realm, id, nodes)))
@@ -358,7 +348,7 @@ def cluster_delete_node(realm, id):
     cluster = Cluster(ES)
     account = Account(ES)
     node_ids = request.get_json()["node_ids"]
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
 
     if account.is_active_realm_member(account_email, realm):
         return Response(json.dumps(cluster.delete_nodes(account_email, realm, id, node_ids)))
@@ -375,7 +365,7 @@ def infrastructure_list(realm):
     """ this function returns a json string containing all the infrastructure """
     infra = Infra(ES)
     account = Account(ES)
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
 
     if account.is_active_realm_member(account_email, realm):
         return Response(json.dumps(infra.__list__(realm)))
@@ -388,7 +378,7 @@ def infrastructure_add(realm):
     infra = Infra(ES)
     account = Account(ES)
     infrastructures = request.get_json()["infrastructures"]
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
 
     if account.is_active_realm_member(account_email, realm):
         return Response(json.dumps(infra.__add__(account_email, realm, infrastructures)))
@@ -401,7 +391,7 @@ def infrastructure_update(realm):
     infra = Infra(ES)
     account = Account(ES)
     infrastructures = request.get_json()
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
 
     if account.is_active_realm_member(account_email, realm):
         return Response(json.dumps(infra.update(account_email, realm, infrastructures)))
@@ -413,7 +403,7 @@ def infrastructure_list_by_id(realm):
     """ this function returns the doc matching the infrastructure id """
     infra = Infra(ES)
     account = Account(ES)
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
     infra_ids = request.args.getlist('ids[]')
 
     if account.is_active_realm_member(account_email, realm):
@@ -426,7 +416,7 @@ def infrastructure_delete(realm):
     """ this function returns a json string containing the result of deletion """
     infra = Infra(ES)
     account = Account(ES)
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
     infra_ids = request.get_json()["infrastructure_ids"]
 
     if account.is_active_realm_member(account_email, realm):
@@ -440,7 +430,7 @@ def infrastructure_add_cluster(realm, id):
     infra = Infra(ES)
     account = Account(ES)
     clusters = request.get_json()["clusters"]
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
 
     if account.is_active_realm_member(account_email, realm):
         return Response(json.dumps(infra.add_clusters(account_email, realm, id, clusters)))
@@ -452,7 +442,7 @@ def infrastructure_delete_cluster(realm, id):
     """ this function remove an existing link between an infrastructure and a cluster"""
     infra = Infra(ES)
     account = Account(ES)
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
     cluster_ids = request.get_json()["cluster_ids"]
 
     if account.is_active_realm_member(account_email, realm):
@@ -464,7 +454,7 @@ def infrastructure_delete_cluster(realm, id):
 def ream_infrastructure_tree(realm):
     """ this function returns the tree """
     account = Account(ES)
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
     if account.is_active_realm_member(account_email, realm):
         return Response(json.dumps(realm_infrastructure_tree(ES, realm)))
     else:
@@ -479,7 +469,7 @@ def node_list(realm):
     """ this function returns the list of nodes by cluster id """
     node = Node(ES)
     account = Account(ES)
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
 
     if account.is_active_realm_member(account_email, realm):
         return Response(json.dumps(node.__list__(realm)))
@@ -492,7 +482,7 @@ def node_add(realm):
     node = Node(ES)
     account = Account(ES)
     nodes = request.get_json()["nodes"]
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
 
     if account.is_active_realm_member(account_email, realm):
         return Response(json.dumps(node.__add__(account_email, realm, nodes)))
@@ -505,7 +495,7 @@ def node_update(realm):
     node = Node(ES)
     account = Account(ES)
     nodes = request.get_json()
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
 
     if account.is_active_realm_member(account_email, realm):
         return Response(json.dumps(node.__add__(account_email, realm, nodes)))
@@ -517,7 +507,7 @@ def node_delete(realm):
     """ this function delete an existing node from the database """
     node = Node(ES)
     account = Account(ES)
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
     node_ids = request.get_json()["node_ids"]
 
     if account.is_active_realm_member(account_email, realm):
@@ -530,7 +520,7 @@ def node_list_by_id(realm):
     """ this function returns the node details by node id """
     node = Node(ES)
     account = Account(ES)
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
     node_ids = request.args.getlist('ids[]')
 
     if account.is_active_realm_member(account_email, realm):
@@ -543,7 +533,7 @@ def node_list_by_nodename(realm):
     """ this function returns the node details for given realm and name """
     node = Node(ES)
     account = Account(ES)
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
     names = request.args.getlist('names[]')
 
     if account.is_active_realm_member(account_email, realm):
@@ -556,8 +546,8 @@ def node_rescan(realm, id):
     """ this function rescan a node which """
     node = Node(ES)
     account = Account(ES)
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
-    data = {"id": id, "realm": realm, "account_email": json.loads(json_cookie_convert(request.cookies.get('account')))["email"] }
+    account_email = json.loads(request.cookies.get('account'))["email"]
+    data = {"id": id, "realm": realm, "account_email": json.loads(request.cookies.get('account'))["email"] }
 
     if account.is_active_realm_member(account_email, realm):
         return Response(json.dumps(node.rescan(data)))
@@ -590,7 +580,7 @@ def realm_add():
     """ this function create a new realm """
     realm = Realm(ES)
     realms = request.get_json()["realms"]
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
     return Response(json.dumps(realm.__add__(account_email, realms)))
 
 @app.route('/api/v1/realms', methods=["PUT"])
@@ -598,14 +588,14 @@ def realm_update_by_id(ids):
     """ this function update the realm having id as passed in param """
     realm = Realm(ES)
     realms = request.get_json()
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
     return Response(json.dumps(realm.update(realms)))
 
 @app.route('/api/v1/realms/<ids>', methods=["DELETE"])
 def realm_delete(ids):
     """ this function delete realm """
     realm = Realm(ES)
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
     realm_ids = request.get_json()['realm_ids']
     return Response(json.dumps(realm.__delete__(account_email, realm_ids)))
 
@@ -626,7 +616,7 @@ def report_filter(realm):
     report_data = request.get_json()['report']
     account = Account(ES)
     reporter = Reporter(ES, report_data["object"]["name"])
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
 
     if account.is_active_realm_member(account_email, realm):
         if report_data["search"][0]["string"] != "":
@@ -642,7 +632,7 @@ def report_scroll_data(realm):
     scroll_id = request.args.get('_scroll_id')
     account = Account(ES)
     reporter = Reporter(ES)
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
     print('tactac:' + scroll_id)
 
     if account.is_active_realm_member(account_email, realm):
@@ -656,7 +646,7 @@ def report_scroll(realm):
     report_data = request.get_json()['report']
     account = Account(ES)
     reporter = Reporter(ES, report_data["object"]["name"])
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
 
     if account.is_active_realm_member(account_email, realm):
         return Response(json.dumps(reporter.filter_scroll(realm, report_scroll)))
@@ -673,7 +663,7 @@ def scenario_add(realm):
     sco = Scenario(ES)
     account = Account(ES)
     scenarios = request.get_json()["scenarios"]
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
 
     if account.is_active_realm_member(account_email, realm):
         return Response(json.dumps(sco.__add__(account_email, realm, scenarios)))
@@ -686,7 +676,7 @@ def scenario_update(realm):
     sco = Scenario(ES)
     account = Account(ES)
     data = request.get_json()
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
 
     if account.is_active_realm_member(account_email, realm):
         return Response(json.dumps(sco.update(account_email, realm, data)))
@@ -698,7 +688,7 @@ def scenario_list_all(realm):
     """ This function returns all the scenarios present in a given realm """
     sco = Scenario(ES)
     account = Account(ES)
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
 
     if account.is_active_realm_member(account_email, realm):
         return Response(json.dumps(sco.__list__(realm)))
@@ -711,7 +701,7 @@ def scenario_delete_by_ids(realm):
     sco = Scenario(ES)
     account = Account(ES)
     ids = request.args.getlist('ids[]')
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
 
     if account.is_active_realm_member(account_email, realm):
         return Response(json.dumps(sco.__delete__(account_email, realm, ids)))
@@ -733,7 +723,7 @@ def scenario_execute_oneshot(realm):
     sco = Scenario(ES)
     account = Account(ES)
     scenario = request.get_json()
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
     scenario["realm"] = realm
     scenario["account_email"] = account_email
     scenario_id = request.get_json()["scenario_id"] if "scenario_id" in request.get_json().keys() else None
@@ -753,9 +743,9 @@ def scheduler_add(realm):
     scheduler = Scheduler(ES)
     account = Account(ES)
     data = request.get_json()
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
     data["realm"] = realm
-    data["account_email"] = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    data["account_email"] = json.loads(request.cookies.get('account'))["email"]
 
     if account.is_active_realm_member(account_email, realm):
         return Response(json.dumps(scheduler.__add__(data)))
@@ -767,7 +757,7 @@ def scheduler_all(realm):
     """ this function list all scheduler """
     scheduler = Scheduler(ES)
     account = Account(ES)
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
 
     if account.is_active_realm_member(account_email, realm) or account_email == SCHEDULER_EMAIL:
         return Response(json.dumps(scheduler.__list__(realm)))
@@ -779,7 +769,7 @@ def scheduler_list_by_id(realm):
     """ this function list scheduler by id """
     scheduler = Scheduler(ES)
     account = Account(ES)
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
     scheduler_ids = request.args.getlist('ids[]')
 
     if account.is_active_realm_member(account_email, realm):
@@ -793,7 +783,7 @@ def scheduler_action(realm):
     scheduler = Scheduler(ES)
     account = Account(ES)
     data = request.get_json()
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
     data["account_email"] = account_email
     data["realm"] = realm
 
@@ -807,7 +797,7 @@ def scheduler_execute(realm):
 
     scheduler = Scheduler(ES)
     schedule_data = request.get_json()["schedule_ids"]
-    schedule_data["account_email"] = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    schedule_data["account_email"] = json.loads(request.cookies.get('account'))["email"]
     schedule_data["realm"] = realm
     return Response(json.dumps(scheduler.execute(schedule_data)))
 
@@ -820,7 +810,7 @@ def list_settings(realm):
     """ this function returns the settings per realm """
     setting = Setting(ES)
     account = Account(ES)
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
 
     if account.is_active_realm_member(account_email, realm):
         return Response(json.dumps(setting.__list__(id)))
@@ -832,7 +822,7 @@ def save_setting(realm, id):
     """ this function save the setting of a particular realm """
     setting = Setting(ES)
     account = Account(ES)
-    account_email = json.loads(json_cookie_convert(request.cookies.get('account')))["email"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
 
     if account.is_active_realm_member(account_email, realm):
         return Response(json.dumps(setting.save(id, request.get_json())))

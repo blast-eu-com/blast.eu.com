@@ -21,15 +21,11 @@ var SchedulerSelectAndManage = class {
     constructor() {
         this.frame = `
              <div class="input-group">
-                <div class="input-group-prepend">
-                    <div class="input-group-text">
-                        <img src="/img/bootstrap-icons-1.0.0-alpha5/search.svg" />
-                    </div>
+                <div class="input-group-text">
+                    <img src="/img/bootstrap-icons-1.0.0-alpha5/search.svg" />
                 </div>
                 <input class="form-control form-control-sm" id="schedulerNameSearch" type="text" placeholder="Search a scheduled management scenario" />
-                <div class="input-group-append">
-                    <button class="btn blast-btn btn-sm" onclick="schedulerRunSearchString();">Search</button>
-                </div>
+                <button class="btn blast-btn btn-sm" onclick="schedulerRunSearchString();">Search</button>
             </div>
             <div id="schedulerRunWindowFrameCore" class="mt-2"></div>
             <div id="schedulerRunWindowInteractive" class="row p-1 m-1"></div>

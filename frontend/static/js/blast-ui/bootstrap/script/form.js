@@ -48,6 +48,7 @@ const ScriptForm = class {
                     <div id="inputScriptDescriptionContainer" class="col-md-8"></div>
                     <div id="selectScriptLangContainer" class="col-md-4"></div>
                 </div>
+                <!--
                 <div class="row mb-3">
                     <div id="scriptRolesSelectorContainer" class="col-md-6"></div>
                     <div class="col-md-6">
@@ -55,12 +56,13 @@ const ScriptForm = class {
                         <div id="scriptRolesTagsContainer" style="border: thin solid rgba(0,0,0,.125); border-radius: 5px; margin-bottom: 1rem;"></div>
                     </div>
                 </div>
+                -->
                 <div id="scriptFormRealmsGroup" class="row mb-3">
                     <div class="col-md-6">
                         <div id="scriptShareableRealmsSelectorContainer"></div>
                     </div>
                     <div class="col-md-6">
-                        <div id="scriptShareableRealmsTagsContainer" style="border: thin solid rgba(0,0,0,.125); border-radius: 5px; margin-bottom: 1rem"></div>
+                        <div id="scriptShareableRealmsTagsContainer" style="margin-bottom: 1rem"></div>
                     </div>
                     <div class="col-md-6">
                         <input class="custom-control-input" id="scriptShareableCheck"
@@ -87,17 +89,22 @@ const ScriptForm = class {
         `
     }
 
-    setFormData() {
+    set parentName(pn) { this.pn = pn }
+
+    get parentName() { return this.pn }
+
+    setFormData = () => {
         this.formData = {
             "script_description": $("input[name=scriptDescription]").val(),
             "script_file_data": $("input[name=scriptFileData]").prop("files")[0],
             "script_file_name": $("input[name=scriptFileData]").prop("files")[0]["name"],
             "script_type": $("select#scriptType option:selected").val(),
-            "script_shareable": $("input#scriptShareableCheck").is(":checked")
+            "script_shareable": $("input#scriptShareableCheck").is(":checked"),
+            "script_shareable_realms": this.scrShareableRealms
         }
     }
 
-    addFrame = (parentName) => {
+    addFrame = () => {
         $("#" + this.parentName).html(this.frame)
     }
 
@@ -121,12 +128,13 @@ const ScriptForm = class {
     }
 
     addForm = () => {
+        this.addFrame()
         $("#inputScriptDescriptionContainer").html(this.inputScriptDescription)
         $("#inputScriptParamsContainer").html(this.inputScriptParams)
         $("#inputScriptFileContainer").html(this.inputScriptFile)
         $("#selectScriptLangContainer").html(this.scriptLangs())
-        this.scriptRolesSelector()
-        $("#scriptRolesTagsContainer").html(this.scriptRolesBadges())
+        // this.scriptRolesSelector()
+        // $("#scriptRolesTagsContainer").html(this.scriptRolesBadges())
         realm.list().then((realms) => {
             if (realms["hits"]["total"]["value"] > 1) {
                 $("#scriptShareableRealmsTagsContainer").html(this.scriptShareableRealmsBadges())
@@ -137,7 +145,7 @@ const ScriptForm = class {
         })
     }
 
-    scriptLangs() {
+    scriptLangs = () => {
         let html = `
             <label for="scriptType" class="form-label">Script Lang</label>
             <select id="scriptType" class="form-select">
@@ -151,15 +159,45 @@ const ScriptForm = class {
     scriptShareableRealmsBadges = () => {
         let html = ''
         $("div#scriptShareableRealmsTagsContainer").html(html)
-        let shareableRealms = this.scriptShareableRealms
-        if ( shareableRealms !== undefined ) {
-            shareableRealms.forEach(function(shareableRealm) {
-                html = html + `<button class="btn btn-primary m-1" type="button" onclick="delShareableRealmSelected('` + shareableRealm + `');">
-                ` + shareableRealm + `<span class="badge badge-light ml-1">X</span>
+        if ( this.scrShareableRealms.length > 0 ) {
+            this.scrShareableRealms.forEach(function(shareableRealm) {
+                html = html + `
+                <button class="btn blast-btn text-center" type="button" >` + shareableRealm + `
+                    <span class="badge badge-light blast-badge" onclick="delShareableRealmSelected('` + shareableRealm + `');">X</span>
                 </button>`
             })
         }
-        return html
+        $("div#scriptShareableRealmsTagsContainer").html(html)
+    }
+
+    scriptShareableRealmsSelector = (realms) => {
+        let html = `<select id="scriptShareableRealmsSelector" class="form-select" size="5" onchange="addShareableRealmSelected();">`
+        realm.list().then(function(realmList) {
+            realms["hits"]["hits"].forEach(function(realmData) {
+                let realmName = realmData["_source"]["name"]
+                if ( realmName !== config.session.realm ) {
+                    html = html + '<option value="' + realmName + '">' + realmName + '</option>'
+                    $("#scriptShareableRealmsSelectorContainer").html(html)
+                }
+            })
+        })
+    }
+
+    addShareableRealmSelected = () => {
+        let shareableRealm = $("#scriptShareableRealmsSelector option:selected").val()
+        if ( ! this.scrShareableRealms.includes(shareableRealm) ) {
+            console.log(this.scrShareableRealms, shareableRealm)
+            this.scrShareableRealms.push(shareableRealm)
+            this.scriptShareableRealmsBadges()
+        }
+    }
+
+    delShareableRealmSelected = (shareableRealm) => {
+        if ( this.scrShareableRealms.includes(shareableRealm) ) {
+            let index = this.scrShareableRealms.indexOf(shareableRealm)
+            this.scrShareableRealms.splice(index, 1)
+            this.scriptShareableRealmsBadges()
+        }
     }
 
     scriptRolesBadges = () => {
@@ -168,15 +206,15 @@ const ScriptForm = class {
         $("div#scriptRolesTagsContainer").html(html)
         if (roles !== undefined ) {
             roles.forEach(function (role) {
-                html = html + `<button class="btn btn-primary m-1" type="button" onclick="delRoleSelected('` + role + `');">
-                ` + role + `<span class="badge badge-light ml-1">X</span>
+                html = html + `<button class="btn blast-btn m-1" type="button" >
+                ` + role + `<span class="badge badge-light ms-1" onclick="delRoleSelected('` + role + `');">X</span>
                 </button>`
             })
         }
         return html
     }
 
-    scriptRolesSelector() {
+    scriptRolesSelector = () => {
         let html = `
             <label id="scriptRolesSelector" class="form-label">Script Roles</label>
             <select id="scriptRolesSelector" class="form-select" size="5" onchange="addRoleSelected();">
@@ -197,17 +235,19 @@ const ScriptForm = class {
         })
     }
 
-    scriptShareableRealmsSelector(realms) {
-        let html = `<select id="scriptShareableRealmsSelector" class="form-select" size="5" onchange="addShareableRealmSelected();">`
-        realm.list().then(function(realmList) {
-            realms["hits"]["hits"].forEach(function(realmData) {
-                let realmName = realmData["_source"]["name"]
-                if ( realmName !== config.session.realm ) {
-                    html = html + '<option value="' + realmName + '">' + realmName + '</option>'
-                    $("#scriptShareableRealmsSelectorContainer").html(html)
-                }
-            })
-        })
+    addRoleSelected = () => {
+        let role = $("#scriptRolesSelector option:selected").val()
+        if ( ! this.roles.includes(role) ) {
+            this.scrRoles.push(role)
+            this.scriptRolesBadges()
+        }
+    }
+
+    delRoleSelected = (role) => {
+        if ( this.roles.includes(role) ) {
+            this.scrRoles.splice(this.roles.indexOf(role), 1)
+            this.scriptRolesBadges()
+        }
     }
 
     addScript = () => {
@@ -219,39 +259,8 @@ const ScriptForm = class {
         })
     }
 
-    addRoleSelected = () => {
-        let role = $("#scriptRolesSelector option:selected").val()
-        if ( ! this.roles.includes(role) ) {
-            this.roles.push(role)
-            this.scriptRolesBadges()
-        }
-    }
-
-    addShareableRealmSelected = () => {
-        let shareableRealm = $("#scriptShareableRealmsSelector option:selected").val()
-        if ( ! this.shareableRealms.includes(shareableRealm) ) {
-            this.shareableRealms(shareableRealm)
-            this.scriptShareableRealmsBadges()
-        }
-    }
-
-    delRoleSelected = (role) => {
-        if ( this.roles.includes(role) ) {
-            this.roles.splice(this.roles.indexOf(role), 1)
-            this.scriptRolesBadges()
-        }
-    }
-
-    delShareableRealmSelected = (shareableRealm) => {
-        if ( this.shareableRealms.includes(shareableRealm) ) {
-            this.shareableRealms.splice(this.shareableRealms.indexOf(realm), 1)
-            this.scriptShareableRealmsBadges()
-        }
-    }
-
     render = (parentName) => {
         this.parentName = parentName
-        this.addFrame(this.parentName)
         this.addForm()
     }
 

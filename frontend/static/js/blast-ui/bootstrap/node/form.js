@@ -21,10 +21,10 @@ const NodeForm = class {
 
     constructor() {
 
-        this.nodeName = undefined
-        this.nodeIP = undefined
-        this.nodeDescription = undefined
-        this.fd = undefined
+        this._name = undefined
+        this._ip = undefined
+        this._description = undefined
+        this._fd = undefined
 
         this.frame = `
             <form>
@@ -34,6 +34,10 @@ const NodeForm = class {
                 </div>
                 <div class="row mb-3">
                     <div id="nodeDescriptionContainer" class="col-md-12"></div>
+                </div>
+                <div class="row mb-3">
+                    <div id="nodeScanByIp" class="col-md-6"></div>
+                    <div id="nodeContainer" class="col-md-6"></div>
                 </div>
             </form>
         `
@@ -53,26 +57,33 @@ const NodeForm = class {
             <input id="nodeDesc" type="text" name="nodeDesc" class="form-control" />
             <div id="nodeDescHelp" class="form-text">Describe the node in a few words.</div>
         `
-
-
-
+        this.inputNodeScanByIp = `
+            <input type="checkbox" id="nodeScanByIp" name="nodeScanByIp" /> Scan node by IP
+            <div id="nodeScanByIpHelp" class="form-text">Check if the node scan must use the node IP, default is node hostname.</div>
+        `
+        this.inputNodeContainer = `
+            <input type="checkbox" id="nodeContainer" name="nodeContainer" /> Node docker
+            <div id="nodeContainerHelp" class="form-text">Check if the node is a container.</div>
+        `
     }
 
-    set formData(fd) { this.fd = fd }
-    set name(nodeName) { this.nodeName = nodeName }
-    set ip(nodeIP) { this.nodeIP = nodeIP }
-    set description(nodeDescription) { this.nodeDescription = nodeDescription }
+    set formData(fd) { this._fd = fd }
+    set name(nodeName) { this._name = nodeName }
+    set ip(nodeIp) { this._ip = nodeIp }
+    set description(nodeDescription) { this._description = nodeDescription }
 
-    get formData() { return this.fd }
-    get name() { this.nodeName }
-    get ip() { this.nodeIP }
-    get description() { this.nodeDescription }
+    get formData() { return this._fd }
+    get name() { this._name }
+    get ip() { this._ip }
+    get description() { this._description }
 
     setFormData = () => {
         this.formData = {
-            "nodeName": $("#nodeName").val(),
-            "nodeIP": $("#nodeIP").val(),
-            "nodeDesc": $("#nodeDesc").val()
+            "name": $("#nodeName").val(),
+            "ip": $("#nodeIp").val(),
+            "description": $("#nodeDesc").val(),
+            "scan_by_ip": $("#nodeScanByIp").is(":checked") ? true : false,
+            "container": $("#nodeContainer").is(":checked") ? true : false,
         }
     }
 
@@ -80,6 +91,8 @@ const NodeForm = class {
         $("#nodeNameContainer").html(this.inputNodeName)
         $("#nodeIPContainer").html(this.inputNodeIP)
         $("#nodeDescriptionContainer").html(this.inputNodeDescription)
+        $("#nodeScanByIp").html(this.inputNodeScanByIp)
+        $("#nodeContainer").html(this.inputNodeContainer)
     }
 
     addFrame = (parentName) => {

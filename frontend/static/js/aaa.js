@@ -233,10 +233,16 @@ const Account = class {
     cookies = (email) => {
         return new Promise((resolve, reject) => {
             this.profile(email).then((profile) => {
+                console.log(profile)
                 $.cookie.json = true
+                $.cookie.raw = true
+                $.removeCookie('account', {path: "/"})
                 $.cookie('account', profile["account"], {path: "/"})
+                $.removeCookie('realm', {path: "/"})
                 $.cookie('realm', profile["realm"], {path: "/"})
+                $.removeCookie('setting', {path: "/"})
                 $.cookie('setting', profile["setting"], {path: "/"})
+                $.removeCookie('scriptlangs', {path: "/"})
                 $.cookie('scriptlangs', profile["scriptlangs"], {path: "/"})
                 resolve(true)
             })
@@ -267,7 +273,7 @@ const Account = class {
             if ( Object.keys(accountLoginResult).includes("jwt") ) {
                 $.cookie('jwt', accountLoginResult["jwt"], {path: "/"})
                 this.cookies(loginData["email"]).then((setCookieResult) => {
-                    if (setCookieResult) { location.href = "/html/home.html" }
+                    if (setCookieResult) { location.href = "/html/infrastructure.html" }
                 })
             }
         })

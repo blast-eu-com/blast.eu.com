@@ -77,18 +77,19 @@ class Realm:
         # the data must contain several information fields like :
         # name, description and settings
         # the realm settings will be impacting the user
+        print(" >>> Enter file:aaa:class:realm:function:__add__")
         try:
             resp_realm_add = []
             for realm in realms:
+                print(realm)
                 if self.list_by_names(realm["name"].split(" "))["hits"]["total"]["value"] == 0:
                     realm["account_email"] = account_email
                     new_realm = self.ES.index(index=self.DB_INDEX, body=json.dumps(realm), refresh=True)
 
                     if new_realm["result"] == "created":
-                        new_stg = self.SETTING.__add__(realm["name"])
-
-                        if new_stg["result"] == "created":
+                        if self.SETTING.__add__(realm["name"]):
                             acc = self.ACCOUNT.list_by_email(account_email)
+                            print(acc)
 
                             if acc["hits"]["total"]["value"] > 0:
                                 account_id = acc["hits"]["hits"][0]["_id"]
@@ -107,8 +108,8 @@ class Realm:
             return {"failure": str(e)}
 
     def __delete__(self, account_email: str, realm_ids: list):
-
         """ this function delete an existing account object from the database """
+        print(" >>> Enter file:aaa:class:realm:function:__delete__")
         try:
             resp_realm_del = []
             for realm_id in realm_ids:
@@ -130,7 +131,7 @@ class Realm:
             return {"failure": str(e)}
 
     def update(self, data: dict):
-
+        print(" >>> Enter file:aaa:class:realm:function:update")
         try:
             id = data["id"]
             del data["id"]
@@ -142,8 +143,8 @@ class Realm:
             return {"failure": str(e)}
 
     def __list__(self):
-
         """ this function returns all the realm object present in the database """
+        print(" >>> Enter file:aaa:class:realm:function:__list__")
         try:
             req = json.dumps(
                 {
@@ -168,8 +169,8 @@ class Realm:
             return {"failure": e}
 
     def list_by_ids(self, ids: list):
-
         """ this function returns the realm by realm id as passed via function param """
+        print(" >>> Enter file:aaa:class:realm:function:list_by_ids")
         try:
             req = json.dumps(
                 {
@@ -195,8 +196,8 @@ class Realm:
             return {"failure": str(e)}
 
     def list_by_names(self, names: list):
-
         """ this function returns the realm object with the given name """
+        print(" >>> Enter file:aaa:class:realm:function:list_by_names")
         try:
             req = json.dumps(
                 {
@@ -237,6 +238,7 @@ class Account:
         param: account_email: the account email of the account that order the realm switch
         param: new_realm: the new active realm is the new_realm
         """
+        print(" >>> Enter file:aaa:class:Account:function:activate_realm")
         try:
             acc = self.__list_to_login(account_email)["hits"]["hits"][0]
             for realm in acc["_source"]["realm"]:
@@ -249,6 +251,7 @@ class Account:
             return {"failure": str(e)}
 
     def add_account(self, data: dict):
+        print(" >>> Enter file:aaa:class:Account:function:add_account")
         try:
             req = json.dumps(
                 {
@@ -272,7 +275,7 @@ class Account:
             return {"failure": str(e)}
 
     def __add__(self, data: dict):
-
+        print(" >>> Enter file:aaa:class:Account:function:__add__")
         try:
             res_search_account = self.list_by_email(data["email"])
             if "hits" in res_search_account.keys():
@@ -286,12 +289,12 @@ class Account:
             return {"failure": str(e)}
 
     def __delete__(self, account_email: str, account_ids: list):
-
         """
         This function delete one or more existing account
         param: account_email: the account_email of the account requesting the deletion
         param: account_ids: the list of account id to be deleted
         """
+        print(" >>> Enter file:aaa:class:Account:function:__delete__")
         try:
             resp_accounts_del = []
             for account_id in account_ids:
@@ -304,10 +307,10 @@ class Account:
             return {"failure": str(e)}
 
     def delete_by_realm(self, realm: str):
-
         """
         This function delete realm from all users
         """
+        print(" >>> Enter file:aaa:class:Account:function:delete_by_realm")
         try:
             accounts = self.__list_by_realm_full(realm)
             for account in accounts["hits"]["hits"]:
@@ -328,6 +331,7 @@ class Account:
         param: account_email: account email passed by the requestor
         param: realm: realm name passed by requestor in the REST API path
         """
+        print(" >>> Enter file:aaa:class:Account:function:is_active_realm_member")
         try:
             accounts = self.list_by_active_realm(realm)
             for account in accounts["hits"]["hits"]:
@@ -341,7 +345,7 @@ class Account:
             return {"failure": str(e)}
 
     def is_valid_token(self, email: str, token: str):
-
+        print(" >>> Enter file:aaa:class:Account:function:is_valid_token")
         try:
             secret = self.__list_to_login(email)["hits"]["hits"][0]["_source"]["secret"]
             jwt.decode(token, secret, verify=True)
@@ -353,8 +357,8 @@ class Account:
             return False
 
     def __list__(self):
-
         """ this function list and account by id """
+        print(" >>> Enter file:aaa:class:Account:function:__list__")
         try:
             req = json.dumps(
                 {
@@ -379,8 +383,8 @@ class Account:
             return {"failure": str(e)}
 
     def list_by_ids(self, account_ids: list):
-
         """ this function list the record matching the account id passed as param """
+        print(" >>> Enter file:aaa:class:Account:function:list_by_ids")
         try:
             req = json.dumps(
                 {
@@ -407,13 +411,13 @@ class Account:
             return {"failure": str(e)}
 
     def list_by_email(self, email: str):
-
         """ this function returns the record matching without password and secret """
+        print(" >>> Enter file:aaa:class:Account:function:list_by_email")
         try:
             req = json.dumps(
                 {
                     "query": {
-                        "match": {
+                        "term": {
                             "email": email
                         }
                     },
@@ -434,8 +438,8 @@ class Account:
             return {"failure": str(e)}
 
     def list_by_realm(self, realm: str):
-
         """ this function returns a list of account records without password and secret """
+        print(" >>> Enter file:aaa:class:Account:function:list_by_realm")
         try:
             req = json.dumps(
                 {
@@ -467,10 +471,10 @@ class Account:
             return {"failure": str(e)}
 
     def __list_by_realm_full(self, realm: str):
-
         """
         This function returns a list of full account records
         """
+        print(" >>> Enter file:aaa:class:Account:function:__list_by_realm_full")
         try:
             req = json.dumps(
                 {
@@ -502,7 +506,7 @@ class Account:
             return {"failure": str(e)}
 
     def list_by_active_realm(self, realm: str):
-
+        print(" >>> Enter file:aaa:class:Account:function:list_by_active_realm")
         try:
             req = json.dumps(
                 {
@@ -514,12 +518,12 @@ class Account:
                                 "bool": {
                                     "must": [
                                         {
-                                            "match": {
+                                            "term": {
                                                 "realm.name": realm
                                             }
                                         },
                                         {
-                                            "match": {
+                                            "term": {
                                                 "realm.favorite": True
                                             }
                                         }
@@ -546,7 +550,7 @@ class Account:
             return {"failure": str(e)}
 
     def list_active_realm(self, account_id: str):
-
+        print(" >>> Enter file:aaa:class:Account:function:list_active_realm")
         try:
             accounts = self.list_by_ids(account_id.split(" "))
             print(accounts)
@@ -560,13 +564,13 @@ class Account:
             return {"failure": str(e)}
 
     def __list_to_login(self, email: str):
-
         """ this function returns the record matching the email passed as param """
+        print(" >>> Enter file:aaa:class:Account:function:__list_to_login")
         try:
             req = json.dumps(
                 {
                     "query": {
-                        "match": {
+                        "term": {
                             "email": email
                         }
                     }
@@ -581,8 +585,8 @@ class Account:
 
     @staticmethod
     def __load_account_jwt(account):
-
         """ this function returns a jwt for the account passed as argument """
+        print(" >>> Enter file:aaa:class:Account:function:__load_account_jwt")
         account_secret = account["_source"]["secret"]
         account_email = account["_source"]["email"]
         jwt_payload = {"email": account_email, "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=480)}
@@ -590,10 +594,8 @@ class Account:
         return jwt_str.decode("utf-8").strip('\"')
 
     def load_account_profile(self, account_email: str):
-
-        """
-        This function returns the account which is set a account cookie
-        """
+        """ This function returns the account which is set a account cookie """
+        print(" >>> Enter file:aaa:class:Account:function:load_account_profile")
         try:
             http_response = {}
             scriptlangs = {}
@@ -627,8 +629,8 @@ class Account:
             return {"failure": str(e)}
 
     def authenticate(self, email: str, password: str):
-
         """ this function login an account and return JWT token """
+        print(" >>> Enter file:aaa:class:Account:function:Authenticate")
         try:
             http_response = {}
             account = self.__list_to_login(email)["hits"]["hits"][0]
@@ -644,19 +646,19 @@ class Account:
             return {"failure": str(e)}
 
     def update(self, account_id: str, data: dict):
-
+        print(" >>> Enter file:aaa:class:Account:function:update")
         try:
-            return self.ES.update(index=self.DB_INDEX, id=account_id, body=json.dumps({"doc": data}), refresh=True)
-
+            res = self.ES.update(index=self.DB_INDEX, id=account_id, body=json.dumps({"doc": data}), refresh=True)
+            return res
         except Exception as e:
             print("backend Exception, file:aaa:class:account:func:update")
             print(str(e))
             return {"failure": str(e)}
 
     def update_profile(self, account_id: str, data: dict):
-
+        print(" >>> Enter file:aaa:class:Account:function:update_profile")
         try:
-            current_account = self.list_by_ids(account_id.split(" "))["_source"]
+            current_account = self.list_by_ids(account_id.split(" "))["hits"]["hits"][0]["_source"]
 
             if data["account_picture"] != "undefined":
                 current_account["picture"] = account_id

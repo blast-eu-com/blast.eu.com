@@ -24,23 +24,8 @@ var ScenarioFilterAndSelect = class {
         this.lp = 1                 // last page
         this.fp = 1                 // first page
         this.cp = 1                 // current page
-    }
-
-    set numRecord(nr) { this.nr = nr }
-    set curNumRecord(cn) { this.cn = cn }
-    set lastPage(lp) { this.lp = lp }
-    set firstPage(fp) { this.fp = fp }
-    set curPageNum(cp) { this.cp = cp }
-
-    get numRecord() { return this.nr }
-    get curNumRecord() { return this.cn }
-    get lastPage() { return this.lp }
-    get firstPage() { return this.fp }
-    get curPageNum() { return this.cp }
-
-
-    addFrame(parentName) {
-        $('#' + parentName).html(`
+        this._pn = undefined
+        this.frame = `
             <div class="input-group">
                 <div class="input-group-text"><img src="/img/bootstrap-icons-1.0.0-alpha5/search.svg" /></div>
                 <input class="form-control form-control-sm" id="scenarioNameSearch" type="text" placeholder="Search a scenario" />
@@ -48,7 +33,26 @@ var ScenarioFilterAndSelect = class {
             </div>
             <div id="scenarioSearchWindowFrameCore" class="mt-2"></div>
             <div id="scenarioSearchWindowInteractive" class="row p-1 m-1"></div>
-        `)
+        `
+    }
+
+    set parentName(pn) { this._pn = pn }
+    set numRecord(nr) { this.nr = nr }
+    set curNumRecord(cn) { this.cn = cn }
+    set lastPage(lp) { this.lp = lp }
+    set firstPage(fp) { this.fp = fp }
+    set curPageNum(cp) { this.cp = cp }
+
+    get parentName() { return this._pn }
+    get numRecord() { return this.nr }
+    get curNumRecord() { return this.cn }
+    get lastPage() { return this.lp }
+    get firstPage() { return this.fp }
+    get curPageNum() { return this.cp }
+
+
+    addFrame() {
+        $('#' + this.parentName).html(this.frame)
     }
 
     scenarioPageLength() {
@@ -90,7 +94,7 @@ var ScenarioFilterAndSelect = class {
             html = html + `<tr style="display:table-row">
             <td width="50px"><input name="scenario" value="` + scenarioDataFiltered[i]["_id"] + `" type="checkbox" style="margin-left: 10px;"/></td>
             <td width="50px"><img src="/img/bootstrap-icons/terminal.svg" height="24" width="24"/></td>
-            <td width="512px"><a href="/html/managementsce-details.html?scenario_id=` + scenarioDataFiltered[i]["_id"] + `&scenario_name=` + scenarioDataFiltered[i]["_source"]["name"] + `">` + scenarioDataFiltered[i]["_source"]["name"] + `</a></td>
+            <td width="512px"><a href="/html/scenario-details.html?scenario_id=` + scenarioDataFiltered[i]["_id"] + `&scenario_name=` + scenarioDataFiltered[i]["_source"]["name"] + `">` + scenarioDataFiltered[i]["_source"]["name"] + `</a></td>
             <td>` + scenarioDataFiltered[i]["_source"]["description"] + `</td>
             </tr>`
         }
@@ -217,6 +221,7 @@ var ScenarioFilterAndSelect = class {
     // return the filter and select window
     render = (parentName) => {
         this.parentName = parentName
+        this.addFrame()
         this.scenarioSearchWindowFrameCore()
     }
 

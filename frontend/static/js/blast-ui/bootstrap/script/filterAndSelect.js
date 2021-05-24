@@ -24,10 +24,8 @@ const ScriptFilterAndSelect = class {
         this.parentName = parentName
         this.frame = `
             <div class="input-group">
-                <div class="input-group-prepend">
-                    <div class="input-group-text">
-                        <img src="/img/bootstrap-icons-1.0.0-alpha5/search.svg" />
-                    </div>
+                <div class="input-group-text">
+                    <img src="/img/bootstrap-icons-1.0.0-alpha5/search.svg" />
                 </div>
                 <input class="form-control form-control-sm" id="scriptNameSearch" type="text" />
                 <select id="scriptTypeSelect" class="form-select form-select-sm col-3 mx-1"></select>

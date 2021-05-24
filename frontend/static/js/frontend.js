@@ -31,10 +31,16 @@ const FrontendConfig = class {
             webServerPath: "/opt/blast.eu.com/frontend/static",
             httpImgFolder: "/img"
         }
-        if ($.cookie('account')) {
+        if ($.cookie('account') && !!$.cookie('account')) {
+            let accountFirstName = (Object.keys(JSON.parse($.cookie("account"))).includes("first_name")) ? JSON.parse($.cookie('account'))["first_name"] : ""
+            let accountFamilyName = (Object.keys(JSON.parse($.cookie("account"))).includes("family_name")) ? JSON.parse($.cookie('account'))["family_name"] : ""
+            let accountPicture = (Object.keys(JSON.parse($.cookie("account"))).includes("picture")) ? JSON.parse($.cookie('account'))["picture"] : "profile-picture.png"
             this.session = {
                 accountId: JSON.parse($.cookie('account'))["id"],
                 accountEmail: JSON.parse($.cookie('account'))["email"],
+                accountFirstName: accountFirstName,
+                accountFamilyName: accountFamilyName,
+                accountPicture: accountPicture,
                 realm: JSON.parse($.cookie('realm'))["name"],
                 realmId: JSON.parse($.cookie('realm'))["id"],
                 setting: JSON.parse($.cookie('setting')),

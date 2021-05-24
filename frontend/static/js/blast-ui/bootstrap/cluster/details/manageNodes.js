@@ -48,7 +48,7 @@ const ClusterManageNodes = class {
         <select name="select_cluster_node_add" class="form-select"><option value="" disabled selected>node to add</option>`
         let htmlSelectCore = ``
         let htmlSelectFooter = `</select>
-        <button id="btnAddNode" class="btn blast-btn" onclick="addNodeToCluster()"><b>Add</b></button></div>`
+        <button id="btnAddNode" class="btn blast-btn" onclick="addNodeToCluster()">Add</button></div>`
         cluster.nodes.forEach(function(nodeObj) { clusterNodes.push(nodeObj["name"]) })
 
         if ( allNode["hits"]["total"]["value"] > 0 ) {
@@ -68,7 +68,7 @@ const ClusterManageNodes = class {
         let htmlSelectCore = ``
         let htmlSelectFooter = `
             </select>
-            <button id="btnRemNode" class="btn blast-btn" onclick="remNodeFromCluster()"><b>Remove</b></button>
+            <button id="btnRemNode" class="btn blast-btn" onclick="remNodeFromCluster()">Remove</button>
             </div>`
         cluster.nodes.forEach(function(nodeObj) { htmlSelectCore = htmlSelectCore + '<option value="' + nodeObj["id"] + '">' + nodeObj["name"] + '</option>' })
         $("#selectRemNodesContainer").html(htmlSelectHeader + htmlSelectCore + htmlSelectFooter)

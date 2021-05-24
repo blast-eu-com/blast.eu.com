@@ -47,6 +47,7 @@ class Portmap:
         self.DB_INDEX = 'portmap'
 
     def __delete__(self, id: str):
+        print(" >>> Enter file:setting:class:Portmap:function:__delete__")
         try:
             return self.ES.delete(index=self.DB_INDEX, id=id)
 
@@ -54,13 +55,14 @@ class Portmap:
             return {"failure": e}
 
     def delete_by_realm(self, realm: str):
-
         """ this function delete the portmap link to this realm """
+        print(" >>> Enter file:setting:class:Portmap:function:delete_by_realm")
         portmaps = self.__list__(realm)
         [self.__delete__(portmap["_id"]) for portmap in portmaps["hits"]["hits"]]
 
     def __list__(self, realm: str):
         """ this function returns the full list of ports mapping """
+        print(" >>> Enter file:setting:class:Portmap:function:__list__")
         try:
             req = json.dumps({"size": 10000, "query": {"bool": {
                 "must": {"match_all": {}},
@@ -73,6 +75,7 @@ class Portmap:
 
     def map_socket(self, realm: str, socket: str):
         """ this function returns the application name assigned to this port """
+        print(" >>> Enter file:setting:class:Portmap:function:map_socket")
         try:
             req = json.dumps({"query": {"bool": {"must": [
                 {"match": {"port": socket}},
@@ -91,19 +94,20 @@ class Setting:
         self.DB_INDEX = 'setting'
 
     def __add__(self, realm: str):
-
         """ this function add a new setting document into the database """
+        print(" >>> Enter file:setting:class:Setting:function:__add__")
         try:
             setting_res = self.list_by_realm(realm)
-            provision_realm_settings(realm)
+            if setting_res["hits"]["total"]["value"] == 0:
+                return provision_realm_settings(realm)
 
         except Exception as e:
             print(e)
             return {"failure": str(e)}
 
     def __delete__(self, id: str):
-
         """ this function delete the setting identified as id part of the realm id as passed in arg """
+        print(" >>> Enter file:setting:class:Setting:function:__delete__")
         try:
             setting = self.list_by_id(id)
             return self.ES.delete(index=self.DB_INDEX, id=id, refresh=True)
@@ -113,14 +117,14 @@ class Setting:
             return {"failure": str(e)}
 
     def delete_by_realm(self, realm: str):
-
         """ this function delete a setting linked to a specific realm """
+        print(" >>> Enter file:setting:class:Setting:function:delete_by_realm")
         settings = self.list_by_realm(realm)
         [self.__delete__(setting["_id"]) for setting in settings["hits"]["hits"]]
 
     def __list__(self, realm: str):
-
         """ this function returns all the settings attached to the realm id passed as arg """
+        print(" >>> Enter file:setting:class:Setting:function:__list__")
         try:
             req = json.dumps({"query": {"bool": {
                 "must": {"match_all": {}},
@@ -133,8 +137,8 @@ class Setting:
             return {"failure": str(e)}
 
     def list_by_id(self, id: str):
-
         """ this function retuns the settings linked contained in inside the doc having the id passed as arg """
+        print(" >>> Enter file:setting:class:Setting:function:list_by_id")
         try:
             return self.ES.get(index=self.DB_INDEX, id=id)
 
@@ -142,8 +146,8 @@ class Setting:
             return {"failure": e}
 
     def list_by_realm(self, realm: str):
-
         """ this function returns the settings linked to the realm id passed as arg """
+        print(" >>> Enter file:setting:class:Setting:function:list_by_realm")
         try:
             req = json.dumps({"query": {"match": {"realm": realm}}})
             return self.ES.search(index=self.DB_INDEX, body=req)
@@ -152,16 +156,16 @@ class Setting:
             return {"failure": e}
 
     def list_ssh_password_by_realm(self, realm: str):
-
         """ this function returns the ssh password decrypted """
+        print(" >>> Enter file:setting:class:Setting:function:list_ssh_password_by_realm")
         setting = self.list_by_realm(realm)
         if setting["hits"]["total"]["value"] == 1:
             return decrypt_password(setting["hits"]["hits"][0]["_source"]["crypto"],
                                     setting["hits"]["hits"][0]["_source"]["ssh"]["password"])
 
     def save(self, id: str, data: dict):
-
         """ this function save the settings """
+        print(" >>> Enter file:setting:class:Setting:function:save")
         try:
             setting = self.list_by_id(id)
             if setting["found"]:

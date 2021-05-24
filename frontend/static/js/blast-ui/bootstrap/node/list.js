@@ -58,15 +58,15 @@ var NodeList = class {
         let objName = objectData["_index"]
         let html =`
             <a id="node-img"
-                class="card bg-gradient rounded h-100" style="background-color: #D9D9D9; border: 1px solid #CCCCCC"
+                class="card bg-gradient rounded h-100" style="background-color: #EEE; border: 1px solid #CCCCCC"
                 href="/html/node-details.html?node_id=` + recId + `&node_name=` + objectData["_source"]["name"] + `">
                     <img src="/img/object/node.svg" class="card-img-top mt-3 py-3" height="86" width="86" />
-                    <div class="card-body border-top bg-gradient text-white" style="background-color: #4B8BBE">
-                        <div class="card-title fw-bold" style="font-size: 14px">` + objectData["_source"]["name"] + `</div>
+                    <div class="card-body border-top bg-gradient text-white" style="background-color: #0995D3">
+                        <div class="card-title" style="font-size: 16px">` + objectData["_source"]["name"] + `</div>
                         <span style="font-size: 12px">` + objectData["_source"]["description"] + `</span><br>
                     </div>
-                    <div class="card-footer bg-gradient text-center text-dark p-0" style="background-color: #FFD43B">
-                        <span class="fw-lighter" style="font-size: 10px;">` + recId + `</span>
+                    <div class="card-footer bg-gradient text-center text-dark p-0" style="background-color: #FFE873">
+                        <span class="fw-lighter" style="font-size: 12px;">` + recId + `</span>
                     </div>
                 </a>`
 

@@ -22,17 +22,16 @@ import SchedulerLast from './last.js'
 import ScenarioFilterAndSelect from '../scenario/filterAndSelect.js'
 var reporter = new Reporter()
 var scheduler = new Scheduler()
+var scenarioFilterAndSelect = new ScenarioFilterAndSelect()
 var schedulerSelectAndManage = new SchedulerSelectAndManage()
 var schedulerForm = new SchedulerForm()
 var schedulerOnGoing = new SchedulerOnGoing()
 var schedulerLast = new SchedulerLast()
-var scenarioFilterAndSelect = new ScenarioFilterAndSelect()
 
 
 const main = function() {
     schedulerForm.render('schedulerExecContainer')
     let scenarioPageLength = $("select#scenarioSelSamplePerPage option:selected").val()
-    scenarioFilterAndSelect.render('schedulerScenarioContainer', scenarioPageLength)
     let schedulerPageLength = $("select#schedulerSelSamplePerPage option:selected").val()
     schedulerSelectAndManage.render('schedulerRun', schedulerPageLength)
     schedulerOnGoing.render('schedulerOnGoing', reporter)

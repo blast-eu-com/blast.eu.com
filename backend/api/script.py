@@ -44,7 +44,6 @@ class Script:
                     "filename": file_name,
                     "type": data["script_type"],
                     "content": file_content,
-                    "roles": data["script_roles"],
                     "shareable": data["script_shareable"],
                     "shareable_realms": data["script_shareable_realms"]
                 }

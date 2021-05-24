@@ -15,57 +15,27 @@
 */
 
 import Account from './aaa.js'
-import FrontendConfig from './frontend.js'
 import Nav from './nav.js'
+import FrontendConfig from './frontend.js'
+
 let account = new Account()
-let config = new FrontendConfig()
 let nav = new Nav()
+let config = new FrontendConfig()
 
-const loadProfilePicture = function() {
-    let accountPicture = (Object.keys(JSON.parse($.cookie("account"))).includes("picture")) ? JSON.parse($.cookie("account"))["picture"] : ""
-    $("img#accountPicture").attr("src", config.frontend.httpImgFolder + '/profile/' + accountPicture)
-}
-
-const loadProfileFirstName = function() {
-    let accountFirstName = (Object.keys(JSON.parse($.cookie("account"))).includes("first_name")) ? JSON.parse($.cookie("account"))["first_name"] : ""
-    $("input#accountFirstName").val(accountFirstName)
-}
-
-const loadProfileFamilyName = function() {
-    let accountFamilyName = (Object.keys(JSON.parse($.cookie("account"))).includes("family_name")) ? JSON.parse($.cookie("account"))["family_name"] : ""
-    $("input#accountFamilyName").val(accountFamilyName)
-}
-
-const loadProfileEmail = function() {
-    let accountEmail = (Object.keys(JSON.parse($.cookie("account"))).includes("email")) ? JSON.parse($.cookie("account"))["email"] : ""
-    $("input#accountEmail").val(accountEmail)
-}
-
-const loadProfile = function() {
-    loadProfilePicture()
-    loadProfileFirstName()
-    loadProfileFamilyName()
-    loadProfileEmail()
-}
-
-const getFormData = function() {
+export function updateProfile() {
     let accountPicture = ($("input#accountPicture").prop("files")[0] === 'undefined') ? "undefined" : $("input#accountPicture").prop("files")[0]
-    return {
+    let profileData = {
         "accountPicture": accountPicture,
         "accountFirstName": $("input#accountFirstName").val(),
         "accountFamilyName": $("input#accountFamilyName").val(),
         "accountEmail": $("input#accountEmail").val()
     }
-}
-
-const updateProfile = function() {
-    let profileData = getFormData()
-    account.update(profileData).then(function(Resp) {
-        account.loadAccountProfile(config.session.accountEmail)
-        nav.loadNavBarProfilePicture()
-        location.reload()
+    account.update(profileData).then((Resp) => {
+        console.log(Resp)
+        // account.cookies(config.session.accountEmail).then((setCookieResult) => {
+        //    console.log(setCookieResult)
+            // nav.loadNavBarProfilePicture()
+            // location.reload()
+        // })
     })
 }
-
-window.loadProfile = loadProfile
-window.updateProfile = updateProfile

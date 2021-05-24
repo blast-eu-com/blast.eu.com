@@ -37,6 +37,7 @@ this page is used as default page only redirect can be found here -->
             return new Promise(function(resolve, reject) {
                 $.each($.cookie(), function(k, v) {
                     $.removeCookie(k, {path: '/'})
+                    $.removeCookie(k, {path: '/html'})
                 })
                 resolve(true)
             })

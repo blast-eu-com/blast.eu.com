@@ -38,10 +38,10 @@ let Nav = class {
                     <img src="/img/blast_header_yellow.ico" width="120" height="40" class="d-inline-block align-bottom"/>
                 </a>
                 <div class="dropdown p-1 mx-3" style="border-left: thin solid gray; border-right: thin solid gray;">
-                    <img id="dropDownProfileMenuLink" data-toggle="dropdown" role="button"
-                         style="margin-left: 10px; margin-right: 10px;"
+                    <img id="dropDownProfileMenuLink" data-toggle="dropdown-toggle" type="button"
+                         style="margin-left: 10px; margin-right: 10px;" data-bs-toggle="dropdown"
                          src="" width="36" height="36" />
-                    <div class="dropdown-menu mr-3 mt-2 bg-dark" style="border: 1px solid black; z-index: 1001" aria-labelledby="dropDownProfileMenuLink">
+                    <div class="dropdown-menu mr-3 mt-2 bg-dark" style="z-index: 1001" aria-labelledby="dropDownProfileMenuLink">
                         <a class="dropdown-item bg-dark text-light" href="/html/profile.html">
                             <img src="/img/object/profile.svg" width="24" height="24" /><span style="margin-left: 24px">Profile</span></a>
                         <a class="dropdown-item bg-dark text-light" href="/html/profile.html">
@@ -54,9 +54,9 @@ let Nav = class {
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav">
                         <li id="navDropDown" class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" id="realmDropDownMenu" role="button" 
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></a>
-                            <div class="dropdown-menu mt-2" id="navRealmDropDownMenu" aria-labelledby="navbarDropdown"
+                            <a class="nav-link dropdown-toggle blast-nav-realm" id="realmDropDownMenu" role="button"
+                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></a>
+                            <div class="dropdown-menu mt-2 bg-dark text-light" id="navRealmDropDownMenu" aria-labelledby="navbarDropdown"
                                  style="height: 150px; overflow-y: scroll"></div>
                         </li>
                     </ul>     
@@ -97,11 +97,12 @@ let Nav = class {
                        href="/html/cluster.html" onclick="sideNavActiveMenu('cluster')">
                     <img src="/img/object/cluster.svg" height="24" width="24" class="d-inline-block align-middle mr-4" />
                     Cluster</a></li>
-                <li class="nav-item item-active p-2 pl-3" id="dashboard">
+                <!-- <li class="nav-item item-active p-2 pl-3" id="dashboard">
                     <a class="nav-link text-decoration-none font-weight-normal" style="color: black" 
                        href="/html/dashboard.html" onclick="sideNavActiveMenu('dashboard')">
                     <img src="/img/object/dashboard.svg" height="24" width="24" class="d-inline-block align-middle mr-4" />
                     Dashboard</a></li>
+                -->
                 <li class="nav-item p-2 pl-3" id="infrastructure">
                     <a class="nav-link text-decoration-none font-weight-normal" style="color: black"
                        href="/html/infrastructure.html" onclick="sideNavActiveMenu('infrastructure')">
@@ -169,14 +170,10 @@ let Nav = class {
         this.loadNavBarProfilePicture()
         $("#realmDropDownMenu").html(realmName)
 
-        realm.list().then(function(realmData) {
-            if ( realmData["hits"]["total"]["value"] > 0 ) {
-                realmData["hits"]["hits"].forEach(function(data) {
-                    if ( realmName !== data["_source"]["name"] ) {
-                        html = html + `<a class="dropdown-item" onclick="navRealmSwitch('` + data["_source"]["name"] + `')">` + data["_source"]["name"] + `</a>`
-                        $("#navRealmDropDownMenu").html(html)
-                    }
-                })
+        JSON.parse($.cookie("account"))["realm"].forEach((realm) => {
+            if ( realmName !== realm["name"]) {
+                html = html + `<a class="dropdown-item blast-nav-dropdown-realm" onclick="navRealmSwitch('` + realm["name"] + `')">` + realm["name"] + `</a>`
+                $("#navRealmDropDownMenu").html(html)
             }
         })
     }

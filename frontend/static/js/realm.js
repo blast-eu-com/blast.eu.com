@@ -137,7 +137,7 @@ const Realm = class {
             if ( switchRealmResult["result"] == "updated" ) {
                 account.cookies(config.session.accountEmail).then((setCookieResult) => {
                     if ( setCookieResult ) {
-                        location.href = "/html/home.html"
+                        location.reload()
                     }
                 })
             }
