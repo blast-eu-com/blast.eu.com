@@ -22,7 +22,7 @@ class Reporter:
 
     def __init__(self, ESConnector, report_type=None):
         self.ES = ESConnector
-        self.DB_INDEX = "report"
+        self.DB_INDEX = "blast_obj_report"
         self.report_type = report_type
 
     def __add__(self, report: dict):

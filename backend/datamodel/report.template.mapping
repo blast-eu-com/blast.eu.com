@@ -1,5 +1,5 @@
 {
-  "index_patterns": "report",
+  "index_patterns": "blast_obj_report",
   "order": 99,
   "mappings" : {
     "dynamic": false,

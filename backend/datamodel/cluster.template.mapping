@@ -1,5 +1,5 @@
 {
-  "index_patterns": "cluster",
+  "index_patterns": "blast_obj_cluster",
   "order": 99,
   "mappings" : {
     "dynamic": false,

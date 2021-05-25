@@ -25,7 +25,7 @@ class Node:
     def __init__(self, ESConnector):
         self.ES = ESConnector
         self.SETTING = Setting(self.ES)
-        self.DB_INDEX = 'node'
+        self.DB_INDEX = 'blast_obj_node'
         self.STATISTIC = statistic.Statistic(self.ES)
         self.STATISTIC_DATA = self.STATISTIC.STATISTIC_DATA
         self.STATISTIC_DATA["object_type"] = 'node'

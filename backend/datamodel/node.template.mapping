@@ -1,5 +1,5 @@
 {
-  "index_patterns": "node",
+  "index_patterns": "blast_obj_node",
   "order": 99,
   "mappings" : {
     "dynamic": false,

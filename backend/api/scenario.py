@@ -26,7 +26,7 @@ from api.node import Node
 class Scenario:
     def __init__(self, ESConnector):
         self.ES = ESConnector
-        self.DB_INDEX = 'scenario'
+        self.DB_INDEX = 'blast_obj_scenario'
         self.STATISTIC = statistic.Statistic(self.ES)
         self.STATISTIC_DATA = self.STATISTIC.STATISTIC_DATA
         self.STATISTIC_DATA["object_type"] = 'scenario'

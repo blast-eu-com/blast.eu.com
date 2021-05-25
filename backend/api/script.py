@@ -24,7 +24,7 @@ class Script:
 
     def __init__(self, ESConnector):
         self.ES = ESConnector
-        self.DB_INDEX = 'script'
+        self.DB_INDEX = 'blast_obj_script'
         self.SETTING = Setting(self.ES)
         self.script_location_dir = None
         self.script_session_dir = None

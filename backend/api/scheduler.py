@@ -29,7 +29,7 @@ class Scheduler:
         self.STATISTIC = statistic.Statistic(self.ES)
         self.STATISTIC_DATA = self.STATISTIC.STATISTIC_DATA
         self.STATISTIC_DATA["object_type"] = "scheduler"
-        self.DB_INDEX = 'scheduler'
+        self.DB_INDEX = 'blast_obj_scheduler'
 
     def __add__(self, data: dict):
 

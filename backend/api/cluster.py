@@ -24,7 +24,7 @@ class Cluster:
         self.STATISTIC = statistic.Statistic(self.ES)
         self.STATISTIC_DATA = self.STATISTIC.STATISTIC_DATA
         self.STATISTIC_DATA["object_type"] = "cluster"
-        self.DB_INDEX = 'cluster'
+        self.DB_INDEX = 'blast_obj_cluster'
 
     def __add__(self, account_email: str, realm: str, clusters: list):
         

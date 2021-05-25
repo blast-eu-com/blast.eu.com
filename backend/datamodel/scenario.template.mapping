@@ -1,5 +1,5 @@
 {
-  "index_patterns": "scenario",
+  "index_patterns": "blast_obj_scenario",
   "order": 99,
   "mappings" : {
     "dynamic": false,

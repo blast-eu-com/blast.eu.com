@@ -1,5 +1,5 @@
 {
-  "index_patterns": "script",
+  "index_patterns": "blast_obj_script",
   "order": 99,
   "mappings" : {
     "dynamic": false,

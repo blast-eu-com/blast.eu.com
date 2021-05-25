@@ -1,5 +1,5 @@
 {
-  "index_patterns": "infrastructure",
+  "index_patterns": "blast_obj_infrastructure",
   "order": 99,
   "mappings" : {
     "dynamic": false,

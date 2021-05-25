@@ -1,5 +1,5 @@
 {
-  "index_patterns": "scheduler",
+  "index_patterns": "blast_obj_scheduler",
   "order": 99,
   "mappings" : {
     "dynamic": false,
