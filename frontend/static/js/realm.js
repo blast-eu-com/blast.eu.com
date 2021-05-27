@@ -14,8 +14,8 @@
    limitations under the License.
 */
 import FrontendConfig from './frontend.js'
+import Nav from './nav.js'
 import Account from './aaa.js'
-
 var config = new FrontendConfig()
 var account = new Account()
 
@@ -41,7 +41,7 @@ const Realm = class {
     get accountEmail() { return this._accountEmail }
     get rawData() { return this._data }
 
-    add = function(realms) {
+    add = (realms) => {
         return new Promise(function(resolve, reject) {
             $.ajax({
                 url: config.proxyAPI + '/realms',
@@ -60,6 +60,7 @@ const Realm = class {
                         }
                     } else if ( typeof Resp === 'object') {
                         resolve(Resp)
+
                     }
                 }
             })

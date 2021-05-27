@@ -42,7 +42,7 @@ class Node:
             print(nodes)
             for node in nodes:
                 self.STATISTIC_DATA["object_name"] = node["name"]
-                host_net_info = node["ip"] if node["scan_by_ip"] else node["hostname"]
+                host_net_info = node["ip"] if node["scan_by_ip"] else node["name"]
                 discovered_data = self.scan(realm, host_net_info)
                 if "failure" not in discovered_data.keys():
                     node["ip"] = discovered_data["ip"]

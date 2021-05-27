@@ -27,9 +27,8 @@ __DATAMODEL_DIR = os.path.join(os.path.abspath('..'), 'datamodel')
 __DATAMODEL_REPORT_FILE = os.path.join(__DATAMODEL_DIR, 'report.template.mapping')
 __ES_ADDR = db.ES_PROTOCOL + """://""" + str(db.ES_HOSTNAME) + """:""" + str(db.ES_PORT)
 
-__CREATE_INDEX_TEMPLATE = """curl -s -XPUT -H \"Content-Type: Application/Json\" """ + __ES_ADDR + """/_template/report -d@""" + __DATAMODEL_REPORT_FILE
-__CREATE_INDEX = """curl -s -XPUT """ + __ES_ADDR + """/report"""
-__ES_PROVISION_DEFAULT = """curl -s -XPOST -H \"Content-Type: Application/Json\" """ + __ES_ADDR + """/report/_doc -d '{}'"""
+__CREATE_INDEX_TEMPLATE = """curl -s -XPUT -H \"Content-Type: Application/Json\" """ + __ES_ADDR + """/_template/blast_obj_report -d@""" + __DATAMODEL_REPORT_FILE
+__CREATE_INDEX = """curl -s -XPUT """ + __ES_ADDR + """/blast_obj_report"""
 
 
 def defineIndexTemplate():
@@ -50,20 +49,10 @@ def createIndex():
         return False
 
 
-def provisionDefault():
-
-    try:
-        if json.load(os.popen(__ES_PROVISION_DEFAULT))["result"] == "created":
-            return True
-    except KeyError:
-        return False
-
-
 def main():
 
     if defineIndexTemplate():
         if createIndex():
-        #if provisionDefault():
             sys.exit(0)
 
 

@@ -18,10 +18,8 @@
 import Realm from "./realm.js";
 import Account from "./aaa.js"
 import FrontendConfig from "./frontend.js"
-let realm = new Realm()
 let account = new Account()
 let config = new FrontendConfig()
-
 
 
 let Nav = class {
@@ -51,7 +49,7 @@ let Nav = class {
                             <img src="/img/object/logout.svg" width="24" height="24" /><span style="margin-left: 24px">Logout</span></a>
                     </div>
                 </div>
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <div class="collapse navbar-collapse" id="navbarSupportedContent" style="max-width: 50%;">
                     <ul class="navbar-nav">
                         <li id="navDropDown" class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle blast-nav-realm" id="realmDropDownMenu" role="button"
@@ -61,17 +59,12 @@ let Nav = class {
                         </li>
                     </ul>     
                 </div>
-                <!--
-                <form class="form-inline mr-5 ml-3">
+                <div class="me-5 ms-3">
                     <div class="input-group">
-                        <input class="form-control" size="64" type="search" />
-                        <div class="input-group-append">
-                            <button class="btn" style="background-color: #FFE873" onclick="globalSearch() ;"><b>Search</b></button>
-                        </div>
+                        <input class="form-control" size="64" type="search" style="background-color: #373A3E; color: #EEE; border: thin solid #373A3E" />
+                        <button class="btn blast-btn" type="button" onclick="globalSearch() ;" style="color: #EEE;">Search</button>
                     </div>
-                </form>
-                -->
-            </nav>
+                </div>
             `
 
         this.sidenav = `
@@ -195,7 +188,6 @@ let Nav = class {
 
 }
 
-let nav = new Nav()
 
 const sideNavActiveMenu = (pageName) => {
     $("li").removeClass("active")
@@ -205,6 +197,8 @@ const sideNavActiveMenu = (pageName) => {
 }
 
 const navRealmSwitch = (realmName) => {
+    let nav = new Nav()
+    let realm = new Realm()
     realm.switch(realmName)
     nav.loadNavBar()
 }
