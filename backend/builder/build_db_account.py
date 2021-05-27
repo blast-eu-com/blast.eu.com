@@ -73,12 +73,19 @@ def provisionDefault():
     except KeyError:
         return False
 
+def provisionScheduler():
+    try:
+        if json.load(os.popen(__ES_PROVISION_SCHEDULER))["result"] == "created":
+            return True
+    except KeyError:
+        return False
 
 def main():
 
     if defineIndexTemplate():
         if provisionDefault():
-            sys.exit(0)
+            if provisionScheduler():
+                sys.exit(0)
 
 
 if __name__ == "__main__":

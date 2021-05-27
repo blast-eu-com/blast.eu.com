@@ -36,8 +36,8 @@ const NodeForm = class {
                     <div id="nodeDescriptionContainer" class="col-md-12"></div>
                 </div>
                 <div class="row mb-3">
-                    <div id="nodeScanByIp" class="col-md-6"></div>
-                    <div id="nodeContainer" class="col-md-6"></div>
+                    <div id="nodeScanByIpContainer" class="col-md-6"></div>
+                    <!-- <div id="nodeContainer" class="col-md-6"></div> -->
                 </div>
             </form>
         `
@@ -83,7 +83,7 @@ const NodeForm = class {
             "ip": $("#nodeIp").val(),
             "description": $("#nodeDesc").val(),
             "scan_by_ip": $("#nodeScanByIp").is(":checked") ? true : false,
-            "container": $("#nodeContainer").is(":checked") ? true : false,
+            // "container": $("#nodeContainer").is(":checked") ? true : false,
         }
     }
 
@@ -91,8 +91,8 @@ const NodeForm = class {
         $("#nodeNameContainer").html(this.inputNodeName)
         $("#nodeIPContainer").html(this.inputNodeIP)
         $("#nodeDescriptionContainer").html(this.inputNodeDescription)
-        $("#nodeScanByIp").html(this.inputNodeScanByIp)
-        $("#nodeContainer").html(this.inputNodeContainer)
+        $("#nodeScanByIpContainer").html(this.inputNodeScanByIp)
+        // $("#nodeContainer").html(this.inputNodeContainer)
     }
 
     addFrame = (parentName) => {
@@ -105,7 +105,7 @@ const NodeForm = class {
             for ( let idx in R ) {
                 if (R[idx]["result"] === "created") {
                     let nodeMsg = `Node ` + nodeData["name"] + ` successfully created.`
-                    windower.displayToastMsg(nodeMsg)
+                    // windower.displayToastMsg(nodeMsg)
                     loadNodeList()
                 }
             }

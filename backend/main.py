@@ -26,6 +26,7 @@ from api.aaa import Account, Realm
 from api.script import Script
 from api.scriptlang import Scriptlang
 from api.cluster import Cluster
+from api.gsearch import Gsearch
 from api.node import Node
 from api.infra import Infra
 from api.reporter import Reporter
@@ -352,6 +353,24 @@ def cluster_delete_node(realm, id):
 
     if account.is_active_realm_member(account_email, realm):
         return Response(json.dumps(cluster.delete_nodes(account_email, realm, id, node_ids)))
+    else:
+        return Response({"failure": "account identifier and realm is not an active match"})
+
+# * *********************************************************************************************************
+# *
+# * INFRASTRUCTURE PART -*- INFRASTRUCTURE PART -*- INFRASTRUCTURE PART -*- INFRASTRUCTURE PART -*- INFRASTRUCTURE PART
+# *
+# * *********************************************************************************************************
+@app.route('/api/v1/realms/<realm>/global/filter', methods=['GET'])
+def global_filter(realm):
+    """ this function returns all objects matching the string passed via the get """
+    account = Account(ES)
+    gsearch = Gsearch(ES)
+    string = request.args.get('string')
+    account_email = json.loads(request.cookies.get('account'))['email']
+
+    if account.is_active_realm_member(account_email, realm):
+        return Response(json.dumps(gsearch.search(account, string)))
     else:
         return Response({"failure": "account identifier and realm is not an active match"})
 

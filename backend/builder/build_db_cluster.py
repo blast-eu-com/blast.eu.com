@@ -28,8 +28,8 @@ __DATAMODEL_DIR = os.path.join(os.path.abspath('..'), 'datamodel')
 __DATAMODEL_REALM_FILE = os.path.join(__DATAMODEL_DIR, 'cluster.template.mapping')
 __ES_ADDR = db.ES_PROTOCOL + """://""" + str(db.ES_HOSTNAME) + """:""" + str(db.ES_PORT)
 
-__CREATE_INDEX_TEMPLATE = """curl -s -XPUT -H \"Content-Type: Application/Json\" """ + __ES_ADDR + """/_template/cluster -d@""" + __DATAMODEL_REALM_FILE
-__ES_PROVISION_DEFAULT = """curl -s -XPOST -H \"Content-Type: Application/Json\" """ + __ES_ADDR + """/cluster/_doc -d '{
+__CREATE_INDEX_TEMPLATE = """curl -s -XPUT -H \"Content-Type: Application/Json\" """ + __ES_ADDR + """/_template/blast_obj_cluster -d@""" + __DATAMODEL_REALM_FILE
+__ES_PROVISION_DEFAULT = """curl -s -XPOST -H \"Content-Type: Application/Json\" """ + __ES_ADDR + """/blast_obj_cluster/_doc -d '{
     "name": \"""" + __REALM + """\",
     "description" : "The default cluster",
     "realm" : \"""" + __REALM + """\",
