@@ -702,6 +702,19 @@ def scenario_update(realm):
     else:
         return Response({"failure": "account identifier and realm is not an active match"})
 
+@app.route('/api/v1/realms/<realm>/scenarios/ids', methods=['GET'])
+def scenario_list_by_ids(realm):
+    """ this function returns the doc matching the infrastructure id """
+    sco = Scenario(ES)
+    account = Account(ES)
+    account_email = json.loads(request.cookies.get('account'))["email"]
+    scenario_ids = request.args.getlist('ids[]')
+
+    if account.is_active_realm_member(account_email, realm):
+        return Response(json.dumps(sco.list_by_ids(realm, scenario_ids)))
+    else:
+        return Response({"failure": "account identifier and realm is not an active match"})
+
 @app.route('/api/v1/realms/<realm>/scenarios', methods=["GET"])
 def scenario_list_all(realm):
     """ This function returns all the scenarios present in a given realm """
