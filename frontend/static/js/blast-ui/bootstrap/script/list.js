@@ -57,7 +57,7 @@ var ScriptList = class {
         let html =`
             <a id="script-img"
                 class="card bg-gradient rounded h-100" style="background-color: #EEE; border: 1px solid #CCCCCC"
-                href="/html/script-details.html?script_id=` + recId + `&script_name=` + objectData["_source"]["name"] + `">
+                href="/html/script-details.html?script_id=` + recId + `">
                     <img src="/img/script/` + objectData["_source"]["type"] + `.svg" class="card-img-top mt-3 py-3" height="86" width="86" />
                     <div class="card-body border-top bg-gradient text-white" style="background-color: #0995D3">
                         <div class="card-title" style="font-size: 16px">` + objectData["_source"]["name"] + `</div>

@@ -59,7 +59,7 @@ var InfrastructureList = class {
         let html =`
             <a id="infrastructure-img"
                 class="card bg-gradient rounded h-100" style="background-color: #EEE; border: 1px solid #CCCCCC"
-                href="/html/infrastructure-details.html?infrastructure_id=` + recId + `&infrastructure_name=` + objectData["_source"]["name"] + `">
+                href="/html/infrastructure-details.html?infrastructure_id=` + recId + `">
                 <img src="/img/object/infrastructure.svg" class="card-img-top mt-3 py-3" height="86" width="86" />
                 <div class="card-body border-top bg-gradient text-white" style="background-color: #0995D3">
                     <div class="card-title" style="font-size: 16px">` + objectData["_source"]["name"] + `</div>

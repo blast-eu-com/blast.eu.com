@@ -34,10 +34,9 @@ let Scenario = class {
         this.scenarioDescription = undefined
         this.scenarioScripts = []
         this.scenarioNodes = []
-        this.scenarioAnsibleFirst = undefined
+        this.scenarioAccountEmail = undefined
         this.scenarioParallelMode = undefined
-        this.scenarioNodesRoles = []
-        this.scenarioRawData = undefined
+        this.scenarioScriptThreads = undefined
 
         // all related to script management
         this.scriptPerPage = 10
@@ -51,10 +50,9 @@ let Scenario = class {
     set description(description) { this.scenarioDescription = description }
     set scripts(scripts) { this.scenarioScripts = scripts }
     set nodes(nodes) { this.scenarioNodes = nodes }
-    set ansibleFirst(ansibleFirst) { this.scenarioAnsibleFirst = ansibleFirst }
-    set parallelMode(parallelMode) { this.scenarioParallelMode = parallelMode }
-    set nodesRoles(roles) { this.scenarioNodesRoles = roles }
-    set rawData(rData) { this.scenarioRawData = rData }
+    set flag_parallel_mode(fpm) { this.scenarioParallelMode = fpm }
+    set account_email(email) { this.scenarioAccountEmail = email }
+    set max_parallel_script_threads(sst) { this.scenarioScriptThreads = sst }
 
     set scenarioScriptPerPage(SPP) { this.scriptPerPage = SPP }
     set scenarioScriptPageNum(SPN) { this.scriptPageNum = SPN }
@@ -65,10 +63,9 @@ let Scenario = class {
     get description() { return this.scenarioDescription }
     get scripts() { return this.scenarioScripts }
     get nodes() { return this.scenarioNodes }
-    get ansibleFirst() { return this.scenarioAnsibleFirst }
-    get parallelMode() { return this.scenarioParallelMode }
-    get nodesRoles() { return this.nodesRoles }
-    get rawData() { return this.scenarioRawData }
+    get flag_parallel_mode() { return this.scenarioParallelMode }
+    get account_email() { return this.scenarioAccountEmail }
+    get max_parallel_script_threads() { return this.scenarioScriptThreads }
 
     get scenarioScriptPerPage() { return this.scriptPerPage }
     get scenarioScriptPageNum() { return this.scriptPageNum }
@@ -98,6 +95,17 @@ let Scenario = class {
                 }
             })
         })
+    }
+
+    load = (scenarioData) => {
+        this.name = scenarioData["_source"]["name"]
+        this.description = scenarioData["_source"]["description"]
+        this.scripts = scenarioData["_source"]["scripts"]
+        this.nodes = scenarioData["_source"]["nodes"]
+        this.realm = scenarioData["_source"]["realm"]
+        this.account_email = scenarioData["_source"]["account_email"]
+        this.flag_parallel_mode = scenarioData["_source"]["flag_parallel_mode"]
+        this.max_parallel_script_threads = scenarioData["_source"]["max_parallel_script_threads"]
     }
 
     list() {

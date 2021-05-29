@@ -57,7 +57,7 @@ var ClusterList = class {
         let html =`
             <a id="cluster-img"
                 class="card bg-gradient rounded h-100" style="background-color: #EEE; border: 1px solid #CCCCCC"
-                href="/html/cluster-details.html?cluster_id=` + recId + `&cluster_name=` + objectData["_source"]["name"] + `">
+                href="/html/cluster-details.html?cluster_id=` + recId + `">
                     <img src="/img/object/cluster.svg" class="card-img-top mt-3 py-3" height="86" width="86" />
                     <div class="card-body border-top bg-gradient text-white" style="background-color: #0995D3">
                         <div class="card-title" style="font-size: 16px">` + objectData["_source"]["name"] + `</div>

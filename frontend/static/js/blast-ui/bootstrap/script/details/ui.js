@@ -22,9 +22,8 @@ var script = new Script()
 var scriptListInfo = new ScriptListInfo()
 var scriptContent = new ScriptContent()
 
-const setPageTitle = function(script) {
-    console.log(script.name)
-    $("#navScriptName").html(script.name)
+const setPageTitle = function(scriptName) {
+    $("#navScriptName").html(scriptName)
 }
 
 const setButtonDelAction = function(script) {
@@ -41,7 +40,7 @@ async function main() {
         let script_id = urlParams.get('script_id')
         let scriptData = await script.listByIds([script_id])
         script.load(scriptData["hits"]["hits"][0])
-        setPageTitle(script)
+        setPageTitle(script.name)
         setButtonDelAction(script)
         scriptListInfo.render('scriptListInfo', script)
         scriptContent.render('scriptContent', script)

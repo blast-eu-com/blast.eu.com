@@ -80,7 +80,6 @@ const setNodePeersTable = async function(nodeDetails) {
 
 const setNodeRolesTable = function(nodeDetails) {
 
-    //let html = '<table><thead><tr><th>port</th><th>protocol</th><th>application</th><th>description</th></tr></thead>'
     let html = '<table class="table">'
     nodeDetails["hits"]["hits"][0]["_source"]["role"].forEach(function(role) {
         html = html  + '<tr>'

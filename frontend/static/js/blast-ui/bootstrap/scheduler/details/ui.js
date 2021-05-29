@@ -20,8 +20,8 @@ import SchedulerListInfo from './listInfo.js'
 var scheduler = new Scheduler
 var schedulerListInfo = new SchedulerListInfo
 
-const setPageTitle = function(scheduler) {
-    $('#navSchedulerName').html(scheduler.name)
+const setPageTitle = function(schedulerName) {
+    $('#navSchedulerName').html(schedulerName)
 }
 
 const setButtonDeleteAction = function(scheduler) {
@@ -38,7 +38,7 @@ async function main() {
         let scheduler_id = urlParams.get("scheduler_id")
         let scheduler_data = await scheduler.listByIds([scheduler_id])
         scheduler.load(scheduler_data["hits"]["hits"][0])
-        setPageTitle(scheduler)
+        setPageTitle(scheduler.name)
         setButtonDeleteAction(scheduler)
         schedulerListInfo.render('schedulerListInfo', scheduler)
     }
