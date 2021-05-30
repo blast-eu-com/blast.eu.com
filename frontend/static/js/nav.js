@@ -49,7 +49,7 @@ let Nav = class {
                             <img src="/img/object/logout.svg" width="24" height="24" /><span style="margin-left: 24px">Logout</span></a>
                     </div>
                 </div>
-                <div class="collapse navbar-collapse" id="navbarSupportedContent" style="max-width: 50%;">
+                <div class="collapse navbar-collapse" id="navbarSupportedContent" style="max-width: 500px;">
                     <ul class="navbar-nav">
                         <li id="navDropDown" class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle blast-nav-realm" id="realmDropDownMenu" role="button"
@@ -59,7 +59,7 @@ let Nav = class {
                         </li>
                     </ul>     
                 </div>
-                <div class="me-5 ms-3">
+                <div>
                     <div class="input-group">
                         <input class="form-control" size="64" type="search" style="background-color: #373A3E; color: #EEE; border: thin solid #373A3E" />
                         <button class="btn blast-btn" type="button" onclick="globalSearch() ;" style="color: #EEE;">Search</button>
@@ -119,7 +119,7 @@ let Nav = class {
                 <li class="nav-item p-2 pl-3" id="scenario">
                     <a class="nav-link text-decoration-none font-weight-normal" style="color: black"
                        href="/html/scenario.html" onclick="sideNavActiveMenu('scenario')">
-                    <img src="/img/object/management.svg" height="24" width="24" class="d-inline-block align-middle mr-4" />
+                    <img src="/img/object/scenario.svg" height="24" width="24" class="d-inline-block align-middle mr-4" />
                     Scenario</a></li>
                 <li class="nav-item p-2 pl-3" id="scheduler">
                     <a class="nav-link text-decoration-none font-weight-normal" style="color: black"

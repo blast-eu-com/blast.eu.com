@@ -47,6 +47,12 @@ body {
     overflow: hidden;
 }
 
+pre {
+    background-color: #EEE;
+    color: #000;
+    padding: 1%;
+}
+
 .bb {
     background-color: #f2f2f2;
 }

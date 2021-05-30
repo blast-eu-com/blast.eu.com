@@ -15,22 +15,23 @@
 */
 
 import Scenario from '../../../../scenario.js'
+import ScenarioListInfo from './listInfo.js'
 
 var scenario = new Scenario()
+var scenarioListInfo = new ScenarioListInfo()
 
 const setPageTitle = (scenarioName) => {
     $("#navScenarioName").html(scenarioName)
 }
 
 async function main() {
-
     let urlParams = new URLSearchParams(window.location.href.split('?')[1])
     if (urlParams.has("scenario_id")) {
         let scenario_id = urlParams.get("scenario_id")
         let scenarioData = await scenario.listByIds([scenario_id])
         scenario.load(scenarioData["hits"]["hits"][0])
         setPageTitle(scenario.name)
-
+        scenarioListInfo.render("scenarioListInfo", scenario)
     }
 }
 

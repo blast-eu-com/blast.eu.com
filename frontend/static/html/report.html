@@ -79,53 +79,62 @@
                         </ol>
                     </nav>
 
-                    <div id="reportForm" class="m-3"></div>
-
-                    <div class="row m-3">
-                        <div class="col-md-2">
-                            <div class="list-group" id="reportListTab" role="tablist">
-                                <a id="reportScheduler" class="list-group-item list-group-item-action active"
-                                   data-bs-toggle="list" role="tab" href="#schedulerReportSection"
-                                   aria-controls="sched" style="border-radius: 0;"
-                                   onclick="runReportFilter() ;">Scheduler</a>
-
-                                <a id="reportScenario" class="list-group-item list-group-item-action"
-                                   data-bs-toggle="list" role="tab" href="#scenarioReportSection"
-                                   aria-controls="sce" onclick="runReportFilter() ;">Scenario</a>
-
-                                <a id="reportScript" class="list-group-item list-group-item-action"
-                                   data-bs-toggle="list" role="tab" href="#scriptReportSection"
-                                   aria-controls="scr" style="border-radius: 0;"
-                                   onclick="runReportFilter() ;">Script</a>
-                            </div>
+                    <div class="card blast-card shadow-sm m-3 border">
+                        <div class="card-body">
+                            <div class="card-title fs-4">Report Filter</div>
+                            <div id="reportForm" class="m-3"></div>
                         </div>
+                    </div>
 
-                        <div class="col-md-10">
-                            <div class="tab-content" id="reportTabContent">
-                                <div class="tab-pane fade show active" id="schedulerReportSection" role="tabpanel"
-                                     aria-labelledby="reportScheduler" style="margin-left: -15px;">
-                                    <div class="card blast-card shadow-sm border">
-                                        <div class="card-body">
-                                            <h4 class="card-title mb-4">Report Schedulers</h4>
-                                            <p id="schedulerReport" class="card-text"></p>
-                                        </div>
+                    <div class="card blast-card shadow-sm m-3 border">
+                        <div class="card-body">
+                            <div class="row mx-1 my-3">
+                                <div class="col-md-2">
+                                    <div class="list-group" id="reportListTab" role="tablist">
+                                        <a id="reportScheduler" class="list-group-item list-group-item-action active"
+                                           data-bs-toggle="list" role="tab" href="#schedulerReportSection"
+                                           aria-controls="sched" style="border-radius: 0;"
+                                           onclick="runReportFilter() ;">Scheduler</a>
+
+                                        <a id="reportScenario" class="list-group-item list-group-item-action"
+                                           data-bs-toggle="list" role="tab" href="#scenarioReportSection"
+                                           aria-controls="sce" onclick="runReportFilter() ;">Scenario</a>
+
+                                        <a id="reportScript" class="list-group-item list-group-item-action"
+                                           data-bs-toggle="list" role="tab" href="#scriptReportSection"
+                                           aria-controls="scr" style="border-radius: 0;"
+                                           onclick="runReportFilter() ;">Script</a>
                                     </div>
                                 </div>
-                                <div class="tab-pane fade" id="scenarioReportSection" role="tabpanel"
-                                     aria-labelledby="reportScenario" style="margin-left: -15px;">
-                                    <div class="card blast-card shadow-sm border">
-                                        <div class="card-body">
-                                            <h4 class="card-title mb-4">Report Scenarios</h4>
-                                            <p id="scenarioReport" class="card-text"></p>
+
+                                <div class="col-md-10">
+                                    <div class="tab-content" id="reportTabContent">
+                                        <div class="tab-pane fade show active" id="schedulerReportSection" role="tabpanel"
+                                             aria-labelledby="reportScheduler" style="margin-left: -15px;">
+                                            <div class="card blast-card shadow-sm border">
+                                                <div class="card-body">
+                                                    <h4 class="card-title mb-4">Report Schedulers</h4>
+                                                    <p id="schedulerReport" class="card-text"></p>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-                                </div>
-                                <div class="tab-pane fade" id="scriptReportSection" role="tabpanel"
-                                     aria-labelledby="reportScript" style="margin-left: -15px">
-                                    <div class="card blast-card shadow-sm border mb-3">
-                                        <div class="card-body">
-                                            <h4 class="card-title mb-4">Report Scripts</h4>
-                                            <p id="scriptReport" class="card-text"></p>
+                                        <div class="tab-pane fade" id="scenarioReportSection" role="tabpanel"
+                                             aria-labelledby="reportScenario" style="margin-left: -15px;">
+                                            <div class="card blast-card shadow-sm border">
+                                                <div class="card-body">
+                                                    <h4 class="card-title mb-4">Report Scenarios</h4>
+                                                    <p id="scenarioReport" class="card-text"></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane fade" id="scriptReportSection" role="tabpanel"
+                                             aria-labelledby="reportScript" style="margin-left: -15px">
+                                            <div class="card blast-card shadow-sm border mb-3">
+                                                <div class="card-body">
+                                                    <h4 class="card-title mb-4">Report Scripts</h4>
+                                                    <p id="scriptReport" class="card-text"></p>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
