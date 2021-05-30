@@ -30,6 +30,7 @@ let Scenario = class {
 
     constructor() {
         // all related to management run
+        this._id = undefined
         this.scenarioName = undefined
         this.scenarioDescription = undefined
         this.scenarioScripts = []
@@ -37,6 +38,7 @@ let Scenario = class {
         this.scenarioAccountEmail = undefined
         this.scenarioParallelMode = undefined
         this.scenarioScriptThreads = undefined
+        this._rd = undefined
 
         // all related to script management
         this.scriptPerPage = 10
@@ -46,6 +48,7 @@ let Scenario = class {
 
     }
 
+    set id(id) { this._id = id }
     set name(name) { this.scenarioName = name }
     set description(description) { this.scenarioDescription = description }
     set scripts(scripts) { this.scenarioScripts = scripts }
@@ -53,12 +56,14 @@ let Scenario = class {
     set flag_parallel_mode(fpm) { this.scenarioParallelMode = fpm }
     set account_email(email) { this.scenarioAccountEmail = email }
     set max_parallel_script_threads(sst) { this.scenarioScriptThreads = sst }
+    set rawData(rd) { this._rd = rd }
 
     set scenarioScriptPerPage(SPP) { this.scriptPerPage = SPP }
     set scenarioScriptPageNum(SPN) { this.scriptPageNum = SPN }
     set scenarioScriptPageMax(SPM) { this.scriptPageMax = SPM }
     set scenarioScriptFiltered(SMF) { this.scriptFiltered = SMF }
 
+    get id() { return this._id }
     get name() { return this.scenarioName }
     get description() { return this.scenarioDescription }
     get scripts() { return this.scenarioScripts }
@@ -66,6 +71,7 @@ let Scenario = class {
     get flag_parallel_mode() { return this.scenarioParallelMode }
     get account_email() { return this.scenarioAccountEmail }
     get max_parallel_script_threads() { return this.scenarioScriptThreads }
+    get rawData() { return this._rd }
 
     get scenarioScriptPerPage() { return this.scriptPerPage }
     get scenarioScriptPageNum() { return this.scriptPageNum }
@@ -98,6 +104,7 @@ let Scenario = class {
     }
 
     load = (scenarioData) => {
+        this.id = scenarioData["_id"]
         this.name = scenarioData["_source"]["name"]
         this.description = scenarioData["_source"]["description"]
         this.scripts = scenarioData["_source"]["scripts"]
@@ -106,6 +113,7 @@ let Scenario = class {
         this.account_email = scenarioData["_source"]["account_email"]
         this.flag_parallel_mode = scenarioData["_source"]["flag_parallel_mode"]
         this.max_parallel_script_threads = scenarioData["_source"]["max_parallel_script_threads"]
+        this.rawData = scenarioData["_source"]
     }
 
     list() {

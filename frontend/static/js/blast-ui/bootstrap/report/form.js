@@ -31,15 +31,10 @@ const ReportForm = class {
         this._scroll = undefined
 
         this.frame = `
-            <div class="card blast-card shadow-sm border">
-                <div class="card-body">
-                    <div class="card-title fs-4">Report Filter</div>
-                    <div class="row">
-                        <div id="reportDatePickerContainer" class="col-3"></div>
-                        <div id="reportFilterContainer" class="col-2 mt-3"></div>
-                        <div id="reportSearchContainer" class="col-7 mt-3"></div>
-                    </div>
-                </div>
+            <div class="row">
+                <div id="reportDatePickerContainer" class="col-3"></div>
+                <div id="reportFilterContainer" class="col-2 mt-3"></div>
+                <div id="reportSearchContainer" class="col-7 mt-3"></div>
             </div>
         `
 

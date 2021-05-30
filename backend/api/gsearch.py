@@ -45,6 +45,11 @@ class Gsearch:
                                             "match": {
                                                 "description": string
                                             }
+                                        },
+                                        {
+                                            "term": {
+                                                "_id": string
+                                            }
                                         }
                                     ]
                                 }
