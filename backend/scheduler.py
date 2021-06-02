@@ -155,7 +155,7 @@ def http_token():
     Get http token to pass request to the blast front end proxy server
     """
     try:
-        url = str(PX_PROTOCOL) + "://" + str(PX_HOSTNAME) + ":" + str(PX_PORT) + "/api/v1/aaa/accounts/login"
+        url = str(PX_PROTOCOL) + "://" + str(PX_HOSTNAME) + ":" + str(PX_PORT) + "/api/v1/aaa/accounts/authenticate"
         payload = {"email": SCHEDULER_EMAIL, "password": SCHEDULER_PASSWORD}
         globals()['HTTP_TOKEN_REQUEST_TIME'] = datetime.datetime.now().timestamp()
         return json.loads(http_proxy_request("post", url, payload=payload))["jwt"]
@@ -406,62 +406,69 @@ def exec_scheduler(realm, schedule_id):
 def start_schedule_thread(schedule):
     logging.debug(" -*- Function start_schedule_thread -*- ")
     logging.debug("Start schedule job id: " + schedule["id"])
+    logging.debug(schedule)
     schedule_id = schedule["id"]
     schedule_data = schedule["data"]
-    for day in schedule_data["daily"].keys():
-        if day == 'all' and schedule_data["daily"][day]:
-            if schedule_data["time"] != '':
-                schedule_cmd = "Execute command : sched.every().day.at(" + str(schedule_data["time"]) + ").do(" + str(exec_scheduler) + ").tag(" + str(schedule_id) + ")"
+    schedule_frequency = schedule_data["frequency"]
+    for day in schedule_frequency["daily"].keys():
+        if day == 'all' and schedule_frequency["daily"][day]:
+            logging.debug("enter day ALL")
+            if schedule_frequency["interval"]["min"] != '0':
+                logging.debug("enter exec at min")
+                schedule_cmd = "Execute command: sched.every(" + str(schedule_frequency["interval"]["min"]) + ").minutes.do(" + str(exec_scheduler) + ").tag(" + str(schedule_id) + ")"
                 logging.debug(str(schedule_cmd))
-                sched.every().day.at(int(schedule_data["time"])).do(exec_scheduler, schedule_data["realm"], schedule_id).tag(str(schedule_id))
+                sched.every(int(schedule_frequency["interval"]["min"])).minutes.do(exec_scheduler, schedule_data["realm"], schedule_id).tag(str(schedule_id))
 
-            elif schedule_data["interval"]["min"] != '0':
-                schedule_cmd = "Execute command: sched.every(" + str(schedule_data["interval"]["min"]) + ").minutes.do(" + str(exec_scheduler) + ").tag(" + str(schedule_id) + ")"
+            elif schedule_frequency["interval"]["sec"] != '0':
+                logging.debug("enter exec at sec")
+                schedule_cmd = "Execute command: sched.every(" + str(schedule_frequency["interval"]["sec"]) + ").seconds.do(" + str(exec_scheduler) + ").tag(" + str(schedule_id) + ")"
                 logging.debug(str(schedule_cmd))
-                sched.every(int(schedule_data["interval"]["min"])).minutes.do(exec_scheduler, schedule_data["realm"], schedule_id).tag(str(schedule_id))
+                sched.every(int(schedule_frequency["interval"]["sec"])).seconds.do(exec_scheduler, schedule_data["realm"], schedule_id).tag(str(schedule_id))
 
-            elif schedule_data["interval"]["sec"] != '0':
-                schedule_cmd = "Execute command: sched.every(" + str(schedule_data["interval"]["sec"]) + ").seconds.do(" + str(exec_scheduler) + ").tag(" + str(schedule_id) + ")"
+            elif schedule_frequency["time"] != '1970-01-01T00:00:000Z':
+                logging.debug("enter exec at time")
+                schedule_cmd = "Execute command : sched.every().day.at(" + str(schedule_frequency["time"]) + ").do(" + str(exec_scheduler) + ").tag(" + str(schedule_id) + ")"
                 logging.debug(str(schedule_cmd))
-                sched.every(int(schedule_data["interval"]["sec"])).seconds.do(exec_scheduler, schedule_data["realm"], schedule_id).tag(str(schedule_id))
+                sched.every().day.at(int(schedule_frequency["time"])).do(exec_scheduler, schedule_data["realm"], schedule_id).tag(str(schedule_id))
+
             break
 
-        elif day != 'all' and schedule_data["daily"][day]:
-            if "time" in schedule_data.keys() and schedule_data["time"] != '':
+        elif day != 'all' and schedule_frequency["daily"][day]:
+            if "time" in schedule_data.keys() and schedule_frequency["time"] != '':
                 if day == "monday":
-                    schedule_cmd = "Execute command: sched.every().monday.at(" + str(schedule_data["time"]) + ").do(" + str(exec_scheduler) + ").tag(" + str(schedule_id) + ")"
+                    schedule_cmd = "Execute command: sched.every().monday.at(" + str(schedule_frequency["time"]) + ").do(" + str(exec_scheduler) + ").tag(" + str(schedule_id) + ")"
                     logging.debug(str(schedule_cmd))
-                    sched.every().monday.at(str(schedule_data["time"])).do(exec_scheduler, schedule_data["realm"], schedule_id).tag(str(schedule_id))
+                    sched.every().monday.at(str(schedule_frequency["time"])).do(exec_scheduler, schedule_data["realm"], schedule_id).tag(str(schedule_id))
 
                 elif day == "tuesday":
-                    schedule_cmd = "Execute command: sched.every().tuesday.at(" + str(schedule_data["time"]) + ").do(" + str(exec_scheduler) + ").tag(" + str(schedule_id) + ")"
+                    schedule_cmd = "Execute command: sched.every().tuesday.at(" + str(schedule_frequency["time"]) + ").do(" + str(exec_scheduler) + ").tag(" + str(schedule_id) + ")"
                     logging.debug(str(schedule_cmd))
-                    sched.every().tuesday.at(str(schedule_data["time"])).do(exec_scheduler, schedule_data["realm"], schedule_id).tag(str(schedule_id))
+                    sched.every().tuesday.at(str(schedule_frequency["time"])).do(exec_scheduler, schedule_data["realm"], schedule_id).tag(str(schedule_id))
 
                 elif day == "wednesday":
-                    schedule_cmd = "Execute command: sched.every().wednesday.at(" + str(schedule_data["time"]) + ").do(" + str(exec_scheduler) + ").tag(" + str(schedule_id) + ")"
+                    schedule_cmd = "Execute command: sched.every().wednesday.at(" + str(schedule_frequency["time"]) + ").do(" + str(exec_scheduler) + ").tag(" + str(schedule_id) + ")"
                     logging.debug(str(schedule_cmd))
-                    sched.every().tuesday.at(str(schedule_data["time"])).do(exec_scheduler, schedule_data["realm"], schedule_id).tag(str(schedule_id))
+                    sched.every().tuesday.at(str(schedule_frequency["time"])).do(exec_scheduler, schedule_data["realm"], schedule_id).tag(str(schedule_id))
 
                 elif day == "thursday":
-                    schedule_cmd = "Execute command: sched.every().thursday.at(" + str(schedule_data["time"]) + ").do(" + str(exec_scheduler) + ").tag(" + str(schedule_id) + ")"
+                    schedule_cmd = "Execute command: sched.every().thursday.at(" + str(schedule_frequency["time"]) + ").do(" + str(exec_scheduler) + ").tag(" + str(schedule_id) + ")"
                     logging.debug(str(schedule_cmd))
-                    sched.every().thursday.at(str(schedule_data["time"])).do(exec_scheduler, schedule_data["realm"], schedule_id).tag(str(schedule_id))
+                    sched.every().thursday.at(str(schedule_frequency["time"])).do(exec_scheduler, schedule_data["realm"], schedule_id).tag(str(schedule_id))
 
                 elif day == "friday":
-                    schedule_cmd = "Execute command: sched.every().friday.at(" + schedule_data["time"] + ").do(" + str(exec_scheduler) + ").tag(" + str(schedule_id) + ")"
+                    schedule_cmd = "Execute command: sched.every().friday.at(" + schedule_frequency["time"] + ").do(" + str(exec_scheduler) + ").tag(" + str(schedule_id) + ")"
                     logging.debug(str(schedule_cmd))
-                    sched.every().friday.at(str(schedule_data["time"])).do(exec_scheduler, schedule_data["realm"], schedule_id).tag(str(schedule_id))
+                    sched.every().friday.at(str(schedule_frequency["time"])).do(exec_scheduler, schedule_data["realm"], schedule_id).tag(str(schedule_id))
 
                 elif day == "saturday":
-                    schedule_cmd = "Execute command: sched.every().saturday.at(" + schedule_data["time"] + ").do(" + str(exec_scheduler) + ").tag(" + str(schedule_id) + ")"
+                    schedule_cmd = "Execute command: sched.every().saturday.at(" + schedule_frequency["time"] + ").do(" + str(exec_scheduler) + ").tag(" + str(schedule_id) + ")"
                     logging.debug(str(schedule_cmd))
-                    sched.every().saturday.at(str(schedule_data["time"])).do(exec_scheduler, schedule_data["realm"], schedule_id).tag(str(schedule_id))
+                    sched.every().saturday.at(str(schedule_frequency["time"])).do(exec_scheduler, schedule_data["realm"], schedule_id).tag(str(schedule_id))
 
                 elif day == "sunday":
-                    schedule_cmd = "Execute command: sched.every().sunday.at(" + schedule_data["time"] + ").do(" + str(exec_scheduler) + ").tag(" + str(schedule_id) + ")"
+                    schedule_cmd = "Execute command: sched.every().sunday.at(" + schedule_frequency["time"] + ").do(" + str(exec_scheduler) + ").tag(" + str(schedule_id) + ")"
                     logging.debug(str(schedule_cmd))
-                    sched.every().sunday.at(str(schedule_data["time"])).do(exec_scheduler, schedule_data["realm"], schedule_id).tag(str(schedule_id))
+                    sched.every().sunday.at(str(schedule_frequency["time"])).do(exec_scheduler, schedule_data["realm"], schedule_id).tag(str(schedule_id))
 
 
 def stop_schedule_thread(schedule):

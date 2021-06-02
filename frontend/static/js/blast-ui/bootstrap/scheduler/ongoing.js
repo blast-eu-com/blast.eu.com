@@ -14,6 +14,9 @@
    limitations under the License.
 */
 
+import Reporter from '../../../reporter.js'
+
+var reporter = new Reporter()
 
 const SchedulerOnGoing = class {
 
@@ -24,8 +27,8 @@ const SchedulerOnGoing = class {
         let report_data = {
             "time": {
                 "interval": {
-                    "value": "7",
-                    "unit": "days",
+                    "value": "5",
+                    "unit": "minutes",
                     "selected": true
                 },
                 "datetime": {
@@ -38,13 +41,13 @@ const SchedulerOnGoing = class {
             "search": [
                 {
                     "field": "status",
-                    "string": "Running"
+                    "string": "running"
                 }
             ]
         }
-        let res_query_scroll = await this.reporter.filter_scroll(report_data)
+        let res_query_scroll = await reporter.filter_scroll(report_data)
 
-        let html = `<table class="table">
+        let html = `<table class="table" style="font-size: 12px;">
         <thead>
         <th>Execution Id</th>
         <th>Scheduler Name</th>
@@ -59,7 +62,7 @@ const SchedulerOnGoing = class {
             html = html + `
             <tr>
             <td>` + report["_source"]["execution_id"] + `</td>
-            <td>` + report["_source"]["scheduler_name"] + `</td>
+            <td>` + report["_source"]["name"] + `</td>
             <td>` + report["_source"]["start_at"] + `</td>
             <td>
             <div class="progress mb-3">
@@ -73,33 +76,8 @@ const SchedulerOnGoing = class {
         $("#" + this.parentName).html(html + '</table>')
     }
 
-    switchSchedulerReportRunRefresh = () => {
-        if ($("#switchSchedulerReportRunRefresh").is(":checked")) {
-            let refreshInterval = parseInt($('select[name=intervalSchedulerReportRunRefresh] option:selected').val() * 1000)
-            console.log(refreshInterval)
-            this.refresh(refreshInterval)
-        } else {
-            this.unrefresh()
-        }
-    }
-
-    intervalSchedulerReportRunRefresh = () => {
-        if ($("#switchSchedulerReportRunRefresh").is(":checked")) {
-            this.unrefresh()
-            let refreshInterval = parseInt($('select[name=intervalSchedulerReportRunRefresh] option:selected').val() * 1000)
-            console.log(refreshInterval)
-            this.refresh(refreshInterval)
-        }
-    }
-
-    refresh = (interval) => {
-        this.recur = setInterval(() => {
-            this.addOnGoing()
-        }, interval)
-    }
-
-    unrefresh = () => {
-        clearInterval(this.recur)
+    refresh = () => {
+        this.addOnGoing()
     }
 
     render = (parentName, reporter) => {

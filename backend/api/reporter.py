@@ -27,48 +27,53 @@ class Reporter:
 
     def __add__(self, report: dict):
         try:
-            avg_query = json.dumps(
-                {
-                    "size": 1000,
-                    "query": {
-                        "bool": {
-                            "must": [
-                                {
-                                    "term": {
-                                        "scheduler_id": report["scheduler_id"]
-                                    }
-                                },
-                                {
-                                    "term": {
-                                        "report_type": self.report_type
-                                    }
+            json_query = {
+                "size": 1000,
+                "query": {
+                    "bool": {
+                        "must": [
+                            {
+                                "term": {
+                                    "report_type": self.report_type
                                 }
-                            ]
-                        }
-                    },
-                    "sort": [
-                        {
-                            "start_at": {
-                                "order": "desc"
                             }
+                        ]
+                    }
+                },
+                "sort": [
+                    {
+                        "start_at": {
+                            "order": "desc"
                         }
-                    ],
-                    "aggs": {
-                        "average": {
-                            "nested": {
-                                "path": "duration"
-                            },
-                            "aggs": {
-                                "duration": {
-                                    "avg": {
-                                        "field": "duration.time"
-                                    }
+                    }
+                ],
+                "aggs": {
+                    "average": {
+                        "nested": {
+                            "path": "duration"
+                        },
+                        "aggs": {
+                            "duration": {
+                                "avg": {
+                                    "field": "duration.time"
                                 }
                             }
                         }
                     }
                 }
-            )
+            }
+
+            if self.report_type == "scheduler":
+                json_query["query"]["bool"]["must"].append({"term": {"scheduler_id": report["scheduler_id"]}})
+                json_query["query"]["bool"]["must"].append({"terms": {"scenario_ids": report["scenario_ids"]}})
+            elif self.report_type == "scenario":
+                json_query["query"]["bool"]["must"].append({"term": {"scenario_id": report["scenario_id"]}})
+                json_query["query"]["bool"]["must"].append({"terms": {"script_ids": report["script_ids"]}})
+            elif self.report_type == "script":
+                json_query["query"]["bool"]["must"].append({"term": {"scenario_id": report["scenario_id"]}})
+                json_query["query"]["bool"]["must"].append({"term": {"script_id": report["script_id"]}})
+
+            avg_query = json.dumps(json_query)
             avg_query_res = self.ES.search(index=self.DB_INDEX, body=avg_query)
             avg_duration_time = avg_query_res["aggregations"]["average"]["duration"]["value"] \
                 if avg_query_res["aggregations"]["average"]["duration"]["value"] is not None else 0

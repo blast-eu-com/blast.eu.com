@@ -268,6 +268,7 @@ class ScriptManager:
             }
             script_reporter = reporter.Reporter(self.ES, report_type="script")
             resp = script_reporter.__add__(self.script_report)
+            print(resp)
             if resp["result"] == "created":
                 self.script_report_id = resp["_id"]
                 return True
@@ -530,7 +531,8 @@ class ScriptManager:
         """
         try:
             print(" >>> Enter file:scriptManager:class:scriptManager:function:run_no_ansible_script")
-            node_name = self.node_details(self.script_realm, self.node_id)["hits"]["hits"][0]["_source"]["name"]
+            node_data = self.node_details(self.script_realm, self.node_id)["hits"]["hits"][0]["_source"]
+            node_name = [ip for ip in node_data["ip"] if ip not in ["127.0.0.1", "::1"]][0] if node_data["scan_by_ip"] else node_data["name"]
             self.build_remote_env(node_name, self.script_content, self.script_destination)
             self.exec_remote_script(node_name)
             self.__close_script_report()
