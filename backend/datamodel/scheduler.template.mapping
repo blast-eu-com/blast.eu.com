@@ -10,18 +10,30 @@
       "scenario_ids": { "type": "keyword" },
       "status": { "type": "keyword" },
       "flag_parallel_mode": { "type": "boolean" },
-      "recurrence": {
+      "frequency": {
+        "type": "nested",
         "properties": {
-            "day": { "type": "keyword" },
-            "period": {
+            "daily": {
+                "type": "nested",
                 "properties": {
-                    "start": { "type": "date" },
-                    "end": { "type": "date" }
+                    "monday": { "type": "boolean" },
+                    "tuesday": { "type": "boolean" },
+                    "wednesday": { "type": "boolean" },
+                    "thursday": { "type": "boolean" },
+                    "friday": { "type": "boolean" },
+                    "saturday": { "type": "boolean" },
+                    "sunday": { "type": "boolean" },
+                    "all": { "type": "boolean" }
                 }
             },
-            "min": { "type": "integer" },
-            "sec": { "type": "integer" },
-            "date": { "type": "date" }
+            "interval": {
+                "type": "nested",
+                "properties": {
+                    "min": { "type": "integer" },
+                    "sec": { "type": "integer" }
+                }
+            },
+            "time": { "type": "date" }
         }
       }
     }

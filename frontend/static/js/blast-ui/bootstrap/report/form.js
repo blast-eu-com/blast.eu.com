@@ -53,7 +53,7 @@ const ReportForm = class {
         this.reportSearchContent = `
             <div class="form-label fs-6 text-secondary" for="reportPropertyValue">A string to match report property value</div>
             <div class="input-group">
-                <button class="btn btn-outline-secondary" type="button" onclick="runReportFilter() ;">Search</button>
+                <button class="btn blast-btn" type="button" onclick="runReportFilter() ;">Search</button>
                 <input id="fieldValueFilter" name="fieldValueFilter" type="text" class="form-control" aria-label="Text input with segmented dropdown button">
             </div>
         `

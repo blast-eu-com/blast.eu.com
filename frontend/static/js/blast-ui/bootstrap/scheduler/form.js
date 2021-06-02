@@ -105,35 +105,25 @@ var SchedulerForm = class {
     get parentName() { return this._pn }
 
     setFormData = () => {
-        let monday = $("#monday").is(":checked") ? true : false
-        let tuesday = $("#tuesday").is(":checked") ? true : false
-        let wednesday = $("#wednesday").is(":checked") ? true : false
-        let thursday = $("#thursday").is(":checked") ? true : false
-        let friday = $("#friday").is(":checked") ? true : false
-        let saturday = $("#saturday").is(":checked") ? true : false
-        let sunday = $("#sunday").is(":checked") ? true : false
-        let allDays = $("#allDays").is(":checked") ? true : false
-        this.formData = {
-            "name":  $("#schedulerName").val(),
-            "description": $("#schedulerDescription").val(),
-            "daily": {
-                "monday": monday,
-                "tuesday": tuesday,
-                "wednesday": wednesday,
-                "thursday": thursday,
-                "friday": friday,
-                "saturday": saturday,
-                "sunday": sunday,
-                "all": allDays
-            },
-            "time": $("#scheduleTime").val(),
-            "interval": {
-                "min": $("#schedulerExecIntervalMin").val(),
-                "sec": $("#schedulerExecIntervalSec").val()
-            },
-            "scenario_ids": this.scenarioList(),
-            "flag_parallel_mode": $("#schedulerParallelMode").is(":checked") ? true : false
-        }
+        this.formData = {}
+        this.formData["name"] = $("#schedulerName").val()
+        this.formData["description"] = $("#schedulerDescription").val()
+        this.formData["frequency"] = {}
+        this.formData["frequency"]["daily"] = {}
+        this.formData["frequency"]["daily"]["monday"] = $("#monday").is(":checked") ? true : false
+        this.formData["frequency"]["daily"]["tuesday"] = $("#tuesday").is(":checked") ? true : false
+        this.formData["frequency"]["daily"]["wednesday"] = $("#wednesday").is(":checked") ? true : false
+        this.formData["frequency"]["daily"]["thursday"] = $("#thursday").is(":checked") ? true : false
+        this.formData["frequency"]["daily"]["friday"] = $("#friday").is(":checked") ? true : false
+        this.formData["frequency"]["daily"]["saturday"] = $("#saturday").is(":checked") ? true : false
+        this.formData["frequency"]["daily"]["sunday"] = $("#sunday").is(":checked") ? true : false
+        this.formData["frequency"]["daily"]["all"] = $("#allDays").is(":checked") ? true : false
+        this.formData["frequency"]["interval"] = {}
+        this.formData["frequency"]["interval"]["min"] = $("#schedulerExecIntervalMin").val() !== "" ? $("#schedulerExecIntervalMin").val() : "0"
+        this.formData["frequency"]["interval"]["sec"] = $("#schedulerExecIntervalSec").val() !== "" ? $("#schedulerExecIntervalSec").val() : "0"
+        this.formData["frequency"]["time"] = $("#scheduleTime").val() !== "" ? $("#scheduleTime").val() : "1970-01-01T00:00:00Z"
+        this.formData["scenario_ids"] = this.scenarioList()
+        this.formData["flag_parallel_mode"] = $("#schedulerParallelMode").is(":checked") ? true : false
     }
 
     addFrame = () => {

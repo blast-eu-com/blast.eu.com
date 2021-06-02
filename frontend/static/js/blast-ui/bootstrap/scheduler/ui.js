@@ -27,7 +27,32 @@ var schedulerSelectAndManage = new SchedulerSelectAndManage()
 var schedulerForm = new SchedulerForm()
 var schedulerOnGoing = new SchedulerOnGoing()
 var schedulerLast = new SchedulerLast()
+var refresher
 
+const refresh = (refreshInterval) => {
+    refresher = setInterval(() => {
+        schedulerLast.refresh()
+        schedulerOnGoing.refresh()
+        console.log(refreshInterval)
+    }, refreshInterval)
+}
+
+const unrefresh = () => {
+    clearInterval(refresher)
+}
+
+const intervalSchedulerReportRefresh = () => {
+    let refreshInterval = parseInt($('select[name=intervalSchedulerReportRefresh] option:selected').val() * 1000)
+    if ($("#switchSchedulerReportRefresh").is(":checked")) {
+        unrefresh()
+        refresh(refreshInterval)
+    }
+}
+
+const switchSchedulerReportRefresh = () => {
+    let refreshInterval = parseInt($('select[name=intervalSchedulerReportRefresh] option:selected').val() * 1000)
+    if ($("#switchSchedulerReportRefresh").is(":checked")) { refresh(refreshInterval) } else { unrefresh() }
+}
 
 const main = function() {
     schedulerForm.render('schedulerExecContainer')
@@ -37,6 +62,8 @@ const main = function() {
     schedulerOnGoing.render('schedulerOnGoing', reporter)
     schedulerLast.render('schedulerLast', reporter)
 }
+
+
 
 window.main = main
 window.scenarioDisplayNewRange = scenarioFilterAndSelect.scenarioWindowFrameCore
@@ -52,13 +79,11 @@ window.schedulerRunSearchString = schedulerSelectAndManage.schedulerRunWindowCor
 window.schedulerRunGoToNextPage = schedulerSelectAndManage.schedulerRunGoToNextPage
 window.schedulerRunGoToPrevPage = schedulerSelectAndManage.schedulerRunGoToPrevPage
 window.schedulerRunGoToThisPage = schedulerSelectAndManage.schedulerRunGoToThisPage
-window.switchSchedulerReportRunRefresh = schedulerOnGoing.switchSchedulerReportRunRefresh
-window.intervalSchedulerReportRunRefresh = schedulerOnGoing.intervalSchedulerReportRunRefresh
-window.switchSchedulerReportLastRefresh = schedulerLast.switchSchedulerReportLastRefresh
-window.intervalSchedulerReportLastRefresh = schedulerLast.switchSchedulerReportLastRefresh
 window.updateSetByMin = schedulerForm.updateSetByMin
 window.updateSetBySec = schedulerForm.updateSetBySec
 window.updateSetByTime = schedulerForm.updateSetByTime
 window.unsetDayAll = schedulerForm.unsetDayAll
 window.setDayAll = schedulerForm.setDayAll
 window.saveScheduler = schedulerForm.saveScheduler
+window.switchSchedulerReportRefresh = switchSchedulerReportRefresh
+window.intervalSchedulerReportRefresh = intervalSchedulerReportRefresh

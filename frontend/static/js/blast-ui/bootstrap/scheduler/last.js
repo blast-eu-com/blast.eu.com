@@ -14,6 +14,9 @@
  *  limitations under the License.
 */
 
+import SchedulerOnGoing from './ongoing.js'
+
+var schedulerOnGoing = new SchedulerOnGoing()
 
 const SchedulerLast = class {
 
@@ -33,7 +36,7 @@ const SchedulerLast = class {
             data: {
                 datasets: [{
                     data: data,
-                    backgroundColor: "rgb(75,139,190)"
+                    backgroundColor: "rgb(9,149,211)"
                 }]
             },
             options: {
@@ -69,7 +72,7 @@ const SchedulerLast = class {
             html = html + `
                 <tr>
                     <td>` + report["_source"]["execution_id"] + `</td>
-                    <td>` + report["_source"]["scheduler_name"] + `</td>
+                    <td>` + report["_source"]["name"] + `</td>
                     <td>` + report["_source"]["status"] + `</td>
                     <td>` + report["_source"]["start_at"] + `</td>
                     <td>` + report["_source"]["end_at"] + `</td>
@@ -110,16 +113,6 @@ const SchedulerLast = class {
         this.addLast(res_query_scroll)
     }
 
-    switchSchedulerReportLastRefresh = () => {
-        this.refreshInterval = parseInt($('select[name=intervalSchedulerReportLastRefresh] option:selected').val() * 1000)
-        console.log(this.refreshInterval)
-        if ($("#switchSchedulerReportLastRefresh").is(":checked")) {
-            this.refresh()
-        } else {
-            this.unrefresh()
-        }
-    }
-
     intervalSchedulerReportLastRefresh = () => {
         this.refreshInterval = parseInt($('select[name=intervalSchedulerReportLastRefresh] option:selected').val() * 1000)
         console.log(this.refreshInterval)
@@ -131,16 +124,8 @@ const SchedulerLast = class {
     }
 
     refresh = () => {
-        setTimeout(() => {
-            this.chart.destroy()
-            this.addChartAndLast()
-            console.log(new Date(new Date().getTime()))
-        }, this.refreshInterval)
-        this.run = setTimeout(this.refresh, this.refreshInterval)
-    }
-
-    unrefresh = () => {
-        clearTimeout(this.run)
+        this.chart.destroy()
+        this.addChartAndLast()
     }
 
     render = (parentName, reporter) => {
