@@ -14,6 +14,7 @@
  *  limitations under the License.
 */
 
+import { filterScroll } from '../../../reporter.js'
 import SchedulerOnGoing from './ongoing.js'
 
 var schedulerOnGoing = new SchedulerOnGoing()
@@ -23,7 +24,6 @@ const SchedulerLast = class {
     constructor() { }
 
     addChart = (reports) => {
-        console.log(reports)
         let ctx = $("#schedulerLastChart")
         let data = []
 
@@ -84,9 +84,7 @@ const SchedulerLast = class {
         $("#" + this.parentName).html(html + '</table>')
     }
 
-    addChartAndLast = async () => {
-        let start_at = new Date(new Date().getTime() - 5*60000).toISOString()
-        let end_at = new Date(new Date().getTime()).toISOString()
+    addChartAndLast = () => {
         let reportData = {
             "time": {
                 "interval": {
@@ -108,19 +106,10 @@ const SchedulerLast = class {
                 }
             ]
         }
-        let res_query_scroll = await this.reporter.filter_scroll(reportData)
-        this.addChart(res_query_scroll)
-        this.addLast(res_query_scroll)
-    }
-
-    intervalSchedulerReportLastRefresh = () => {
-        this.refreshInterval = parseInt($('select[name=intervalSchedulerReportLastRefresh] option:selected').val() * 1000)
-        console.log(this.refreshInterval)
-        if ($("#switchSchedulerReportLastRefresh").is(":checked")) {
-            // this.unrefresh()
-            clearTimeout(this.run)
-            this.refresh()
-        }
+        filterScroll(reportData).then((res_query_scroll) => {
+            this.addChart(res_query_scroll)
+            this.addLast(res_query_scroll)
+        })
     }
 
     refresh = () => {
@@ -128,9 +117,8 @@ const SchedulerLast = class {
         this.addChartAndLast()
     }
 
-    render = (parentName, reporter) => {
+    render = (parentName) => {
         this.parentName = parentName
-        this.reporter = reporter
         this.addChartAndLast()
     }
 }

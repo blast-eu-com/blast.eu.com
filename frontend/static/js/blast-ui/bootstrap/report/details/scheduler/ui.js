@@ -13,3 +13,15 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
+
+import ReportSchedulerList from './list.js'
+import ReportSchedulerChart from './chart.js'
+
+var reportSchedulerList = new ReportSchedulerList()
+var reportSchedulerChart = new ReportSchedulerChart()
+
+export async function main(formData) {
+
+    reportSchedulerChart.render('reportSchedulerChart', formData)
+    reportSchedulerList.render('reportSchedulerList', formData)
+}

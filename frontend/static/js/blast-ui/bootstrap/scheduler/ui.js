@@ -13,14 +13,12 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-import Reporter from '../../../reporter.js'
 import Scheduler from '../../../scheduler.js'
 import SchedulerSelectAndManage from './selectAndManage.js'
 import SchedulerForm from './form.js'
 import SchedulerOnGoing from './ongoing.js'
 import SchedulerLast from './last.js'
 import ScenarioFilterAndSelect from '../scenario/filterAndSelect.js'
-var reporter = new Reporter()
 var scheduler = new Scheduler()
 var scenarioFilterAndSelect = new ScenarioFilterAndSelect()
 var schedulerSelectAndManage = new SchedulerSelectAndManage()
@@ -33,7 +31,6 @@ const refresh = (refreshInterval) => {
     refresher = setInterval(() => {
         schedulerLast.refresh()
         schedulerOnGoing.refresh()
-        console.log(refreshInterval)
     }, refreshInterval)
 }
 
@@ -59,8 +56,8 @@ const main = function() {
     let scenarioPageLength = $("select#scenarioSelSamplePerPage option:selected").val()
     let schedulerPageLength = $("select#schedulerSelSamplePerPage option:selected").val()
     schedulerSelectAndManage.render('schedulerRun', schedulerPageLength)
-    schedulerOnGoing.render('schedulerOnGoing', reporter)
-    schedulerLast.render('schedulerLast', reporter)
+    schedulerOnGoing.render('schedulerOnGoing')
+    schedulerLast.render('schedulerLast')
 }
 
 

@@ -7,6 +7,7 @@
       "description" : { "type" : "text" },
       "name": { "type" : "keyword" },
       "ip": { "type": "ip" },
+      "ip_reference": { "type": "ip" },
       "scan_by_ip": { "type": "boolean" },
       "container": { "type": "boolean" },
       "type": { "type": "keyword" },

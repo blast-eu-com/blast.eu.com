@@ -20,6 +20,7 @@
         <meta charset="UTF-8">
         <!-- Load bootstrap stack -->
         <link rel="stylesheet" type="text/css" href="/css/bootstrap-5.0.0-beta2-dist/css/bootstrap.min.css" />
+        <link rel="stylesheet" type="text/css" href="/css/blast.eu.com.css" />
         <script src="/js/bootstrap-5.0.0-beta2-dist/js/bootstrap.min.js"></script>
         <!-- End Load bootstrap stack -->
         <script src="/js/jquery-1.12.4/jquery-1.12.4.min.js"></script>
@@ -27,26 +28,57 @@
         <script src="/js/popper-1.16.1/popper.min.js"></script>
         <script src="/js/aaa.js" type="module"></script>
     </head>
-    <body class="d-flex flex-column" style="background-image: url('/img/blast_first_page_3.jpeg'); background-position: center">
+    <!-- <body class="d-flex flex-column" style="background-image: url('/img/blast_first_page_3.jpeg'); background-position: center"> -->
+    <body class="d-flex flex-column">
         <div class="container p-0 min-vh-100 min-vw-100">
 
-            <div aria-live="polite" aria-atomic="true" style="position: relative; min-height: 100px;">
-                <div id="toaster" style="position: absolute; top: 50px; right: 30px"></div></div>
+            <!-- <div aria-live="polite" aria-atomic="true" style="position: relative; min-height: 100px;">
+                <div id="toaster" style="position: absolute; top: 50px; right: 30px"></div></div> -->
 
-            <div class="container" style="width: 700px; height: 100%;">
-                <div class="card border" style="margin-top: 50%; width: 600px; border: thin solid gray">
+            <div class="container min-vh-100 min-vw-100">
+                <div class="row min-vh-100">
+                    <div class="col-md-6">
+                        <div class="card blast-card" style="width:60%; margin-top: 40%; margin-left: 39.5%">
+                            <div class="card-body">
+                                <p class="card-text">
+                                    <div class="input-group mb-3">
+                                        <input id="accountEmail" name="accountEmail" type="text"
+                                               class="form-control" placeholder="Username"/>
+                                    </div>
+                                    <div class="input-group mb-3">
+                                        <input id="accountPassword" name="accountPassword" type="password"
+                                               pattern=".{6,}" title="six or more character" class="form-control"
+                                               placeholder="Password"/>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-3">
+                                            <button class="btn blast-btn" onclick="loginAccount();">Sign in</button>
+                                        </div>
+                                        <div class="col-3">
+                                            <button class="btn blast-btn" onclick="registerAccount();">Sign up</button>
+                                        </div>
+                                    </div>
+
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6" style="background-color: #EEE;">
+                        <p style="font-size: 160px; font-family: nasa, sans-serif; color: #0995D3; margin-top: 40%">BLAST</p>
+                    </div>
+                </div>
+                <!--
+                <div class="card border" style="margin-top: 30%; width: 600px; border: thin solid gray">
                     <div class="card-body">
-                        <!-- <h4 class="card-title text-center">BLAST</h4>
-                        <h6 class="card-title text-center">The digital blast</h6> -->
+                        <h4 class="card-title text-center">BLAST</h4>
+                        <h6 class="card-title text-center">The digital blast</h6>
                         <div card="text">
                             <label for="accountEmail"></label>
-                            <div class="input-group">
                                 <div class="input-group-prepend">
                                     <span class="input-group-text" id="addon-wrapping" for="accountEmail">@</span>
                                 </div>
                                 <input id="accountEmail" name="accountEmail" type="text"
                                        class="form-control" placeholder="Username"/>
-                            </div>
                         </div>
                         <div card="text">
                             <div class="form-group">
@@ -70,8 +102,9 @@
                         </div>
                     </div>
                 </div>
+                -->
             </div>
-            <div style="position: fixed; bottom: 0px; padding-top: 12.5px; border-top: thin solid black; height: 50px; width: 100%; text-align: center; background-color: #3d3d3d; color: #ffffff">
+            <div style="position: fixed; bottom: 0px; padding-top: 12.5px; border-top: thin solid black; height: 50px; width: 100%; text-align: center; background-color: #343A40; color: #ffffff">
                 <p>Copyright &copy; 2020 Blast.eu.com<p>
             </div>
         </div>

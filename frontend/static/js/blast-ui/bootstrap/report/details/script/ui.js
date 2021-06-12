@@ -13,3 +13,14 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
+
+import ReportScriptList from './list.js'
+import ReportScriptChart from './chart.js'
+
+var reportScriptList = new ReportScriptList()
+var reportScriptChart = new ReportScriptChart()
+
+export function main(formData) {
+    reportScriptChart.render('reportScriptChart', formData)
+    reportScriptList.render('reportScriptList', formData)
+}

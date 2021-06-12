@@ -13,14 +13,12 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-import Reporter from '../../../reporter.js'
 import Scenario from '../../../scenario.js'
 import ScenarioForm from './form.js'
 import ScenarioNodesTree from './nodesTree.js'
 import ScenarioLast from './last.js'
 import ScriptFilterAndSelect from '../script/filterAndSelect.js'
 
-var reporter = new Reporter()
 var scenario = new Scenario()
 var scenarioForm = new ScenarioForm('scenarioForm')
 var scenarioNodesTree = new ScenarioNodesTree('scenarioNodesTree')
@@ -32,7 +30,7 @@ function main() {
     scenarioForm.render(scenario, scenarioNodesTree, scriptFilterAndSelect)
     scenarioNodesTree.render()
     scriptFilterAndSelect.render()
-    scenarioLast.render(reporter)
+    scenarioLast.render()
 }
 
 window.main = main

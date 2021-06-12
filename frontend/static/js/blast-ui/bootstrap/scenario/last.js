@@ -15,6 +15,8 @@
    limitations under the License.
 */
 
+import { filterScroll } from '../../../reporter.js'
+
 const ScenarioLast = class {
 
     constructor(parentName) {
@@ -45,7 +47,7 @@ const ScenarioLast = class {
                 }
             ]
         }
-        let res_query_data = await this.reporter.filter_scroll(query_data)
+        let res_query_data = await filterScroll(query_data)
         let html = `
             <table class="table table-sm">
                 <thead>
@@ -109,8 +111,7 @@ const ScenarioLast = class {
         clearInterval(this.recur)
     }
 
-    render = (reporter) => {
-        this.reporter = reporter
+    render = () => {
         this.addLast()
     }
 

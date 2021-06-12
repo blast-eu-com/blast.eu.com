@@ -13,6 +13,9 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
 */
+
+@font-face { font-family: "nasa"; src: url('fonts/nasa.ttf') format('TrueType') }
+
 a {
     color: #212529;
     text-decoration: none;

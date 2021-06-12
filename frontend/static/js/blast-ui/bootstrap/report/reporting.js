@@ -41,12 +41,17 @@ const Reporting = class {
                                 <div class="col-3">Description</div>
                             </div>
                         </li>
+                        <ul id="reporterObjectNameContentList" class="border-0" style='overflow-y: scroll; height: 1000px; padding-left: 0'></ul>
                     </ul>
                 </div>
                 <div></div>
             </div>
         `
+        this._on = undefined
     }
+
+    set objectName(on) { this._on = on }
+    get objectName() { return this._on }
 
     addChart = () => {
         let ctx = $("#" + this.parentName + "Canvas")
@@ -101,7 +106,7 @@ const Reporting = class {
     }
 
     addList = () => {
-        let html = $("#reporter" + this.parentName + "ListSection").html()
+        let html = $("#reporter" + this.parentName + "ContentList").html()
         this.reporterData["hits"]["hits"].forEach((report) => {
             html = html + `
                 <li class="list-group-item p-0"
@@ -125,7 +130,7 @@ const Reporting = class {
                 </li>
             `
         })
-        $("#reporter" + this.parentName + "ListSection").html(html)
+        $("#reporter" + this.parentName + "ContentList").html(html)
     }
 
     addReportContent = (objectName, reportId, executionId) => {
@@ -147,8 +152,8 @@ const Reporting = class {
         $("#" + this.parentName + "Report").html(this.frame.replace(/ObjectName/g, this.parentName))
     }
 
-    render = (parentName, reporterData) => {
-        this.parentName = parentName
+    render = (objectName, reporterData) => {
+        this.objectName = objectName
         this.reporterData = reporterData
         this.addFrame()
         this.addChartAndList()

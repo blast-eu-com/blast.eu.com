@@ -14,14 +14,14 @@
    limitations under the License.
 */
 
-import ReportScenarioList from 'list.js'
+import ReportScenarioList from './list.js'
+import ReportScenarioChart from './chart.js'
 
 var reportScenarioList = new ReportScenarioList()
+var reportScenarioChart = new ReportScenarioChart()
 
-const main = () => {
+export async function main(formData) {
 
-    reportScenarioList.render()
-
+    reportScenarioChart.render('reportScenarioChart', formData)
+    reportScenarioList.render('reportScenarioList', formData)
 }
-
-window.main = main

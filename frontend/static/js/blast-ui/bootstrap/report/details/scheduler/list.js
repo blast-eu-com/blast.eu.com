@@ -14,116 +14,140 @@
    limitations under the License.
 */
 
-import Reporter from '../../../../../reporter.js'
-
-var reporter = new Reporter()
+import { filterScroll, filterScrollData } from '../../../../../reporter.js'
 
 const ReportSchedulerList = class {
 
     constructor() {
-        this._executionId = undefined
         this._frame = `
-            <div class="card rounded-0 border-start-0 border-bottom-0 border-end-0" style="font-size: 12px; border-top: 1px solid #D7D7D7">
-                <div class="card-body">
-                    <div id="scheduler_exec_%tagId%" class"collapse"></div>
-                </div>
-            </div>
+            <ul id="reporterSchedulerListSection" class="list-group">
+                <li class="list-group-item border-top-0 border-start-0 border-end-0" style="font-size: 14px">
+                    <div class="row">
+                        <div class="col-3">Start At</div>
+                        <div class="col-3">Execution Id</div>
+                        <div class="col-3">Name</div>
+                        <div class="col-3">Description</div>
+                    </div>
+                </li>
+                <li id="reporterSchedulerListContainer" class="border-0" style='overflow-y: scroll; height: 1000px; padding-left: 0'>
+                    <ul id="reporterSchedulerList" style="padding-left: 0"></ul>
+                    <div id="reporterSchedulerListBottom" class="card rounded-0" style="display: hidden">
+                        <div class="card-body"></div>
+                    </div>
+                </li>
+            </ul>
         `
-        this._reportId = undefined
-        this._reportSchedulerFrame = undefined
-        this._schedulerData = undefined
-        this._tagId = undefined
+
         this._parentName = undefined
+        this._reportData = undefined
+        this._reportDataScrollId = undefined
     }
 
-    set executionId(ei) { this._executionId = ei }
-    set frame(fr) { this._frame = fr }
     set parentName(pn) { this._parentName = pn }
-    set reportId(ri) { this._reportId = ri }
-    set reportSchedulerFrame(rsf) { this._reportSchedulerFrame = rsf }
-    set schedulerData(sd) { this._schedulerData = sd }
-    set tagId(ti) { this._tagId = ti }
+    set reportData(rd) { this._rd = rd }
+    set reportDataScrollId(rdsi) { this._reportDataScrollId = rdsi }
 
-    get executionId() { return this._executionId }
-    get frame() { return this._frame }
     get parentName() { return this._parentName }
-    get reportId() { return this._reportId }
-    get reportSchedulerFrame() { return this._reportSchedulerFrame }
-    get schedulerData() { return this._schedulerData }
-    get tagId() { return this._tagId }
+    get reportData() { return this._rd }
+    get reportDataScrollId() { return this._reportDataScrollId }
 
     addFrame = () => {
-        let html = $("#" + this.parentName).html()
-        $("#" + this.parentName).html(html + this.frame.replace(/%tagId%/g, this.tagId))
+        $("#" + this.parentName).html(this._frame)
     }
 
-    addReportScheduler = () => {
+    addSubFrame = (schedulerData) => {
+        let schedulerEl = document.createElement("li")
+        schedulerEl.classList.add("list-group-item")
+        schedulerEl.classList.add("p-0")
+        schedulerEl.id = "list_element_" + schedulerData["_id"]
+        schedulerEl.style.cssText = "font-size: 12px; border-left: 1px solid #DADEDF; border-right: 1px solid #DADEDF; border-bottom: 1px solid #DADEDF"
+        let list = document.getElementById("reporterSchedulerList")
+        list.appendChild(schedulerEl)
+        let content = `
+             <div class="card border-0">
+                        <div class="card-body">
+                            <div class="card-title mouseHover" data-bs-toggle="collapse" href="#report_` + schedulerData["_id"] + `"
+                                aria-expanded="false" aria-controls="report_` + schedulerData["_id"] + `">
+                                <div class="row">
+                                    <div class="col-3">` + schedulerData["_source"]["start_at"] + `</div>
+                                    <div class="col-3">` + schedulerData["_source"]["execution_id"] + `</div>
+                                    <div class="col-3">` + schedulerData["_source"]["name"] + `</div>
+                                    <div class="col-3">` + schedulerData["_source"]["description"] + `</div>
+                                </div>
+                            </div>
+                            <div id="report_` + schedulerData["_id"] + `" class="collapse">
+                                <div class="card rounded-0 border-start-0 border-bottom-0 border-end-0" style="font-size: 12px; border-top: 1px solid #D7D7D7">
+                                    <div class="card-body">
+                                        <div id="scheduler_exec_` + schedulerData["_id"] + `">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+        `
+        schedulerEl.innerHTML = content
+    }
+
+    addSubFrameContent = (schedulerData) => {
         let html = ''
-        $.each(this.schedulerData["_source"], (idx, value) => {
+        $.each(schedulerData["_source"], (idx, value) => {
             if ( idx === "duration" ) {
                 $.each(value, (durationIdx, durationValue) => {
                     idx = "duration." + durationIdx
                     value = durationValue
                     html = html + `
-                        <div class="row ms-2 p-2">
-                            <div class="col-2">` + idx + `</div>
+                        <div class="row ms-2 p-2 border-bottom">
+                            <div class="col-3">` + idx + `</div>
                             <div class="col-8">` + value + `</div>
                         </div>`
                 })
             } else {
                 html = html + `
-                    <div class="row ms-2 p-2">
-                        <div class="col-2">` + idx + `</div>
+                    <div class="row ms-2 p-2 border-bottom">
+                        <div class="col-3">` + idx + `</div>
                         <div class="col-8">` + value + `</div>
                     </div>`
             }
         })
-        $("#scheduler_exec_" + this.tagId).html(`<div id="scenarioContent">` + html + `</div>`)
+        $("#scheduler_exec_" + schedulerData["_id"]).html(`<div id="scenarioContent">` + html + `</div>`)
     }
 
-    render = (parentName, reportId, executionId) => {
-        this.parentName = parentName
-        $("#" + this.parentName).html('')
-        this.reportId = reportId
-        this.executionId = executionId
-        console.log('reportSchedulerList', this.executionId)
-        let filterReport = {
-            "time": {
-                "interval": {
-                    "value": "",
-                    "unit": "",
-                    "selected": false
-                },
-                "datetime": {
-                    "start_at": "",
-                    "end_at": "",
-                    "selected": false
-                }
-            },
-            "object": {
-                "name": "scheduler"
-            },
-            "search": [
-                {
-                    "field": "execution_id",
-                    "string": this.executionId
-                }
-            ]
-        }
+    addReporterList = (schedulerData) => {
+        this.addSubFrame(schedulerData)
+        this.addSubFrameContent(schedulerData)
+    }
 
-        reporter.filter_scroll(filterReport).then((schedulers) => {
-            schedulers["hits"]["hits"].forEach((sched) => {
-                this.schedulerData = sched
-                this.tagId = this.schedulerData["_id"]
-                if ( this.tagId === this.reportId ) {
-                    this.addFrame()
-                    this.addReportScheduler()
-                }
+    expandReporterList = () => {
+        filterScrollData('scheduler', this.reportDataScrollId).then((reportData) => {
+            this.reportData = reportData["hits"]["hits"]
+            this.reportDataScrollId = reportData["_scroll_id"]
+            this.reportData.forEach((schedulerData) => {
+                this.addReporterList(schedulerData)
+            })
+        })
+    }
+
+    render = (parentName, formData) => {
+        this.parentName = parentName
+        this.addFrame()
+        filterScroll(formData).then((reportData) => {
+            this.reportData = reportData["hits"]["hits"]
+            this.reportDataScrollId = reportData["_scroll_id"]
+            this.reportData.forEach((schedulerData) => {
+                this.addReporterList(schedulerData)
             })
         })
 
+        let options = {
+            "root": document.querySelector("#reporterSchedulerListContainer"),
+            "rootMargin": '5px',
+            "threshold": 1
+        }
+        let observer = new IntersectionObserver(this.expandReporterList, options)
+        let target = document.querySelector("#reporterSchedulerListBottom")
+        observer.observe(target)
     }
-
 }
 
 export default ReportSchedulerList
