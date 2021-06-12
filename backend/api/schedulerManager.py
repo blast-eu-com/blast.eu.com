@@ -288,7 +288,8 @@ class SchedulerManager:
 
         try:
             print(" >>> Enter file:schedulerManager:class:schedulerManager:func:__open_scheduler_report")
-            self._scheduler_report = {
+            new_s = reporter.Reporter(self.ES, report_type="scheduler")
+            self.scheduler_report = {
                 "report_type": "scheduler",
                 "scheduler_id": self.scheduler_id,
                 "name": self.scheduler_name,
@@ -302,7 +303,6 @@ class SchedulerManager:
                     "start_at": datetime.datetime.now().timestamp()
                 }
             }
-            new_s = reporter.Reporter(self.ES, report_type="scheduler")
             resp = new_s.__add__(self.scheduler_report)
             if resp["result"] == "created":
                 self.scheduler_report_id = resp["_id"]

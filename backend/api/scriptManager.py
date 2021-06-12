@@ -465,6 +465,7 @@ class ScriptManager:
 
                 inventory.write('\n')
                 inventory.write('[' + self.ansible_session_id + ':vars]\n')
+                inventory.write('ansible_ssh_common_args=\'-o StrictHostKeyChecking=no\'\n')
                 inventory.write('ansible_user=' + ansible_user + '\n')
 
                 if ansible_password != "":
@@ -507,12 +508,17 @@ class ScriptManager:
 
         try:
             print(" >>> Enter file:scriptManager:class:scriptManager:function:run_ansible_script")
-            node_name = [node["_source"]["name"] for node in self.node_details(self.script_realm, self.node_id)["hits"]["hits"]]
+            node_name = []
+            for node_data in self.node_details(self.script_realm, self.node_id)["hits"]["hits"]:
+                if node_data["_source"]["scan_by_ip"]:
+                    node_name.append(node_data["_source"]["ip_reference"])
+                else:
+                    node_name.append(node_data["_source"]["name"])
             self.prepare_ansible_backend(node_name)
             ansible_cmd = ["ansible-playbook", "-i", self.ansible_inventory_file, self.ansible_playbook_file]
             with subprocess.Popen(ansible_cmd, stdout=subprocess.PIPE) as proc:
                 while proc.poll() is None:
-                    self.script_report["output"] = self.script_report["output"] + str(proc.stdout.read())
+                    self.script_report["output"] = self.script_report["output"] + str(proc.stdout.read().decode('UTF-8'))
                     self.__update_script_report()
                     time.sleep(0.5)
             self.__close_script_report()
@@ -532,7 +538,7 @@ class ScriptManager:
         try:
             print(" >>> Enter file:scriptManager:class:scriptManager:function:run_no_ansible_script")
             node_data = self.node_details(self.script_realm, self.node_id)["hits"]["hits"][0]["_source"]
-            node_name = [ip for ip in node_data["ip"] if ip not in ["127.0.0.1", "::1"]][0] if node_data["scan_by_ip"] else node_data["name"]
+            node_name = node_data["ip_reference"] if node_data["scan_by_ip"] else node_data["name"]
             self.build_remote_env(node_name, self.script_content, self.script_destination)
             self.exec_remote_script(node_name)
             self.__close_script_report()

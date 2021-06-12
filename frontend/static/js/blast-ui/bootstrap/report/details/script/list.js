@@ -13,52 +13,85 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-
-import Reporter from '../../../../../reporter.js'
-
-var reporter = new Reporter()
+import { filterScroll, filterScrollData } from '../../../../../reporter.js'
 
 const ReportScriptList = class {
 
     constructor() {
-        this._executionId = undefined
         this._frame = `
-            <div class="card rounded-0 border-start-0 border-bottom-0 border-end-0" style="font-size: 12px; border-top: 1px solid #D7D7D7">
-                <div class="card-body">
-                    <div id="script_exec_%tagId%" class"collapse">
+            <ul id="reporterScriptListSection" class="list-group">
+                <li class="list-group-item border-top-0 border-start-0 border-end-0" style="font-size: 14px">
+                    <div class="row">
+                        <div class="col-3">Start At</div>
+                        <div class="col-3">Execution Id</div>
+                        <div class="col-3">Name</div>
+                        <div class="col-3">Description</div>
                     </div>
-                </div>
-            </div>
+                </li>
+                <li id="reporterScriptListContainer" class="border-0" style='overflow-y: scroll; height: 1000px; padding-left: 0'>
+                    <ul id="reporterScriptList" style="padding-left: 0"></ul>
+                    <div id="reporterScriptListBottom" class="card rounded-0" style="display: hidden">
+                        <div class="card-body"></div>
+                    </div>
+                </li>
+            </ul>
         `
+
         this._parentName = undefined
-        this._reportId = undefined
-        this._reportScriptFrame = undefined
-        this._scriptData = undefined
+        this._reportData = undefined
+        this._reportDataScrollId = undefined
     }
 
-    set executionId(ei) { this._executionId = ei }
-    set frame(fr) { this._frame = fr }
     set parentName(pn) { this._parentName = pn }
-    set reportScriptFrame(rsf) { this._reportScriptFrame = rsf }
-    set reportId(ri) { this._reportId = ri }
-    set scriptData(sd) { this._scriptData = sd }
+    set reportData(rd) { this._rd = rd }
+    set reportDataScrollId(rdsi) { this._reportDataScrollId = rdsi }
 
-    get executionId() { return this._executionId }
-    get frame() { return this._frame }
     get parentName() { return this._parentName }
-    get reportId() { return this._reportId }
-    get reportScriptFrame() { return this._reportScriptFrame }
-    get scriptData() { return this._scriptData }
+    get reportData() { return this._rd }
+    get reportDataScrollId() { return this._reportDataScrollId }
 
     addFrame = () => {
-        let html = this.frame.replace(/%tagId%/g, this.tagId)
-        $("#" + this.parentName).html(html)
+        $("#" + this.parentName).html(this._frame)
     }
 
-    addReportScript = () => {
+    addSubFrame = (scriptData) => {
+        let scriptEl = document.createElement("li")
+        scriptEl.classList.add("list-group-item")
+        scriptEl.classList.add("p-0")
+        scriptEl.id = "list_element_" + scriptData["_id"]
+        scriptEl.style.cssText = "font-size: 12px; border-left: 1px solid #DADEDF; border-right: 1px solid #DADEDF; border-bottom: 1px solid #DADEDF"
+        let list = document.getElementById("reporterScriptList")
+        list.appendChild(scriptEl)
+        let content = `
+             <div class="card border-0">
+                        <div class="card-body">
+                            <div class="card-title mouseHover" data-bs-toggle="collapse" href="#report_` + scriptData["_id"] + `"
+                                aria-expanded="false" aria-controls="report_` + scriptData["_id"] + `">
+                                <div class="row">
+                                    <div class="col-3">` + scriptData["_source"]["start_at"] + `</div>
+                                    <div class="col-3">` + scriptData["_source"]["execution_id"] + `</div>
+                                    <div class="col-3">` + scriptData["_source"]["name"] + `</div>
+                                    <div class="col-3">` + scriptData["_source"]["description"] + `</div>
+                                </div>
+                            </div>
+                            <div id="report_` + scriptData["_id"] + `" class="collapse">
+                                <div class="card rounded-0 border-start-0 border-bottom-0 border-end-0" style="font-size: 12px; border-top: 1px solid #D7D7D7">
+                                    <div class="card-body">
+                                        <div id="script_exec_` + scriptData["_id"] + `">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+        `
+        scriptEl.innerHTML = content
+    }
+
+    addSubFrameContent = (scriptData) => {
         let html = ''
         let output = ''
-        $.each(this.scriptData["_source"], (idx, value) => {
+        $.each(scriptData["_source"], (idx, value) => {
             if ( idx === "duration" ) {
                 $.each(value, (durationIdx, durationValue) => {
                     idx = "duration." + durationIdx
@@ -71,13 +104,13 @@ const ReportScriptList = class {
                 })
             } else if ( idx === "output" ) {
                 output = `
-                    <div class="row ms-2 p-2 bg-gradient" style="background-color: #CCC; border-radius: 5px">
+                    <div class="row ms-2 p-2">
                         <div class="col-12">
                             <div>output</div>
                             <div class="p-1">
                                 <code>
                                     <pre style="font-size: 12px; color: #212529">`
-                                        + this.scriptData["_source"]["output"] +
+                                        + scriptData["_source"]["output"] +
                                     `</pre>
                                 </code>
                             </div>
@@ -91,53 +124,46 @@ const ReportScriptList = class {
                     </div>`
             }
         })
-
-        $("#script_exec_" + this.tagId).html(`<div id="scenarioContent">` + html + output + `</div>`)
+        $("#script_exec_" + scriptData["_id"]).html(`<div id="scenarioContent">` + html + output + `</div>`)
     }
 
-    render = (parentName, reportId, executionId) => {
-        this.executionId = executionId
-        this.parentName = parentName
-        this.reportId = reportId
-        let filterReport = {
-            "time": {
-                "interval": {
-                    "value": "",
-                    "unit": "",
-                    "selected": false
-                },
-                "datetime": {
-                    "start_at": "",
-                    "end_at": "",
-                    "selected": false
-                }
-            },
-            "object": {
-                "name": "script"
-            },
-            "search": [
-                {
-                    "field": "execution_id",
-                    "string": this.executionId
-                }
-            ]
-        }
+    addReporterList = (scriptData) => {
+        this.addSubFrame(scriptData)
+        this.addSubFrameContent(scriptData)
+    }
 
-        reporter.filter_scroll(filterReport).then((scripts) => {
-            scripts["hits"]["hits"].forEach((scr) => {
-                this.scriptData = scr
-                this.tagId = this.scriptData["_id"]
-                if ( this.reportId === this.tagId ) {
-                    this.addFrame()
-                    this.addReportScript()
-                }
+    expandReporterList = () => {
+        console.log(this.reportDataScrollId)
+        filterScrollData('script', this.reportDataScrollId).then((reportData) => {
+            this.reportData = reportData["hits"]["hits"]
+            this.reportDataScrollId = reportData["_scroll_id"]
+            this.reportData.forEach((scriptData) => {
+                this.addReporterList(scriptData)
+            })
+        })
+    }
+
+    render = (parentName, formData) => {
+        this.parentName = parentName
+        this.addFrame()
+        filterScroll(formData).then((reportData) => {
+            this.reportData = reportData["hits"]["hits"]
+            this.reportDataScrollId = reportData["_scroll_id"]
+            console.log(this.reportDataScrollId)
+            this.reportData.forEach((scriptData) => {
+                this.addReporterList(scriptData)
             })
         })
 
-
-
-     }
-
+        let options = {
+            "root": document.querySelector("#reporterScriptListContainer"),
+            "rootMargin": '5px',
+            "threshold": 0.1
+        }
+        let observer = new IntersectionObserver(this.expandReporterList, options)
+        let target = document.querySelector("#reporterScriptListBottom")
+        observer.observe(target)
+    }
 }
 
 export default ReportScriptList

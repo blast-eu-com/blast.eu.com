@@ -17,6 +17,7 @@
 // we need to make sure the user have jwt cookie before to continue
 import Realm from "./realm.js";
 import Account from "./aaa.js"
+import { gsearch } from "./gsearch.js"
 import FrontendConfig from "./frontend.js"
 let account = new Account()
 let config = new FrontendConfig()
@@ -61,7 +62,7 @@ let Nav = class {
                 </div>
                 <div>
                     <div class="input-group">
-                        <input class="form-control" size="64" type="search" style="background-color: #373A3E; color: #EEE; border: thin solid #373A3E" />
+                        <input id="globalSearch" class="form-control" size="64" type="search" style="background-color: #373A3E; color: #EEE; border: thin solid #373A3E" />
                         <button class="btn blast-btn" type="button" onclick="globalSearch() ;" style="color: #EEE;">Search</button>
                     </div>
                 </div>
@@ -203,8 +204,15 @@ const navRealmSwitch = (realmName) => {
     nav.loadNavBar()
 }
 
+const globalSearch = () => {
+    let gsearch = new Gsearch()
+    let searchString = $("input#globalSearch").val()
+    gsearch.search({"string": searchString})
+}
+
 
 window.sideNavActiveMenu = sideNavActiveMenu
 window.navRealmSwitch = navRealmSwitch
+window.globalSearch = globalSearch
 
 export default Nav

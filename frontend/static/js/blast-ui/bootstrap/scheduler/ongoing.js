@@ -14,15 +14,13 @@
    limitations under the License.
 */
 
-import Reporter from '../../../reporter.js'
-
-var reporter = new Reporter()
+import { filterScroll } from '../../../reporter.js'
 
 const SchedulerOnGoing = class {
 
     constructor() { }
 
-    addOnGoing = async () => {
+    addOnGoing = () => {
 
         let report_data = {
             "time": {
@@ -45,44 +43,44 @@ const SchedulerOnGoing = class {
                 }
             ]
         }
-        let res_query_scroll = await reporter.filter_scroll(report_data)
 
         let html = `<table class="table" style="font-size: 12px;">
-        <thead>
-        <th>Execution Id</th>
-        <th>Scheduler Name</th>
-        <th>Start Time</th>
-        <th>Progress Bar</th>
-        </thead>`
-        res_query_scroll["hits"]["hits"].forEach((report) => {
-            let current_at = new Date().getTime() / 1000
-            let delta = current_at - report["_source"]["duration"]["start_at"]
-            let percent = parseInt((delta / report["_source"]["duration"]["avg"])*100)
-            console.log(current_at, report["_source"]["duration"]["start_at"], delta, report["_source"]["duration"]["avg"], percent)
-            html = html + `
-            <tr>
-            <td>` + report["_source"]["execution_id"] + `</td>
-            <td>` + report["_source"]["name"] + `</td>
-            <td>` + report["_source"]["start_at"] + `</td>
-            <td>
-            <div class="progress mb-3">
-                <div class="progress-bar progress-bar-striped progress-bar-animated"
-                role="progressbar" aria-valuenow="` + percent +`" aria-valuemin="0" aria-valuemax="100"
-                style="width: ` + percent + `%">` + percent + `%</div>
-            </div>
-            </td></tr>
-            `
+        <thead><th>Execution Id</th><th>Scheduler Name</th><th>Status</th><th>Start Time</th><th>Progress Bar</th></thead>`
+
+        filterScroll(report_data).then((res_query_scroll) => {
+            res_query_scroll["hits"]["hits"].forEach((report) => {
+                let current_at = new Date().getTime() / 1000
+                let delta = current_at - report["_source"]["duration"]["start_at"]
+                if ( delta > 0 && Object.keys(report["_source"]["duration"]).includes("avg")) {
+                    let percent = parseInt((delta / report["_source"]["duration"]["avg"])*100)
+                    console.log(current_at, report["_source"]["duration"]["start_at"], delta, report["_source"]["duration"]["avg"], percent)
+                    html = html + `
+                    <tr>
+                    <td>` + report["_source"]["execution_id"] + `</td>
+                    <td>` + report["_source"]["name"] + `</td>
+                    <td>` + report["_source"]["status"] + `</td>
+                    <td>` + report["_source"]["start_at"] + `</td>
+                    <td>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated"
+                        role="progressbar" aria-valuenow="` + percent +`" aria-valuemin="0" aria-valuemax="100"
+                        style="width: ` + percent + `%">` + percent + `%</div>
+                    </div>
+                    </td></tr>
+                    `
+                    $("#" + this.parentName).html(html)
+                }
+            })
         })
-        $("#" + this.parentName).html(html + '</table>')
+        // $("#" + this.parentName).html(html + '</table>')
     }
 
     refresh = () => {
         this.addOnGoing()
     }
 
-    render = (parentName, reporter) => {
+    render = (parentName) => {
         this.parentName = parentName
-        this.reporter = reporter
         this.addOnGoing()
     }
 }

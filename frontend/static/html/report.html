@@ -94,16 +94,16 @@
                                         <a id="reportScheduler" class="list-group-item list-group-item-action active"
                                            data-bs-toggle="list" role="tab" href="#schedulerReportSection"
                                            aria-controls="sched" style="border-radius: 0;"
-                                           onclick="runReportFilter() ;">Scheduler</a>
+                                           onclick="loadReportScheduler() ;">Scheduler</a>
 
                                         <a id="reportScenario" class="list-group-item list-group-item-action"
                                            data-bs-toggle="list" role="tab" href="#scenarioReportSection"
-                                           aria-controls="sce" onclick="runReportFilter() ;">Scenario</a>
+                                           aria-controls="sce" onclick="loadReportScenario() ;">Scenario</a>
 
                                         <a id="reportScript" class="list-group-item list-group-item-action"
                                            data-bs-toggle="list" role="tab" href="#scriptReportSection"
                                            aria-controls="scr" style="border-radius: 0;"
-                                           onclick="runReportFilter() ;">Script</a>
+                                           onclick="loadReportScript() ;">Script</a>
                                     </div>
                                 </div>
 
@@ -114,7 +114,10 @@
                                             <div class="card blast-card shadow-sm border">
                                                 <div class="card-body">
                                                     <h4 class="card-title mb-4">Report Schedulers</h4>
-                                                    <p id="schedulerReport" class="card-text"></p>
+                                                    <p id="schedulerReport" class="card-text">
+                                                        <div id="reportSchedulerChart"></div>
+                                                        <div id="reportSchedulerList"></div>
+                                                    </p>
                                                 </div>
                                             </div>
                                         </div>
@@ -123,7 +126,10 @@
                                             <div class="card blast-card shadow-sm border">
                                                 <div class="card-body">
                                                     <h4 class="card-title mb-4">Report Scenarios</h4>
-                                                    <p id="scenarioReport" class="card-text"></p>
+                                                    <p id="scenarioReport" class="card-text">
+                                                        <div id="reportScenarioChart"></div>
+                                                        <div id="reportScenarioList"></div>
+                                                    </p>
                                                 </div>
                                             </div>
                                         </div>
@@ -132,7 +138,10 @@
                                             <div class="card blast-card shadow-sm border mb-3">
                                                 <div class="card-body">
                                                     <h4 class="card-title mb-4">Report Scripts</h4>
-                                                    <p id="scriptReport" class="card-text"></p>
+                                                    <p id="scriptReport" class="card-text">
+                                                        <div id="reportScriptChart"></div>
+                                                        <div id="reportScriptList"></div>
+                                                    </p>
                                                 </div>
                                             </div>
                                         </div>

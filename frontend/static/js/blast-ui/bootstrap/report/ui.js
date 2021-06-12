@@ -15,42 +15,37 @@
 */
 
 import ReportForm from './form.js'
-import Reporting from './reporting.js'
+import { main as reportSchedulerUI } from './details/scheduler/ui.js'
+import { main as reportScenarioUI } from './details/scenario/ui.js'
+import { main as reportScriptUI } from './details/script/ui.js'
 
 var reportForm = new ReportForm()
-var reporting = new Reporting()
-var objectName = undefined
 
-const loadReport = (reportId, executionId) => {
-    console.log(objectName, reportId, executionId)
-    reporting.addReportContent(objectName, reportId, executionId)
-}
-
-const objectNameSelected = () => {
-
+const runReportFilter = () => {
     if ($("#reportScheduler").hasClass('active')) {
-        return "scheduler"
+        reportForm.objectNameSelected = 'scheduler'
+        reportForm.setFormData()
+        reportSchedulerUI(reportForm.formData)
     } else if ($("#reportScenario").hasClass('active')) {
-        return "scenario"
+        console.log("asasas")
+        reportForm.objectNameSelected = 'scenario'
+        reportForm.setFormData()
+        reportScenarioUI(reportForm.formData)
     } else if ($("#reportScript").hasClass('active')) {
-        return "script"
+        reportForm.objectNameSelected = 'script'
+        reportForm.setFormData()
+        reportScriptUI(reportForm.formData)
     }
 }
 
-const runReportFilter = () => {
-   objectName = objectNameSelected()
-   reportForm.runReportFilter(objectName).then((reportData) => {
-        reporting.render(objectName, reportForm.scroll)
-    })
-}
-
 function main() {
-
     reportForm.render('reportForm')
     runReportFilter()
 }
 
 
 window.main = main
-window.runReportFilter = runReportFilter
-window.loadReport = loadReport
+window.runFormFilter = runReportFilter
+window.loadReportScheduler = runReportFilter
+window.loadReportScenario = runReportFilter
+window.loadReportScript = runReportFilter

@@ -14,9 +14,9 @@
    limitations under the License.
 */
 
-import Reporter from "../../../reporter.js"
-
-var reporter = new Reporter()
+import { main as reportSchedulerUI } from './details/scheduler/ui.js'
+import { main as reportScenarioUI } from './details/scenario/ui.js'
+import { main as reportScriptUI } from './details/script/ui.js'
 
 const ReportForm = class {
 
@@ -53,7 +53,7 @@ const ReportForm = class {
         this.reportSearchContent = `
             <div class="form-label fs-6 text-secondary" for="reportPropertyValue">A string to match report property value</div>
             <div class="input-group">
-                <button class="btn blast-btn" type="button" onclick="runReportFilter() ;">Search</button>
+                <button class="btn blast-btn" type="button" onclick="runFormFilter() ;">Search</button>
                 <input id="fieldValueFilter" name="fieldValueFilter" type="text" class="form-control" aria-label="Text input with segmented dropdown button">
             </div>
         `
@@ -158,20 +158,15 @@ const ReportForm = class {
         $("#reportDatePickerContainer").html(this.reportDatePickerContent)
     }
 
-    runFilterFromForm = () => {
-        if ($("a#reportScheduler").hasClass('active')) {
-            this.runReportFilter('scheduler')
-        } else if ($("a#reportScenario").hasClass('active')) {
-            this.runReportFilter('scenario')
-        } else if ($("a#reportScript").hasClass('active')) {
-            this.runReportFilter('script')
-        }
-    }
-
-    runReportFilter = async (objectName) => {
-        this.objectNameSelected = objectName
+    runFormFilter = () => {
         this.setFormData()
-        this.scroll = await reporter.filter_scroll(this.formData)
+        if ($("a#reportScheduler").hasClass('active')) {
+            reportSchedulerUI(this.formData)
+        } else if ($("a#reportScenario").hasClass('active')) {
+            reportScenarioUI(this.formData)
+        } else if ($("a#reportScript").hasClass('active')) {
+            reportScriptUI(this.formData)
+        }
     }
 
     render = (parentName) => {

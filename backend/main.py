@@ -638,6 +638,7 @@ def report_filter(realm):
     account_email = json.loads(request.cookies.get('account'))["email"]
 
     if account.is_active_realm_member(account_email, realm):
+        print(report_data)
         if report_data["search"][0]["string"] != "":
             return Response(json.dumps(reporter.filter_regexp_scroll(realm, report_data)))
         else:
@@ -649,13 +650,26 @@ def report_filter(realm):
 def report_scroll_data(realm):
 
     scroll_id = request.args.get('_scroll_id')
+    report_type = request.args.get('report_type')
     account = Account(ES)
-    reporter = Reporter(ES)
+    reporter = Reporter(ES, report_type)
     account_email = json.loads(request.cookies.get('account'))["email"]
-    print('tactac:' + scroll_id)
 
     if account.is_active_realm_member(account_email, realm):
         return Response(json.dumps(reporter.filter_scroll_data(realm, scroll_id)))
+    else:
+        return Response({"failure": "account identifier and realm is not an active match"})
+
+@app.route('/api/v1/realms/<realm>/reports/agg', methods=["POST"])
+def report_agg(realm):
+
+    report_data = request.get_json()['report']
+    account = Account(ES)
+    reporter = Reporter(ES, report_data["object"]["name"])
+    account_email = json.loads(request.cookies.get('account'))["email"]
+
+    if account.is_active_realm_member(account_email, realm):
+        return Response(json.dumps(reporter.filter_agg_data(realm, report_data)))
     else:
         return Response({"failure": "account identifier and realm is not an active match"})
 
