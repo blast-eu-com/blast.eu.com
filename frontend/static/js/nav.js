@@ -205,9 +205,8 @@ const navRealmSwitch = (realmName) => {
 }
 
 const globalSearch = () => {
-    let gsearch = new Gsearch()
     let searchString = $("input#globalSearch").val()
-    gsearch.search({"string": searchString})
+    gsearch({"string": searchString})
 }
 
 

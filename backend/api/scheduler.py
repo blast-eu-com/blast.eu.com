@@ -95,18 +95,17 @@ class Scheduler:
             req = json.dumps({
                 "size": 10000,
                 "query": {
-                    "bool": {
-                        "must": {
-                            "match_all": {}
-                        },
-                        "filter": {
-                            "match": {
-                                "realm": realm
-                            }
-                        }
+                    "term": {
+                        "realm": realm
                     }
                 },
-                "sort": [{"name": {"order": "asc"}}]
+                "sort": [
+                    {
+                        "name": {
+                            "order": "asc"
+                        }
+                    }
+                ]
             })
             return self.ES.search(index=self.DB_INDEX, body=req)
 
@@ -122,7 +121,13 @@ class Scheduler:
                 "query": {
                     "match_all": {}
                 },
-                "sort": [{"name": {"order": "asc"}}]
+                "sort": [
+                    {
+                        "name": {
+                            "order": "asc"
+                        }
+                    }
+                ]
             })
             return self.ES.search(index=self.DB_INDEX, body=req)
 
@@ -138,9 +143,9 @@ class Scheduler:
                 {
                     "query": {
                         "bool": {
-                            "must": [
+                            "filter": [
                                 {
-                                    "match": {
+                                    "term": {
                                         "realm": realm
                                     }
                                 },

@@ -34,10 +34,21 @@ const ScenarioListInfo = class {
             <tr><td>id</td><td>` + scenario.id + `</td></tr>`
 
         $.each(scenario.rawData, (key, val) => {
-            html = html + '<tr><td>' + key + '</td><td>' + val + '</td></tr>'
+            if ( key === 'nodes' || key === 'scripts' ) {
+                let objValue = ''
+                val.forEach((value) => {
+                    objValue = objValue + `
+                    <a href="/html/` + key.slice(0, -1) + `-details.html?` + key.slice(0, -1) + `_id=` + value + `">
+                    <span class="badge blast-badge">` + value + `</span>
+                    </a>`
+                })
+                html = html + '<tr><td>' + key + '</td><td>' + objValue + '</td></tr>'
+            } else {
+                html = html + '<tr><td>' + key + '</td><td>' + val + '</td></tr>'
+            }
         })
 
-        $("#" + this.parentName).html(html + `</table>`)
+        $("#" + this.parentName).html(html + '</table>')
     }
 
     render = (parentName, scenario) => {

@@ -87,7 +87,7 @@ class Script:
                 {
                     "size": 10000,
                     "query": {
-                        "match": {
+                        "term": {
                             "realm": realm
                         }
                     },
@@ -114,9 +114,9 @@ class Script:
                     "size": 10000,
                     "query": {
                         "bool": {
-                            "must": [
+                            "filter": [
                                 {
-                                    "match": {
+                                    "term": {
                                         "realm": realm
                                     }
                                 },
@@ -143,9 +143,9 @@ class Script:
             req = json.dumps({
                 "query": {
                     "bool": {
-                        "must": [
+                        "filter": [
                             {
-                                "match": {
+                                "term": {
                                     "realm": realm
                                 }
                             },
@@ -172,14 +172,14 @@ class Script:
                     "size": 10000,
                     "query": {
                         "bool": {
-                            "must": [
+                            "filter": [
                                 {
                                     "terms": {
                                         "roles": roles
                                     }
                                 },
                                 {
-                                    "match": {
+                                    "term": {
                                         "realm": realm
                                     }
                                 }

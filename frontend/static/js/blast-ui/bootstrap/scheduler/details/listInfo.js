@@ -24,18 +24,24 @@ const SchedulerListInfo = class {
             <tr><td><b>Scheduler id</b></td><td>` + scheduler["_id"] + `</td></tr>
         `
         $.each(scheduler.rawData, (idx, val) => {
-            if ( idx === 'daily') {
-                html = html  + '<tr><td><b>' + idx.charAt(0).toUpperCase() + idx.slice(1) + '</b></td><td><table>'
+            if ( idx === 'frequency' ) {
                 $.each(val, (subIdx, subVal) => {
-                    html = html + '<tr><td><b>' + subIdx.charAt(0).toUpperCase() + subIdx.slice(1) + '</b></td><td class="ps-5">' + subVal + '</td></tr>'
+                    if ( subIdx === 'daily') {
+                        html = html  + '<tr><td><b>' + subIdx.charAt(0).toUpperCase() + subIdx.slice(1) + '</b></td><td><table>'
+                        $.each(subVal, (dailyIdx, dailyVal) => {
+                            html = html + '<tr><td><b>' + dailyIdx.charAt(0).toUpperCase() + dailyIdx.slice(1) + '</b></td><td class="ps-5">' + dailyVal + '</td></tr>'
+                        })
+                        html = html + '</table></td></tr>'
+                    } else if (subIdx === 'interval') {
+                        html = html  + '<tr><td><b>' + subIdx.charAt(0).toUpperCase() + subIdx.slice(1) + '</b></td><td><table>'
+                        $.each(subVal, (intervIdx, intervVal) => {
+                            html = html + '<tr><td><b>' + intervIdx.charAt(0).toUpperCase() + intervIdx.slice(1) + '</b></td><td class="ps-5">' + intervVal + '</td></tr>'
+                        })
+                        html = html + '</table></td></tr>'
+                    }
                 })
-                html = html + '</table></td></tr>'
-            } else if (idx === 'interval') {
-                html = html  + '<tr><td><b>' + idx.charAt(0).toUpperCase() + idx.slice(1) + '</b></td><td><table>'
-                $.each(val, (subIdx, subVal) => {
-                    html = html + '<tr><td><b>' + subIdx.charAt(0).toUpperCase() + subIdx.slice(1) + '</b></td><td class="ps-5">' + subVal + '</td></tr>'
-                })
-                html = html + '</table></td></tr>'
+            } else if ( idx === 'scenario_ids' ) {
+                html = html + '<tr><td><b>' + idx.charAt(0).toUpperCase() + idx.slice(1) + '</b></td><td><span class="badge blast-badge">' + val + '</span></td></tr>'
             } else {
                 html = html + '<tr><td><b>' + idx.charAt(0).toUpperCase() + idx.slice(1) + '</b></td><td>' + val + '</td></tr>'
             }

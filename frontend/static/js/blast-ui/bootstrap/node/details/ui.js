@@ -13,3 +13,53 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
+
+import Node from '../../../../node.js'
+import NodeListInfo from  './listInfo.js'
+import NodeListPeers from './listPeers.js'
+import NodeListRoles from './listRoles.js'
+
+var node = new Node()
+var nodeListInfo = new NodeListInfo()
+var nodeListPeers = new NodeListPeers()
+var nodeListRoles = new NodeListRoles()
+
+const setButtonDeleteAction = (nodeId) => {
+    $('#btnDelNode').on("click", function() {
+        node.delete(nodeId).then(function(nodeDeleteResp) {
+            if ( nodeDeleteResp["result"] === "deleted" ) { location.reload() }
+        })
+    })
+}
+
+const setButtonRescanAction = (nodeId) => {
+    $("#btnRescanNode").on("click", function() {
+        node.rescan(nodeId).then(function(nodeRescan) {
+            if (nodeRescan["result"] === "updated") { location.reload() }
+        })
+    })
+}
+
+const setPageTitle = (nodeName) => {
+    $("navNodeName").html(nodeName)
+}
+
+async function main() {
+
+    let urlParams = new URLSearchParams(window.location.href.split('?')[1])
+    if ( urlParams.has("node_id") ) {
+        let nodeId = urlParams.get("node_id")
+        let nodeData = await node.listByIds([nodeId])
+        node.load(nodeData["hits"]["hits"][0])
+        setPageTitle(node.name)
+        setButtonDeleteAction(node.id)
+        setButtonRescanAction(node.id)
+        console.log(node)
+        nodeListInfo.render('nodeDetails', node)
+        nodeListPeers.render('nodePeers', node)
+        nodeListRoles.render('nodeRoles', node)
+    }
+
+}
+
+window.main = main

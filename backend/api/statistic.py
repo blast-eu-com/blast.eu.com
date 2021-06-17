@@ -55,10 +55,13 @@ class Statistic:
 
         """ this function returns all the settings attached to the realm id passed as arg """
         try:
-            req = json.dumps({"query": {"bool": {
-                "must": {"match_all": {}},
-                "filter": {"match": {"realm": realm}}
-            }}})
+            req = json.dumps({
+                "query": {
+                    "term": {
+                        "realm": realm
+                    }
+                }
+            })
             return self.ES.search(index=self.DB_INDEX, body=req)
 
         except (elasticsearch.exceptions.ConnectionError, elasticsearch.exceptions.NotFoundError) as e:
@@ -77,7 +80,13 @@ class Statistic:
 
         """ this function returns the settings linked to the realm id passed as arg """
         try:
-            req = json.dumps({"query": {"match": {"realm": realm}}})
+            req = json.dumps({
+                "query": {
+                    "term": {
+                        "realm": realm
+                    }
+                }
+            })
             return self.ES.search(index=self.DB_INDEX, body=req)
 
         except (elasticsearch.exceptions.ConnectionError, elasticsearch.exceptions.NotFoundError) as e:

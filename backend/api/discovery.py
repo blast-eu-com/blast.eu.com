@@ -20,7 +20,6 @@ from api.setting import Portmap
 from api.db import ESConnector
 
 
-
 class SSH:
 
     def __init__(self, *args, **kwargs):
@@ -156,7 +155,7 @@ def discover(*args, **kwargs) -> dict:
     if discovery.server_authentication:
         discovery.start()
         discovery.end()
-        return {"ip": discovery.server_ips, "role": discovery.server_roles, "peers": discovery.server_peers}
+        return {"ip": discovery.server_ips, "roles": discovery.server_roles, "peers": discovery.server_peers}
 
     else:
         return {"failure": "SSH Authentication failure"}
