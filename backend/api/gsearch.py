@@ -15,6 +15,8 @@
    limitations under the License.
 """
 
+import json
+
 class Gsearch:
 
     def __init__(self, ESconnector):
@@ -25,9 +27,10 @@ class Gsearch:
 
         try:
             query_req = json.dumps({
+                "size": 100,
                 "query": {
                     "bool": {
-                        "must": [
+                        "filter": [
                             {
                                 "term": {
                                     "realm": realm
@@ -37,12 +40,12 @@ class Gsearch:
                                 "bool": {
                                     "should": [
                                         {
-                                            "term": {
+                                            "wildcard": {
                                                 "name": string
                                             }
                                         },
                                         {
-                                            "match": {
+                                            "wildcard": {
                                                 "description": string
                                             }
                                         },
@@ -58,9 +61,9 @@ class Gsearch:
                     }
                 }
             })
-            return self.ES.search(index=self.index, body=query_req, scroll="3m")
+            return self.ES.search(index=self.index, body=query_req, scroll="15m")
 
         except Exception as e:
-            print("backend Exception, file:cluster:class:cluster:func:list_by_ids")
+            print("backend Exception, file:gsearch:class:gsearch:func:search")
             print(e)
             return {"failure": str(e)}

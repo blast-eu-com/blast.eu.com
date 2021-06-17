@@ -18,7 +18,13 @@
 
 const infrastructureListInfo = class {
 
-    constructor() { }
+    constructor() {
+        this._pn
+    }
+
+    set parentName(pn) { this._pn = pn }
+
+    get parentName() { return this._pn }
 
     addListInfo = (infrastructure) => {
         let html = `

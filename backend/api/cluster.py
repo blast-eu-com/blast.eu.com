@@ -174,9 +174,9 @@ class Cluster:
                     "_source": "nodes",
                     "query": {
                         "bool": {
-                            "must": [
+                            "filter": [
                                 {
-                                    "match": {
+                                    "term": {
                                         "realm": realm
                                     }
                                 },
@@ -206,9 +206,9 @@ class Cluster:
                     "size": 10000,
                     "query": {
                         "bool": {
-                            "must": [
+                            "filter": [
                                 {
-                                    "match": {
+                                    "term": {
                                         "realm": realm
                                     }
                                 },
@@ -238,14 +238,14 @@ class Cluster:
                     "size": 10000,
                     "query": {
                         "bool": {
-                            "must": [
+                            "filter": [
                                 {
                                     "terms": {
                                         "name": names
                                     }
                                 },
                                 {
-                                    "match": {
+                                    "term": {
                                         "realm": realm
                                     }
                                 }

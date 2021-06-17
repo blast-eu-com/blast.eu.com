@@ -210,9 +210,9 @@ class Infra:
                     "size": 10000,
                     "query": {
                         "bool": {
-                            "must": [
+                            "filter": [
                                 {
-                                    "match": {
+                                    "term": {
                                         "realm": realm
                                     }
                                 },
@@ -249,9 +249,9 @@ class Infra:
                     "size": 10000,
                     "query": {
                         "bool": {
-                            "must": [
+                            "filter": [
                                 {
-                                    "match": {
+                                    "term": {
                                         "realm": realm
                                     }
                                 },

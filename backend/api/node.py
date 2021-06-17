@@ -49,7 +49,7 @@ class Node:
                 discovered_data = self.scan(realm, host_net_info)
                 if "failure" not in discovered_data.keys():
                     node["ip"] = discovered_data["ip"]
-                    node["role"] = discovered_data["role"]
+                    node["roles"] = discovered_data["roles"]
                     node["peers"] = discovered_data["peers"]
                     node["realm"] = realm
                     self.STATISTIC.__add__(self.STATISTIC_DATA)
@@ -137,7 +137,7 @@ class Node:
                     "size": 10000,
                     "query": {
                         "bool": {
-                            "must": [
+                            "filter": [
                                 {
                                     "terms": {
                                         "_id": node_ids
@@ -176,7 +176,7 @@ class Node:
                     "size": 10000,
                     "query": {
                         "bool": {
-                            "must": [
+                            "filter": [
                                 {
                                     "term": {
                                         "realm": realm
@@ -214,7 +214,7 @@ class Node:
                 "size": 10000,
                 "query": {
                     "bool": {
-                        "must": [
+                        "filter": [
                             {
                                 "term": {
                                     "realm": realm
@@ -280,11 +280,11 @@ class Node:
             self.STATISTIC_DATA["timestamp"] = statistic.UTC_time()
             self.STATISTIC_DATA["account_email"] = data["account_email"]
             self.STATISTIC_DATA["realm"] = node_data["realm"]
-            host_net_info = node_data["ip"] if node_data["scan_by_ip"] else node_data["hostname"]
+            host_net_info = node_data["ip_reference"] if node_data["scan_by_ip"] else node_data["hostname"]
             discovered_data = self.scan(node_data["realm"], host_net_info)
             if "failure" not in discovered_data.keys():
                 node_data["ip"] = discovered_data["ip"]
-                node_data["role"] = discovered_data["role"]
+                node_data["roles"] = discovered_data["roles"]
                 node_data["peers"] = discovered_data["peers"]
                 self.STATISTIC.__add__(self.STATISTIC_DATA)
                 return self.update(data["id"], node_data)

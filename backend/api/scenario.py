@@ -60,9 +60,9 @@ class Scenario:
                 {
                     "query": {
                         "bool": {
-                            "must": [
+                            "filter": [
                                 {
-                                    "match": {
+                                    "term": {
                                         "realm": realm
                                     }
                                 },
@@ -121,15 +121,8 @@ class Scenario:
                 {
                     "size": 10000,
                     "query": {
-                        "bool": {
-                            "must": {
-                                "match_all": {}
-                            },
-                            "filter": {
-                                "match": {
-                                    "realm": realm
-                                }
-                            }
+                        "term": {
+                            "realm": realm
                         }
                     },
                     "sort": [
@@ -155,9 +148,9 @@ class Scenario:
                 {
                     "query": {
                         "bool": {
-                            "must": [
+                            "filter": [
                                 {
-                                    "match": {
+                                    "term": {
                                         "realm": realm
                                     }
                                 },

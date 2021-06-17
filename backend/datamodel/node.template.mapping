@@ -13,7 +13,7 @@
       "type": { "type": "keyword" },
       "realm": { "type": "keyword" },
       "peers": { "type": "ip" },
-      "role": {
+      "roles": {
         "type": "nested",
         "properties": {
             "port": { "type": "keyword" },

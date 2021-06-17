@@ -18,10 +18,8 @@
 // load the external objects
 import FrontendConfig from './frontend.js'
 import Account from './aaa.js'
-import Windower from './windower.js'
 let config = new FrontendConfig()
 let account = new Account()
-let windower = new Windower()
 
 const msgNodeNotFound = `<div class="p-5" style="text-align: center;">
 <img src="/img/object/node.svg" width="92" height="92"><b><h3 class="mt-3">NODE NOT FOUND</h3></b>
@@ -29,7 +27,36 @@ Add an node from this page\'s form to see it appearing into this list.</div>`
 
 let Node = class {
 
-    constructor() { }
+    constructor() {
+        this._id
+        this._name
+        this._description
+        this._ip
+        this._ip_reference
+        this._scan_by_ip
+        this._raw_data
+        this._roles
+    }
+
+    set id(id) { this._id = id }
+    set name(name) { this._name = name }
+    set description(desc) { this._description = desc }
+    set ip(ip) { this._ip = ip }
+    set ipReference(ip) { this._ip_reference = ip }
+    set scanByIp(bool) { this._scan_by_ip = bool }
+    set rawData(rd) { this._raw_data = rd }
+    set roles(roles) { this._roles = roles }
+    set peers(peers) { this._peers = peers }
+
+    get id() { return this._id }
+    get name() { return this._name }
+    get description() { return this._description }
+    get ip() { return this._ip }
+    get ipReference() { return this._ip_reference }
+    get scanByIp() { return this._scan_by_ip }
+    get rawData() { return this._raw_data }
+    get roles() { return this._roles }
+    get peers() { return this._peers }
 
     add = function(nodes) {
         return new Promise( function(resolve, reject) {
@@ -81,7 +108,7 @@ let Node = class {
         })
     }
 
-    list = function() {
+    list = () => {
         /* this function returns a rampart API response from the /node/list *
          *                                                                  *
          * when it comes to node the list always take the cluster id because* 
@@ -101,7 +128,7 @@ let Node = class {
         })
     }
 
-    listByIds(nodeIds) {
+    listByIds = (nodeIds) => {
         /*
          * this function returns a rampart API response from the /node/list_by_id *
          * the node details will be displayed to inform user
@@ -122,7 +149,7 @@ let Node = class {
         })
     }
 
-    listByNames(names) {
+    listByNames = (names) => {
         return new Promise(function(resolve, reject) {
             $.ajax({
                 url: config.proxyAPI + '/realms/' + config.session.realm + '/nodes/names',
@@ -139,7 +166,7 @@ let Node = class {
         })
     }
 
-    listNodeType = function() {
+    listNodeType = () => {
         return new Promise( function(resolve, reject) {
             $.ajax({
                 url: config.proxyAPI + '/nodes/types',
@@ -155,7 +182,7 @@ let Node = class {
         })
     }
 
-    rescan = function(nodeId) {
+    rescan = (nodeId) => {
         return new Promise( function(resolve, reject) {
             $.ajax({
                 url: config.proxyAPI + '/realms/' + config.session.realm + '/nodes/' + nodeId + '/rescan',
@@ -169,6 +196,18 @@ let Node = class {
                 }
             })
         })
+    }
+
+    load = (data) => {
+        this.id = data["_id"]
+        this.name = data["_source"]["name"]
+        this.description = data["_source"]["description"]
+        this.ip = data["_source"]["ip"]
+        this.scanByIp = data["_source"]["scan_by_ip"]
+        this.rawData = data["_source"]
+        this.roles = data["_source"]["roles"]
+        this.peers = data["_source"]["peers"]
+        if ( this.scanById ) { this.ipReference = data["_source"]["ip_reference"] }
     }
 
 }

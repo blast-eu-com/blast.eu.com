@@ -370,7 +370,7 @@ def global_filter(realm):
     account_email = json.loads(request.cookies.get('account'))['email']
 
     if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(gsearch.search(account, string)))
+        return Response(json.dumps(gsearch.search(realm, string)))
     else:
         return Response({"failure": "account identifier and realm is not an active match"})
 
