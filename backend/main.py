@@ -374,6 +374,20 @@ def global_filter(realm):
     else:
         return Response({"failure": "account identifier and realm is not an active match"})
 
+@app.route('/api/v1/realms/<realm>/global/filter/scroll', methods=["GET"])
+def global_filter_scroll(realm):
+    """ this function returns all objects matching the scroll id passed via the get """
+    account = Account(ES)
+    gsearch = Gsearch(ES)
+    scroll_id = request.args.get('_scroll_id')
+    account_email = json.loads(request.cookies.get('account'))['email']
+
+    if account.is_active_realm_member(account_email, realm):
+        return Response(json.dumps(gsearch.search_scroll(realm, scroll_id)))
+    else:
+        return Response({"failure": "account identifier and realm is not an active match"})
+
+
 # * *********************************************************************************************************
 # *
 # * INFRASTRUCTURE PART -*- INFRASTRUCTURE PART -*- INFRASTRUCTURE PART -*- INFRASTRUCTURE PART -*- INFRASTRUCTURE PART
@@ -669,7 +683,10 @@ def report_agg(realm):
     account_email = json.loads(request.cookies.get('account'))["email"]
 
     if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(reporter.filter_agg_data(realm, report_data)))
+        if report_data["search"][0]["string"] != "":
+            return Response(json.dumps(reporter.filter_agg_data(realm, report_data)))
+        else:
+            return Response(json.dumps(reporter.list_agg_data(realm, report_data)))
     else:
         return Response({"failure": "account identifier and realm is not an active match"})
 

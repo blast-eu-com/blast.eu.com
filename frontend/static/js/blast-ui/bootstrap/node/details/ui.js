@@ -47,8 +47,8 @@ const setPageTitle = (nodeName) => {
 async function main() {
 
     let urlParams = new URLSearchParams(window.location.href.split('?')[1])
-    if ( urlParams.has("node_id") ) {
-        let nodeId = urlParams.get("node_id")
+    if ( urlParams.has("id") ) {
+        let nodeId = urlParams.get("id")
         let nodeData = await node.listByIds([nodeId])
         node.load(nodeData["hits"]["hits"][0])
         setPageTitle(node.name)

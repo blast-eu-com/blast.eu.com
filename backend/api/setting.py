@@ -44,7 +44,7 @@ class Portmap:
 
     def __init__(self, ESConnector):
         self.ES = ESConnector
-        self.DB_INDEX = 'portmap'
+        self.DB_INDEX = 'blast_port_map'
 
     def __delete__(self, id: str):
         print(" >>> Enter file:setting:class:Portmap:function:__delete__")

@@ -22,7 +22,7 @@ import elasticsearch
 class Scriptlang:
 
     def __init__(self, ESConnector):
-        self.DB_INDEX = 'scriptlang'
+        self.DB_INDEX = 'blast_script_lang'
         self.ES = ESConnector
 
     def __add__(self):

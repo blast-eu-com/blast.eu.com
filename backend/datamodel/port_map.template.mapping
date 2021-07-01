@@ -1,5 +1,5 @@
 {
-  "index_patterns": "portmap",
+  "index_patterns": "blast_port_map",
   "order": 99,
   "mappings" : {
     "dynamic": false,

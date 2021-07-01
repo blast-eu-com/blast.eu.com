@@ -37,8 +37,8 @@ const setPageTitle = function(clusterName) {
 
 async function main() {
     let urlParams = new URLSearchParams(window.location.href.split('?')[1])
-    if (urlParams.has("cluster_id")) {
-        let clusterId = urlParams.get("cluster_id")
+    if (urlParams.has("id")) {
+        let clusterId = urlParams.get("id")
         let clusterData = await cluster.listByIds([clusterId])
         cluster.load(clusterData["hits"]["hits"][0])
         setPageTitle(cluster.name)

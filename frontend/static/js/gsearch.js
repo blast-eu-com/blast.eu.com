@@ -20,12 +20,28 @@ import Account from './aaa.js'
 var config = new FrontendConfig()
 var account = new Account()
 
-export function gsearch(data) {
+export function GSearch(data) {
     return new Promise(function(resolve, reject) {
         $.ajax({
             url: config.proxyAPI + '/realms/' + config.session.realm + '/global/filter',
             type: "GET",
-            data: data,
+            data: {"string": data},
+            headers: {'Authorization': config.session.httpToken},
+            success: function(Resp) {
+                if ( typeof Resp === "string" ) { Resp = JSON.parse(Resp) }
+                if ( Object.keys(Resp).includes("tokenExpired")) { account.logoutAccount()
+                    } else { resolve(Resp) }
+            }
+        })
+    })
+}
+
+export function GSearchScrollId(scrollId) {
+     return new Promise(function(resolve, reject) {
+        $.ajax({
+            url: config.proxyAPI + '/realms/' + config.session.realm + '/global/filter/scroll',
+            type: "GET",
+            data: {"_scroll_id": scrollId},
             headers: {'Authorization': config.session.httpToken},
             success: function(Resp) {
                 if ( typeof Resp === "string" ) { Resp = JSON.parse(Resp) }

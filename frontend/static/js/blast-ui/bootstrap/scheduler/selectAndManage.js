@@ -92,7 +92,7 @@ var SchedulerSelectAndManage = class {
             html = html + `<tr style="display:table-row">
             <td width="50px"><input name="scheduler" value="` + schedulerDataFiltered[i]["_id"] + `" type="checkbox" style="margin-left: 10px"/></td>
             <td width="50px"><img src="/img/object/schedule.svg" height="24" width="24"/></td>
-            <td width="512px"><a href="/html/scheduler-details.html?scheduler_id=` + schedulerDataFiltered[i]["_id"] + `">` + schedulerDataFiltered[i]["_source"]["name"] + `</a></td>
+            <td width="512px"><a href="/html/scheduler-details.html?id=` + schedulerDataFiltered[i]["_id"] + `">` + schedulerDataFiltered[i]["_source"]["name"] + `</a></td>
             <td>` + schedulerDataFiltered[i]["_source"]["description"] + `</td>
             <td>` + schedulerDataFiltered[i]["_source"]["status"] + `</td>
             </tr>`

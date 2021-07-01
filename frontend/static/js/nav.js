@@ -17,7 +17,6 @@
 // we need to make sure the user have jwt cookie before to continue
 import Realm from "./realm.js";
 import Account from "./aaa.js"
-import { gsearch } from "./gsearch.js"
 import FrontendConfig from "./frontend.js"
 let account = new Account()
 let config = new FrontendConfig()
@@ -31,6 +30,7 @@ let Nav = class {
             <style>
                 li#navDropDown:hover { background-color: rgba(0,0,0,0) ; }
             </style>
+
             <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <!-- <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #306998"> -->
                 <a class="navbar-brand" style="width: 201px; text-align: center;">
@@ -43,8 +43,8 @@ let Nav = class {
                     <div class="dropdown-menu mr-3 mt-2 bg-dark" style="z-index: 1001" aria-labelledby="dropDownProfileMenuLink">
                         <a class="dropdown-item bg-dark text-light" href="/html/profile.html">
                             <img src="/img/object/profile.svg" width="24" height="24" /><span style="margin-left: 24px">Profile</span></a>
-                        <a class="dropdown-item bg-dark text-light" href="/html/profile.html">
-                            <img src="/img/object/email.svg" width="24" height="24" /><span style="margin-left: 24px">Notification</span></a>
+                        <!-- class="dropdown-item bg-dark text-light" href="/html/profile.html">
+                            <img src="/img/object/email.svg" width="24" height="24" /><span style="margin-left: 24px">Notification</span></a>-->
                         <div class="dropdown-divider seconday"></div>
                         <a id="userAccountLogout" class="dropdown-item bg-dark text-light" href="/html/logout.html">
                             <img src="/img/object/logout.svg" width="24" height="24" /><span style="margin-left: 24px">Logout</span></a>
@@ -63,7 +63,7 @@ let Nav = class {
                 <div>
                     <div class="input-group">
                         <input id="globalSearch" class="form-control" size="64" type="search" style="background-color: #373A3E; color: #EEE; border: thin solid #373A3E" />
-                        <button class="btn blast-btn" type="button" onclick="globalSearch() ;" style="color: #EEE;">Search</button>
+                        <a class="btn blast-btn" type="button" href="#global_search_result" rel="modal:open" onclick="globalSearch() ;" style="color: #EEE;">Search</a>
                     </div>
                 </div>
             `
@@ -156,12 +156,21 @@ let Nav = class {
         window.parent.$("img#dropDownProfileMenuLink").prop("src", config.frontend.httpImgFolder + '/profile/' + accountPicture)
     }
 
+    loadNavBarGSearch = () => {
+        let gSearchString = JSON.parse($.cookie("gSearch"))["string"]
+        console.log(gSearchString)
+        if ( gSearchString !== undefined ) {
+            $("input#globalSearch").val(gSearchString)
+        }
+    }
+
     loadNavBar = () => {
 
         let html = ''
         let realmName = JSON.parse($.cookie("realm"))["name"]
         $("#nav_container").html(this.navbar)
         this.loadNavBarProfilePicture()
+        // this.loadNavBarGSearch()
         $("#realmDropDownMenu").html(realmName)
 
         JSON.parse($.cookie("account"))["realm"].forEach((realm) => {
@@ -206,7 +215,10 @@ const navRealmSwitch = (realmName) => {
 
 const globalSearch = () => {
     let searchString = $("input#globalSearch").val()
-    gsearch({"string": searchString})
+    $.cookie.json = true
+    $.cookie.raw = true
+    $.cookie('gSearch', {"string": searchString}, {path: "/"})
+    location.href = "/html/gsearch.html"
 }
 
 

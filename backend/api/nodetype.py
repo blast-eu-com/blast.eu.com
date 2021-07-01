@@ -19,18 +19,19 @@ import json
 import elasticsearch
 from api import db
 
-DB_INDEX = 'node_type'
+
 
 
 class NodeType:
     def __init__(self):
         self.es = db.ESConnector().es
+        self.DB_INDEX = 'blast_node_type'
 
     def __add__(self, nodeType: str):
 
         """ this function add a new node into the database """
         try:
-            self.es.index(index=DB_INDEX, body=json.dumps({"type": nodeType}))
+            self.es.index(index=self.DB_INDEX, body=json.dumps({"type": nodeType}))
 
         except elasticsearch.exceptions.ConnectionError as e:
             return {"failure": e}
@@ -39,7 +40,7 @@ class NodeType:
 
         """ this function delete an existing node type """
         try:
-            self.es.delete(index=DB_INDEX, id=id)
+            self.es.delete(index=self.DB_INDEX, id=id)
 
         except elasticsearch.exceptions.ConnectionError as e:
             return {"failure": e}
@@ -49,7 +50,7 @@ class NodeType:
         """ this function returns all the node type """
         try:
             req = json.dumps({"size": 1000, "query": {"match_all": {}}})
-            return self.es.search(index=DB_INDEX, body=req)
+            return self.es.search(index=self.DB_INDEX, body=req)
 
         except elasticsearch.exceptions.ConnectionError as e:
             return {"failure": e}
@@ -58,7 +59,7 @@ class NodeType:
 
         """ this function returns the node type object for which the id match """
         try:
-            return self.es.get(index=DB_INDEX, id=id)
+            return self.es.get(index=self.DB_INDEX, id=id)
 
         except elasticsearch.exceptions.ConnectionError as e:
             return {"failure": e}
@@ -67,7 +68,7 @@ class NodeType:
 
         """ this function returns the list of cluster nodes """
         try:
-            return self.es.search(index=DB_INDEX, body='{"query":{"match":{"type":"' + node_type + '"}}}')
+            return self.es.search(index=self.DB_INDEX, body='{"query":{"match":{"type":"' + node_type + '"}}}')
 
         except elasticsearch.exceptions.ConnectionError as e:
             return {"failure": e}

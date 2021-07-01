@@ -296,6 +296,60 @@ class Reporter:
             print(err)
             return {"failure": err}
 
+    def list_agg_data(self, realm, report):
+        try:
+            self.set_timing(report)
+            query_req = json.dumps(
+                {
+                    "size": 0,
+                    "query": {
+                        "bool": {
+                            "filter": [
+                                {
+                                    "range": {
+                                        "start_at": {
+                                            "gte": self.filter_time_gte,
+                                            "lte": self.filter_time_lte
+                                        }
+                                    }
+                                },
+                                {
+                                    "term": {
+                                        "report_type": self.report_type
+                                    }
+                                },
+                                {
+                                    "term": {
+                                        "realm": realm
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "sort": [
+                        {
+                            "start_at": {
+                                "order": "desc"
+                            }
+                        }
+                    ],
+                    "aggs": {
+                        "time": {
+                            "auto_date_histogram": {
+                                "field": "start_at",
+                                "buckets": 100,
+                            }
+                        }
+                    }
+                }
+            )
+
+            return self.ES.search(index=self.DB_INDEX, body=query_req)
+
+        except Exception as err:
+            print(err)
+            return {"failure": err}
+
     def filter_agg_data(self, realm, report):
         try:
             self.set_timing(report)
@@ -311,6 +365,11 @@ class Reporter:
                                             "gte": self.filter_time_gte,
                                             "lte": self.filter_time_lte
                                         }
+                                    }
+                                },
+                                {
+                                    "wildcard": {
+                                        report["search"][0]["field"]: report["search"][0]["string"]
                                     }
                                 },
                                 {

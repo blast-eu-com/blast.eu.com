@@ -26,10 +26,10 @@ ${BUILDER_PATH}/build_db_settings.py
 ${BUILDER_PATH}/build_db_script.py
 
 # BUILD SCRIPT LANG
-${BUILDER_PATH}/build_db_scriptlang.py
+${BUILDER_PATH}/build_db_script_lang.py
 
 # BUILD PORTMAP
-${BUILDER_PATH}/build_db_portmap.py
+${BUILDER_PATH}/build_db_port_map.py
 
 # BUILD ACCOUNT
 ${BUILDER_PATH}/build_db_account.py
@@ -42,6 +42,12 @@ ${BUILDER_PATH}/build_db_cluster.py
 
 # BUILD NODE
 ${BUILDER_PATH}/build_db_node.py
+
+# BUILD NODE TYPES
+${BUILDER_PATH}/build_db_node_type.py
+
+# BUILD NODE MODE
+${BUILDER_PATH}/build_db_node_mode.py
 
 # BUILD STATISTIC
 ${BUILDER_PATH}/build_db_statistic.py

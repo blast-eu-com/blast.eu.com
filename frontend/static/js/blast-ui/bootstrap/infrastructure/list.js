@@ -58,10 +58,11 @@ var InfrastructureList = class {
         let objName = objectData["_index"]
         let html =`
             <a id="infrastructure-img"
-                class="card bg-gradient rounded h-100" style="background-color: #EEE; border: 1px solid #CCCCCC"
-                href="/html/infrastructure-details.html?infrastructure_id=` + recId + `">
-                <img src="/img/object/infrastructure.svg" class="card-img-top mt-3 py-3" height="86" width="86" />
-                <div class="card-body border-top bg-gradient text-white" style="background-color: #0995D3">
+                class="card bg-gradient rounded h-100 border-0"
+                href="/html/infrastructure-details.html?id=` + recId + `">
+                <img src="/img/hexa_blue_background.jpg" style="opacity: 0.9;">
+                <img src="/img/object/infrastructure.svg" class="card-img-top mt-3 py-3" height="92" width="92" style="position: absolute;" />
+                <div class="card-body text-center text-dark" style="position: absolute; top: 42.5%; width: 100%">
                     <div class="card-title" style="font-size: 16px">` + objectData["_source"]["name"] + `</div>
                     <span style="font-size: 12px">` + objectData["_source"]["description"] + `</span><br>
                 </div>

@@ -36,8 +36,8 @@ const setButtonDelAction = function(script) {
 
 async function main() {
     let urlParams = new URLSearchParams(window.location.href.split('?')[1])
-    if (urlParams.has("script_id")) {
-        let script_id = urlParams.get('script_id')
+    if (urlParams.has("id")) {
+        let script_id = urlParams.get('id')
         let scriptData = await script.listByIds([script_id])
         script.load(scriptData["hits"]["hits"][0])
         setPageTitle(script.name)

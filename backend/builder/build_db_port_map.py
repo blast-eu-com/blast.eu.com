@@ -25,7 +25,7 @@ from api import db
 
 __REALM = 'default' if len(sys.argv) == 1 else sys.argv[1]
 __DATAMODEL_DIR = os.path.join(_SERVER_DIR, 'datamodel')
-__DATAMODEL_PORTMAP_FILE = os.path.join(__DATAMODEL_DIR, 'portmap.template.mapping')
+__DATAMODEL_PORTMAP_FILE = os.path.join(__DATAMODEL_DIR, 'port_map.template.mapping')
 __ES_ADDR = str(db.ES_PROTOCOL) + """://""" + str(db.ES_HOSTNAME) + """:""" + str(db.ES_PORT)
 __PORTMAP_MAPPING = [
     {"port": "20", "protocol": "FTP", "realm": __REALM, "description": "File Transfer Protocol"},
@@ -44,7 +44,7 @@ __PORTMAP_MAPPING = [
     {"port": "3306", "application": "MySQL", "realm": __REALM, "description": "MySQL database system"},
     {"port": "9200", "application": "Elasticsearch", "realm": __REALM, "description": "Elasticsearch default port"}
 ]
-__CREATE_INDEX_TEMPLATE = """curl -s -XPUT -H \"Content-Type: Application/Json\" """ + __ES_ADDR + """/_template/portmap -d@""" + __DATAMODEL_PORTMAP_FILE
+__CREATE_INDEX_TEMPLATE = """curl -s -XPUT -H \"Content-Type: Application/Json\" """ + __ES_ADDR + """/_template/blast_port_map -d@""" + __DATAMODEL_PORTMAP_FILE
 
 
 def defineIndexTemplate():
@@ -60,7 +60,7 @@ def provisionDefault():
 
     try:
         for portmap in __PORTMAP_MAPPING:
-            __ES_PROVISION_DEFAULT = """curl -s -XPOST -H \"Content-Type: Application/Json\" """ + __ES_ADDR + """/portmap/_doc -d \'""" + json.dumps(portmap) + """\'"""
+            __ES_PROVISION_DEFAULT = """curl -s -XPOST -H \"Content-Type: Application/Json\" """ + __ES_ADDR + """/blast_port_map/_doc -d \'""" + json.dumps(portmap) + """\'"""
             if not json.load(os.popen(__ES_PROVISION_DEFAULT))["result"] == "created":
                 return False
         return True
