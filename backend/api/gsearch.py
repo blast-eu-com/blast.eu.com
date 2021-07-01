@@ -61,9 +61,20 @@ class Gsearch:
                     }
                 }
             })
+            print(query_req)
             return self.ES.search(index=self.index, body=query_req, scroll="15m")
 
         except Exception as e:
             print("backend Exception, file:gsearch:class:gsearch:func:search")
             print(e)
             return {"failure": str(e)}
+
+    def search_scroll(self, realm: str, scroll_id: str):
+
+        try:
+            return self.ES.scroll(scroll_id=scroll_id, scroll="15m")
+
+        except Exception as err:
+            print(err)
+            return {"failure": err}
+

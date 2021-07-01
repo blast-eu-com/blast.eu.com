@@ -26,8 +26,8 @@ const setPageTitle = (scenarioName) => {
 
 async function main() {
     let urlParams = new URLSearchParams(window.location.href.split('?')[1])
-    if (urlParams.has("scenario_id")) {
-        let scenario_id = urlParams.get("scenario_id")
+    if (urlParams.has("id")) {
+        let scenario_id = urlParams.get("id")
         let scenarioData = await scenario.listByIds([scenario_id])
         scenario.load(scenarioData["hits"]["hits"][0])
         setPageTitle(scenario.name)

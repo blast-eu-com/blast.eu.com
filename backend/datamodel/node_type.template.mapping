@@ -1,5 +1,5 @@
 {
-  "index_patterns": "nodetype",
+  "index_patterns": "blast_node_type",
   "order": 99,
   "mappings" : {
     "dynamic": false,
@@ -16,30 +16,5 @@
         "refresh_interval": "1s"
     }
   }
-}
-
-POST /node_type/_doc
-{
-    "type": "elasticsearch"
-}
-
-POST /node_type/_doc
-{
-    "type": "logstash"
-}
-
-POST /node_type/_doc
-{
-    "type": "kibana"
-}
-
-POST /node_type/_doc
-{
-    "type": "nginx"
-}
-
-POST /node_type/_doc
-{
-    "type": "mysql"
 }
 

@@ -37,8 +37,8 @@ const setPageTitle = function(infraName) {
 
 async function main() {
     let urlParams = new URLSearchParams(window.location.href.split('?')[1])
-    if ( urlParams.has("infrastructure_id") ) {
-        let infraId = urlParams.get("infrastructure_id")
+    if ( urlParams.has("id") ) {
+        let infraId = urlParams.get("id")
         let infraData = await infrastructure.listByIds([infraId])
         infrastructure.load(infraData["hits"]["hits"][0])
         setPageTitle(infrastructure.name)

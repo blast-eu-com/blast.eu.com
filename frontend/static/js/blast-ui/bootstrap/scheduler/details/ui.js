@@ -34,8 +34,8 @@ const setButtonDeleteAction = function(scheduler) {
 async function main() {
 
     let urlParams = new URLSearchParams(window.location.href.split('?')[1])
-    if ( urlParams.has("scheduler_id") ) {
-        let scheduler_id = urlParams.get("scheduler_id")
+    if ( urlParams.has("id") ) {
+        let scheduler_id = urlParams.get("id")
         let scheduler_data = await scheduler.listByIds([scheduler_id])
         scheduler.load(scheduler_data["hits"]["hits"][0])
         setPageTitle(scheduler.name)

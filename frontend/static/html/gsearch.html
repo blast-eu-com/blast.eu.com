@@ -28,12 +28,9 @@
         <script src="/js/bootstrap-5.0.0-beta2-dist/js/bootstrap.min.js"></script>
         <!-- End Load bootstrap stack -->
         <link rel="stylesheet" type="text/css" href="/css/blast.eu.com.css" />
-        <link rel="stylesheet" type="text/css" href="/js/fancytree-2.38.0/skin-xp/ui.fancytree.min.css"/>
         <script src="/js/jquery-1.12.4/jquery-1.12.4.min.js"></script>
-        <script src="/js/popper-1.16.1/popper.min.js"></script>
-        <script src="/js/fancytree-2.38.0/jquery.fancytree-all-deps.min.js"></script>
         <script src="/js/jquery-cookie-1.4.1/jquery.cookie.js"></script>
-        <script src="/js/blast-ui/bootstrap/scenario/ui.js" type="module"></script>
+        <script src="/js/blast-ui/bootstrap/gsearch/ui.js" type="module"></script>
     </head>
 
 
@@ -63,7 +60,7 @@
                 <script type="module">
                         import Nav from "/js/nav.js"
                         let nav = new Nav()
-                        nav.loadNavBars("scenario");
+                        nav.loadNavBars("none");
                 </script>
             </div>
 
@@ -71,51 +68,13 @@
                 <div>
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb blast-breadcrumb fs-4 text-white">
-                            <li class="breadcrumb-item active" aria-current="page">Scenario</li>
+                            <li class="breadcrumb-item active" aria-current="page">gSearch</li>
                         </ol>
                     </nav>
 
-
-                    <div class="row h-100 m-1">
-                        <div class="col-3">
-                            <div class="card blast-card shadow-sm h-100 border">
-                                <!-- <div class="card-title p-2">Management tree</div> -->
-                                <div class="card-body">
-                                    <div class="card-text">
-                                        <div id="scenarioNodesTree" class="col s4"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="card blast-card shadow-sm border">
-                                <div class="card-body">
-                                    <div class="card-title row">
-                                        <h4 class="col-md-10 fs-4">Scenario Form</h4>
-                                        <div class="col-md-2">
-                                            <button onclick="saveScenario();" class="btn blast-btn ">Save</button>
-                                           <button onclick="oneShotScenario();" class="btn blast-btn">Run</button>
-                                        </div>
-                                    </div>
-                                    <div id="scenarioForm" class="card-text"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                     <div class="card blast-card shadow-sm m-3 border">
                         <div class="card-body">
-                            <div class="card-title row">
-                                <h4 class="col-md-10">Scenario Last</h4>
-                                <div class="col-md-2">
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox"
-                                               id="switchScenarioReportLast"
-                                               onclick="switchScenarioReportLast();">
-                                        <label class="form-check-label" for="switchScenarioReportLast">Activate Refresh</label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div id="scenarioLast" class="card-text"></div>
+                            <p id="gSearchList" class="card-text"></p>
                         </div>
                     </div>
                 </div>

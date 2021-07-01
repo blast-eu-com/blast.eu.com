@@ -131,6 +131,7 @@ const ReportSchedulerList = class {
     render = (parentName, formData) => {
         this.parentName = parentName
         this.addFrame()
+        console.log(formData)
         filterScroll(formData).then((reportData) => {
             this.reportData = reportData["hits"]["hits"]
             this.reportDataScrollId = reportData["_scroll_id"]

@@ -94,7 +94,7 @@ var ScenarioFilterAndSelect = class {
             html = html + `<tr style="display:table-row">
             <td width="50px"><input name="scenario" value="` + scenarioDataFiltered[i]["_id"] + `" type="checkbox" style="margin-left: 10px;"/></td>
             <td width="50px"><img src="/img/bootstrap-icons/terminal.svg" height="24" width="24"/></td>
-            <td width="512px"><a href="/html/scenario-details.html?scenario_id=` + scenarioDataFiltered[i]["_id"] + `">` + scenarioDataFiltered[i]["_source"]["name"] + `</a></td>
+            <td width="512px"><a href="/html/scenario-details.html?id=` + scenarioDataFiltered[i]["_id"] + `">` + scenarioDataFiltered[i]["_source"]["name"] + `</a></td>
             <td>` + scenarioDataFiltered[i]["_source"]["description"] + `</td>
             </tr>`
         }

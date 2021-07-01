@@ -23,21 +23,17 @@ from env import _SERVER_DIR
 sys.path.insert(0, _SERVER_DIR)
 from api import db
 
-__REALM = 'default'
 __DATAMODEL_DIR = os.path.join(os.path.abspath('..'), 'datamodel')
-__DATAMODEL_REALM_FILE = os.path.join(__DATAMODEL_DIR, 'scriptlang.template.mapping')
+__DATAMODEL_NODE_FILE = os.path.join(__DATAMODEL_DIR, 'node_type.template.mapping')
 __ES_ADDR = db.ES_PROTOCOL + """://""" + str(db.ES_HOSTNAME) + """:""" + str(db.ES_PORT)
-__SCRIPTLANG = [
-    {"name": "Ansible", "picture": "Ansible.svg"},
-    {"name": "Bash", "picture": "Bash.svg"},
-    {"name": "Julia", "picture": "Julia.svg"},
-    {"name": "Perl", "picture": "Perl.svg"},
-    {"name": "Python", "picture": "Python.svg"},
-    {"name": "Ruby", "picture": "Ruby.svg"}
+__CREATE_INDEX_TEMPLATE = """curl -s -XPUT -H \"Content-Type: Application/Json\" """ + __ES_ADDR + """/_template/blast_node_type -d@""" + __DATAMODEL_NODE_FILE
+__NODE_TYPES = [
+    {"type": "elasticsearch"},
+    {"type": "kibana"},
+    {"type": "logstash"},
+    {"type": "nginx"},
+    {"type": "mysql"}
 ]
-
-__CREATE_INDEX_TEMPLATE = """curl -s -XPUT -H \"Content-Type: Application/Json\" """ + __ES_ADDR + """/_template/scriptlang -d@""" + __DATAMODEL_REALM_FILE
-
 
 def defineIndexTemplate():
 
@@ -51,8 +47,8 @@ def defineIndexTemplate():
 def provisionDefault():
 
     try:
-        for lang in __SCRIPTLANG:
-            __ES_PROVISION_DEFAULT = """curl -s -XPOST -H \"Content-Type: Application/Json\" """ + __ES_ADDR + """/scriptlang/_doc -d \'""" + json.dumps(lang) + """\'"""
+        for type in __NODE_TYPES:
+            __ES_PROVISION_DEFAULT = """curl -s -XPOST -H \"Content-Type: Application/Json\" """ + __ES_ADDR + """/blast_node_type/_doc -d \'""" + json.dumps(type) + """\'"""
             if not json.load(os.popen(__ES_PROVISION_DEFAULT))["result"] == "created":
                 return False
         return True
