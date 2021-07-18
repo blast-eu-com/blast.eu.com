@@ -14,7 +14,7 @@
  *  limitations under the License.
 */
 
-import { filterScroll } from '../../../reporter.js'
+import { filterScroll } from '../../reporter.js'
 import SchedulerOnGoing from './ongoing.js'
 
 var schedulerOnGoing = new SchedulerOnGoing()

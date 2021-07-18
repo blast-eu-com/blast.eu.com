@@ -52,6 +52,7 @@ class Node:
                     node["roles"] = discovered_data["roles"]
                     node["peers"] = discovered_data["peers"]
                     node["realm"] = realm
+                    node["mode"] = "running"
                     self.STATISTIC.__add__(self.STATISTIC_DATA)
                     resp_nodes_add.append(self.ES.index(index=self.DB_INDEX, body=json.dumps(node), refresh=True))
 
@@ -90,7 +91,7 @@ class Node:
         nodes = self.__list__(data["realm"])
         [self.__delete__({"id": node["_id"], "realm": data["realm"], "account_email": data["account_email"]}) for node in nodes["hits"]["hits"]]
 
-    def update(self, id: str, data: str):
+    def update(self, id: str, data: dict):
         print(" >>> Enter file:node:class:Node:function:update")
         try:
             return self.ES.update(index=self.DB_INDEX, id=id, body=json.dumps({"doc": data}), refresh=True)

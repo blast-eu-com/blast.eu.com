@@ -15,8 +15,8 @@
    limitations under the License.
 */
 
-import Cluster from '../../../../cluster.js'
-import Node from '../../../../node.js'
+import Cluster from '../../../cluster.js'
+import Node from '../../../node.js'
 
 var cluster = new Cluster()
 var node = new Node()
@@ -43,35 +43,37 @@ const ClusterManageNodes = class {
     setClusterManageAddNodes = async (cluster) => {
         let clusterNodes = []
         let allNode = await node.list()
-        let htmlSelectHeader = `
-        <div class="input-group">
-        <select name="select_cluster_node_add" class="form-select"><option value="" disabled selected>node to add</option>`
-        let htmlSelectCore = ``
-        let htmlSelectFooter = `</select>
-        <button id="btnAddNode" class="btn blast-btn" onclick="addNodeToCluster()">Add</button></div>`
+        let html = `<div class="input-group"><select id="select_cluster_node_add" name="select_cluster_node_add" class="form-select">
+            <option value="" disabled selected>node to add</option></select>
+            <button id="btnAddNode" class="btn blast-btn" onclick="addNodeToCluster()">Add</button></div>`
+        $("#selectAddNodesContainer").html(html)
+        let select = document.getElementById("select_cluster_node_add")
         cluster.nodes.forEach(function(nodeObj) { clusterNodes.push(nodeObj["name"]) })
 
-        if ( allNode["hits"]["total"]["value"] > 0 ) {
-            allNode["hits"]["hits"].forEach(function(nodeObj) {
-                if ( !clusterNodes.includes(nodeObj["_source"]["name"] )) {
-                    htmlSelectCore = htmlSelectCore + '<option value="' + nodeObj["_id"] + '">' + nodeObj["_source"]["name"] + '</option>'
-                }
-            })
-        }
-        $("#selectAddNodesContainer").html(htmlSelectHeader + htmlSelectCore + htmlSelectFooter)
+        allNode["hits"]["hits"].forEach(function(nodeObj) {
+            if ( !clusterNodes.includes(nodeObj["_source"]["name"] )) {
+                let option = document.createElement("option")
+                let optionContent = document.createTextNode(nodeObj["_source"]["name"])
+                option.setAttribute("value", nodeObj["_id"])
+                option.appendChild(optionContent)
+                select.appendChild(option)
+            }
+        })
     }
 
     setClusterManageRemNodes = (cluster) => {
-        let htmlSelectHeader = `
-        <div class="input-group">
-        <select name="select_cluster_node_rem" class="form-select"><option value="" disabled selected>node to rem</option>`
-        let htmlSelectCore = ``
-        let htmlSelectFooter = `
-            </select>
-            <button id="btnRemNode" class="btn blast-btn" onclick="remNodeFromCluster()">Remove</button>
-            </div>`
-        cluster.nodes.forEach(function(nodeObj) { htmlSelectCore = htmlSelectCore + '<option value="' + nodeObj["id"] + '">' + nodeObj["name"] + '</option>' })
-        $("#selectRemNodesContainer").html(htmlSelectHeader + htmlSelectCore + htmlSelectFooter)
+        let html = `<div class="input-group"><select id="select_cluster_node_rem" name="select_cluster_node_rem" class="form-select">
+            <option value="" disabled selected>node to rem</option></select>
+            <button id="btnRemNode" class="btn blast-btn" onclick="remNodeFromCluster()">Remove</button></div>`
+        $("#selectRemNodesContainer").html(html)
+        let select = document.getElementById("select_cluster_node_rem")
+        cluster.nodes.forEach(function(nodeObj) {
+            let option = document.createElement("option")
+            let optionContent = document.createTextNode(nodeObj["name"])
+            option.setAttribute("value", nodeObj["id"])
+            option.appendChild(optionContent)
+            select.appendChild(option)
+        })
     }
 
     remNodeFromCluster = () => {

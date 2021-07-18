@@ -13,7 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-import { filterScroll, filterScrollData } from '../../../../../reporter.js'
+import { filterScroll, filterScrollData } from '../../../../reporter.js'
 
 const ReportScriptList = class {
 

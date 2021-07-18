@@ -13,7 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-import Script from '../../../script.js'
+import Script from '../../script.js'
 var script = new Script()
 var ScriptList = class {
 

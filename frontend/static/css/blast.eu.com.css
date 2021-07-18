@@ -165,6 +165,12 @@ pre {
     background-color: #4B8BBE;
 }
 
+.blast-gsearch-line { }
+
+.blast-gsearch-line:hover {
+    cursor: pointer;
+}
+
 /* Preload and spinner */
 #preload {
   border: 9px solid #f2f2f2;

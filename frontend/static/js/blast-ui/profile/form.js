@@ -15,7 +15,7 @@
    limitations under the License.
 */
 
-import FrontendConfig from '../../../frontend.js'
+import FrontendConfig from '../../frontend.js'
 
 var config = new FrontendConfig()
 
@@ -30,6 +30,7 @@ const ProfileForm = class {
                     <div id="profileFirstName" class="col-md-6 mb-2"></div>
                     <div id="profileFamilyName" class="col-md-6 mb-2"></div>
                     <div id="profileEmail" class="col-md-12 mb-2"></div>
+                    <div id="profilePassword" class="col-md-12 mb-2"></div>
                     <div class="col-md-2">
                         <button class="btn btn-sm blast-btn" onclick="updateProfile();">Update</button>
                     </div>
@@ -60,6 +61,18 @@ const ProfileForm = class {
             <div id="accountEmailHelp" class="form-text">Set your email address.</div>
         `
 
+        this.inputProfilePasswordA = `
+            <label for="accountPasswordA" class="form-label">New password</label>
+            <input id="accountPasswordA" class="form-control" name="accountPasswordA" type="text" value=""/>
+            <div id="accountPasswordAHelp" class="form-text">Set your new password.</div>
+        `
+
+        this.inputProfilePasswordB = `
+            <label for="accountPasswordB" class="form-label">Confirm new password</label>
+            <input id="accountPasswordB" class="form-control" name="accountPasswordB" type="text" value=""/>
+            <div id="accountPasswordBHelp" class="form-text">Confirm your new password.</div>
+        `
+
     }
 
     set parentName(pn) { this._pn = pn }
@@ -84,6 +97,8 @@ const ProfileForm = class {
 
         $("#profileEmail").html(this.inputProfileEmail)
         $("#accountEmail").val(config.session.accountEmail)
+
+        $("#profilePassword").html(this.inputProfilePasswordA + this.inputProfilePasswordB)
 
     }
 

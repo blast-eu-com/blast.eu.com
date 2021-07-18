@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-import Scenario from '../../../../scenario.js'
+import Scenario from '../../../scenario.js'
 import ScenarioListInfo from './listInfo.js'
 
 var scenario = new Scenario()

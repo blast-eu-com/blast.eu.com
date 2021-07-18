@@ -28,6 +28,7 @@ from api.scriptlang import Scriptlang
 from api.cluster import Cluster
 from api.gsearch import Gsearch
 from api.node import Node
+from api.nodemode import NodeMode
 from api.infra import Infra
 from api.reporter import Reporter
 from api.scenario import Scenario
@@ -524,14 +525,14 @@ def node_add(realm):
 
 @app.route('/api/v1/realms/<realm>/nodes', methods=['PUT'])
 def node_update(realm):
-    """ this function add a new node into the database """
+    """ this function update the node data """
     node = Node(ES)
     account = Account(ES)
-    nodes = request.get_json()
+    node_data = request.get_json()
     account_email = json.loads(request.cookies.get('account'))["email"]
 
     if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(node.__add__(account_email, realm, nodes)))
+        return Response(json.dumps(node.update(node_data["id"], node_data["data"])))
     else:
         return Response({"failure": "account identifier and realm is not an active match"})
 
@@ -584,6 +585,22 @@ def node_rescan(realm, id):
 
     if account.is_active_realm_member(account_email, realm):
         return Response(json.dumps(node.rescan(data)))
+    else:
+        return Response({"failure": "account identifier and realm is not an active match"})
+
+# * *********************************************************************************************************
+# *
+# * NODE MODE PART -*- NODE MODE PART -*- NODE MODE PART -*- NODE MODE PART -*- NODE MODE PART -*- NODE MODE
+# * *********************************************************************************************************
+@app.route('/api/v1/realms/<realm>/nodemode', methods=['GET'])
+def nodemode_list(realm):
+    """ this function return the node status """
+    node_mode = NodeMode(ES)
+    account = Account(ES)
+    account_email = json.loads(request.cookies.get('account'))["email"]
+
+    if account.is_active_realm_member(account_email, realm):
+        return Response(json.dumps(node_mode.__list__()))
     else:
         return Response({"failure": "account identifier and realm is not an active match"})
 

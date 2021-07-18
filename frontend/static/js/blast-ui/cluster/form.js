@@ -15,7 +15,7 @@
    limitations under the License.
 */
 
-import Cluster from '../../../cluster.js'
+import Cluster from '../../cluster.js'
 
 var cluster = new Cluster()
 

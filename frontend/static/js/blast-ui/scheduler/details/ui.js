@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-import Scheduler from '../../../../scheduler.js'
+import Scheduler from '../../../scheduler.js'
 import SchedulerListInfo from './listInfo.js'
 
 var scheduler = new Scheduler

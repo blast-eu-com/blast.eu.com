@@ -15,7 +15,7 @@
    limitations under the License.
 */
 
-import Realm from '../../../../realm.js'
+import Realm from '../../../realm.js'
 import RealmListInfo from './listInfo.js'
 import RealmListMembers from './listMembers.js'
 

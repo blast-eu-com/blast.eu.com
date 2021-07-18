@@ -21,6 +21,7 @@ from .cluster import Cluster
 from .db import ESConnector
 from .infra import Infra
 from .node import Node
+from .nodemode import NodeMode
 from .nodetype import NodeType
 from .aaa import Account, Realm
 from .reporter import Reporter
@@ -30,3 +31,4 @@ from .setting import Setting, Portmap
 from .statistic import Statistic
 from .scenario import Scenario
 from .scenarioManager import ScenarioManager
+from .gsearch import Gsearch

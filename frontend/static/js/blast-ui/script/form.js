@@ -14,10 +14,10 @@
    limitations under the License.
 */
 
-import PortMap from '../../../portmap.js'
-import Realm from '../../../realm.js'
-import FrontendConfig from '../../../frontend.js'
-import Script from '../../../script.js'
+import PortMap from '../../portmap.js'
+import Realm from '../../realm.js'
+import FrontendConfig from '../../frontend.js'
+import Script from '../../script.js'
 
 var portmap = new PortMap()
 var realm = new Realm()

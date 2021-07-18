@@ -14,15 +14,17 @@
    limitations under the License.
 */
 
-import Node from '../../../../node.js'
+import Node from '../../../node.js'
 import NodeListInfo from  './listInfo.js'
 import NodeListPeers from './listPeers.js'
 import NodeListRoles from './listRoles.js'
+import ManageMode from './manageMode.js'
 
 var node = new Node()
 var nodeListInfo = new NodeListInfo()
 var nodeListPeers = new NodeListPeers()
 var nodeListRoles = new NodeListRoles()
+var manageMode = new ManageMode()
 
 const setButtonDeleteAction = (nodeId) => {
     $('#btnDelNode').on("click", function() {
@@ -58,8 +60,10 @@ async function main() {
         nodeListInfo.render('nodeDetails', node)
         nodeListPeers.render('nodePeers', node)
         nodeListRoles.render('nodeRoles', node)
+        manageMode.render('nodeMode', node)
     }
 
 }
 
 window.main = main
+window.updateNodeMode = manageMode.updateNodeMode

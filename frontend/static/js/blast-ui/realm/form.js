@@ -15,7 +15,7 @@
    limitations under the License.
 */
 
-import Realm from '../../../realm.js'
+import Realm from '../../realm.js'
 
 var realm = new Realm()
 

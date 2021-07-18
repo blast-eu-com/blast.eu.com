@@ -15,7 +15,7 @@
    limitations under the License.
 */
 
-import { filterScroll } from '../../../reporter.js'
+import { filterScroll } from '../../reporter.js'
 
 const ScenarioLast = class {
 

@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-import Script from '../../../script.js'
+import Script from '../../script.js'
 
 var script = new Script()
 

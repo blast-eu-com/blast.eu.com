@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-import FrontendConfig from '../../../frontend.js'
+import FrontendConfig from '../../frontend.js'
 
 var config = new FrontendConfig()
 

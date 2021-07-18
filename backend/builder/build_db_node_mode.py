@@ -28,9 +28,9 @@ __DATAMODEL_NODE_MODE_FILE = os.path.join(__DATAMODEL_DIR, 'node_mode.template.m
 __ES_ADDR = db.ES_PROTOCOL + """://""" + str(db.ES_HOSTNAME) + """:""" + str(db.ES_PORT)
 __CREATE_INDEX_TEMPLATE = """curl -s -XPUT -H \"Content-Type: Application/Json\" """ + __ES_ADDR + """/_template/blast_node_mode -d@""" + __DATAMODEL_NODE_MODE_FILE
 __NODE_MODES = [
-    {"mode": "Maintenance"},
-    {"mode": "Pause"},
-    {"mode": "Running"}
+    {"name": "maintenance"},
+    {"name": "pause"},
+    {"name": "running"}
 ]
 
 def defineIndexTemplate():

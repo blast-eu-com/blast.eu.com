@@ -13,7 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-import Scenario from '../../../scenario.js'
+import Scenario from '../../scenario.js'
 var scenario = new Scenario()
 
 var ScenarioFilterAndSelect = class {

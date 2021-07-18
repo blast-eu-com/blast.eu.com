@@ -167,7 +167,7 @@ let Infrastructure = class {
          * from the url /infrastructure/list_by_id         */
         return new Promise(function(resolve, reject) {
             $.ajax({
-                url: config.proxyAPI + '/realms/' + config.session.realm + '/infrastructures',
+                url: config.proxyAPI + '/realms/' + config.session.realm + '/infrastructures/ids',
                 type: "GET",
                 data: {"ids": infraIds},
                 headers: {'Authorization': config.session.httpToken},
