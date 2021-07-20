@@ -38,6 +38,7 @@ class Script:
             if not self.is_script(realm, [data["script_name"]]):
 
                 req = {
+                    "args": data["script_args"],
                     "name": data["script_name"],
                     "description": data["script_description"],
                     "realm": realm,

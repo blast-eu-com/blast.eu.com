@@ -39,6 +39,7 @@ class ScriptManager:
         self._realm_settings = None
         self._scenario_id = None
         self._script_id = None
+        self._script_args = None
         self._script_name = None
         self._script_description = None
         self._script_locker = None
@@ -115,6 +116,14 @@ class ScriptManager:
     @script_id.setter
     def script_id(self, script_id: str):
         self._script_id = script_id
+
+    @property
+    def script_args(self):
+        return self._script_args
+    
+    @script_args.setter
+    def script_args(self, script_args: str):
+        self._script_args = script_args
 
     @property
     def script_name(self):
@@ -368,7 +377,7 @@ class ScriptManager:
 
         try:
             print(" >>> Enter file:scriptManager:class:scriptManager:function:exec_remote_script")
-            run_command = 'echo $$ > ' + self.script_locker + ' ; ' + self.script_destination
+            run_command = 'echo $$ > ' + self.script_locker + ' ; ' + self.script_destination + " " + self.script_args
             print(run_command)
             ssh = self.ssh_connector(self.script_realm, node_name)
             ssh.open_ssh_connection()
@@ -563,12 +572,14 @@ class ScriptManager:
             self.execution_id = kwargs["execution_id"]
             self.realm_settings = self.settings.list_by_realm(self.script_realm)
 
+            # Get script definition from elasticsearch and assign local variable to prepare script execution
             scr = self.script_details(self.script_realm, self.script_id)
             self.script_name = scr["_source"]["name"]
             self.script_content = scr["_source"]["content"]
             self.script_description = scr["_source"]["description"]
             self.script_type = scr["_source"]["type"]
             self.script_filename = scr["_source"]["filename"]
+            self.script_args = scr["_source"]["args"]
 
             self.script_destination = os.path.join(
                 self.realm_settings["hits"]["hits"][0]["_source"]["ssh"]["location"],

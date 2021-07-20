@@ -70,6 +70,7 @@ class Script {
         formData.append("script_file_data", data["script_file_data"])
         formData.append("script_file_name", data["script_file_name"])
         // formData.append("script_roles", data["script_roles"])
+        formData.append("script_args", data["script_args"])
         formData.append("script_shareable", data["script_shareable"])
         formData.append("script_shareable_realms", data["script_shareable_realms"])
         formData.append("script_type", data["script_type"])

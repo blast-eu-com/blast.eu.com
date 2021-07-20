@@ -297,3 +297,15 @@ class Node:
             print("backend Exception, file:node:class:node:func:rescan")
             print(e)
             return {"failure": str(e)}
+
+    def is_running(self, realm: str, node_id: str):
+        print(" >>> Enter file:node:class:Node:function:is_running")
+        try:
+            resp = self.list_by_ids(realm, node_id.split())
+            return True if resp["hits"]["hits"][0]["_source"]["mode"] == "running" else False
+            
+        except Exception as e:
+            print("backend Exception, file:node:class:node:func:is_running")
+            print(e)
+            return {"failure": str(e)}
+

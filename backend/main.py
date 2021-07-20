@@ -170,6 +170,7 @@ def script_add(realm):
         "script_file_data": request.files["script_file_data"],
         "script_file_name": request.form["script_file_name"],
         "script_name": script_name,
+        "script_args": request.form["script_args"],
         "script_shareable": request.form["script_shareable"],
         "script_shareable_realms": request.form["script_shareable_realms"],
         "script_type": request.form["script_type"]

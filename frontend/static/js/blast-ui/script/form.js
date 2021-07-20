@@ -100,6 +100,7 @@ const ScriptForm = class {
             "script_file_name": $("input[name=scriptFileData]").prop("files")[0]["name"],
             "script_type": $("select#scriptType option:selected").val(),
             "script_shareable": $("input#scriptShareableCheck").is(":checked"),
+            "script_args": $("input#scriptParams").val(),
             "script_shareable_realms": this.scrShareableRealms
         }
     }

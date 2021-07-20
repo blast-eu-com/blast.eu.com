@@ -240,19 +240,21 @@ class ScenarioManager:
                 script_type = scr.list_by_names(self.scenario_realm, script_name.split())["hits"]["hits"][0]["_source"]["type"]
                 if script_type != "Ansible":
                     for node_name in sorted(nod_mapping):
-                        execute_script_kwargs = {
-                            "script_id": scr_mapping[script_name],
-                            "node_id": nod_mapping[node_name].split(),
-                            "script_realm": self.scenario_realm,
-                            "scenario_id": self.scenario_id,
-                            "execution_id": self.execution_id
-                        }
-                        self.update_stack_scripts_in_parallel(execute_script_kwargs)
+                        node_id = nod_mapping[node_name]
+                        if nod.is_running(self.scenario_realm, node_id):
+                            execute_script_kwargs = {
+                                "script_id": scr_mapping[script_name],
+                                "node_id": node_id.split(),
+                                "script_realm": self.scenario_realm,
+                                "scenario_id": self.scenario_id,
+                                "execution_id": self.execution_id
+                            }
+                            self.update_stack_scripts_in_parallel(execute_script_kwargs)
 
                 else:
                     execute_script_kwargs = {
                         "script_id": scr_mapping[script_name],
-                        "node_id": [nod_mapping[node_name] for node_name in sorted(nod_mapping)],
+                        "node_id": [nod_mapping[node_name] for node_name in sorted(nod_mapping) if nod.is_running(self.scenario_realm, nod_mapping[node_name])],
                         "script_realm": self.scenario_realm,
                         "scenario_id": self.scenario_id,
                         "execution_id": self.execution_id
@@ -279,8 +281,17 @@ class ScenarioManager:
             nod_mapping = nod.map_id_name(self.scenario_realm, self._scenario_nodes_id)
             for script_name in sorted(scr_mapping):
                 for node_name in sorted(nod_mapping):
-                    script_manager = scriptManager.ScriptManager(self.ES)
-                    script_manager.execute_script()
+                    node_id = nod_mapping[node_name]
+                    if nod.is_running(self.scenario_realm, node_id):
+                        execute_script_kwargs = {
+                            "script_id": scr_mapping[script_name],
+                            "node_id": node_id.split(),
+                            "script_realm": self.scenario_realm,
+                            "scenario_id": self.scenario_id,
+                            "execution_id": self.execution_id
+                        }
+                        script_manager = scriptManager.ScriptManager(self.ES)
+                        script_manager.execute_script(execute_script_kwargs)
 
         except Exception as e:
             print(e)

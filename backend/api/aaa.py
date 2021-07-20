@@ -610,7 +610,7 @@ class Account:
                 scriptlangs[sclang["_source"]["name"]] = sclang["_source"]["picture"]
 
             if realm_details["hits"]["total"]["value"] == 1:
-                stg = self.SETTING.list_by_realm(realm_name)
+                stg = self.SETTING.list_by_realm_no_passwd(realm_name)
                 http_response["account"] = account["hits"]["hits"][0]["_source"]
                 http_response["account"]["id"] = account["hits"]["hits"][0]["_id"]
                 http_response["realm"] = realm_details["hits"]["hits"][0]["_source"]
@@ -618,6 +618,7 @@ class Account:
                 http_response["setting"] = stg["hits"]["hits"][0]["_source"]
                 http_response["setting"]["id"] = stg["hits"]["hits"][0]["_id"]
                 http_response["scriptlangs"] = scriptlangs
+                print(http_response)
                 return http_response
 
             else:
