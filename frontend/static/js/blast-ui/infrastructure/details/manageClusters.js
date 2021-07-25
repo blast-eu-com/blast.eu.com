@@ -15,8 +15,8 @@
    limitations under the License.
 */
 
-import Cluster from '../../../../cluster.js'
-import Infrastructure from '../../../../infrastructure.js'
+import Cluster from '../../../cluster.js'
+import Infrastructure from '../../../infrastructure.js'
 
 var cluster = new Cluster()
 var infrastructure = new Infrastructure()

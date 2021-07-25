@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-import Script from '../../../../script.js'
+import Script from '../../../script.js'
 import ScriptListInfo from './listInfo.js'
 import ScriptContent from './content.js'
 

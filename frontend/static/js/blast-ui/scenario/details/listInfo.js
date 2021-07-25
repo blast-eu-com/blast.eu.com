@@ -38,7 +38,7 @@ const ScenarioListInfo = class {
                 let objValue = ''
                 val.forEach((value) => {
                     objValue = objValue + `
-                    <a href="/html/` + key.slice(0, -1) + `-details.html?` + key.slice(0, -1) + `_id=` + value + `">
+                    <a href="/html/` + key.slice(0, -1) + `-details.html?id=` + value + `">
                     <span class="badge blast-badge">` + value + `</span>
                     </a>`
                 })

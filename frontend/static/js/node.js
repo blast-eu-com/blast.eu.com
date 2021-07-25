@@ -36,6 +36,7 @@ let Node = class {
         this._scan_by_ip
         this._raw_data
         this._roles
+        this._mode
     }
 
     set id(id) { this._id = id }
@@ -47,6 +48,7 @@ let Node = class {
     set rawData(rd) { this._raw_data = rd }
     set roles(roles) { this._roles = roles }
     set peers(peers) { this._peers = peers }
+    set mode(md) { this._mode = md }
 
     get id() { return this._id }
     get name() { return this._name }
@@ -57,6 +59,7 @@ let Node = class {
     get rawData() { return this._raw_data }
     get roles() { return this._roles }
     get peers() { return this._peers }
+    get mode() { return this._mode }
 
     add = function(nodes) {
         return new Promise( function(resolve, reject) {
@@ -81,6 +84,31 @@ let Node = class {
                 }
             })
         })
+    }
+
+    update = function(id, data) {
+       return new Promise( function(resolve, reject) {
+            $.ajax({
+                url: config.proxyAPI + '/realms/' + config.session.realm + '/nodes',
+                type: "PUT",
+                headers: {'Authorization': config.session.httpToken},
+                data: JSON.stringify({"id": id, "data": data}),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function(Resp) {
+                    if ( typeof Resp === 'string' ) {
+                        Resp = JSON.parse(Resp)
+                        if (Object.keys(Resp).includes("tokenExpired")) {
+                            account.logout()
+                        } else if (Object.keys(Resp).includes("failure")) {
+                            console.log("failure")
+                        }
+                    } else if ( typeof Resp === 'object') {
+                        resolve(Resp)
+                    }
+                }
+            })
+       })
     }
 
     delete = function(node_ids) {
@@ -207,6 +235,7 @@ let Node = class {
         this.rawData = data["_source"]
         this.roles = data["_source"]["roles"]
         this.peers = data["_source"]["peers"]
+        this.mode = data["_source"]["mode"]
         if ( this.scanById ) { this.ipReference = data["_source"]["ip_reference"] }
     }
 

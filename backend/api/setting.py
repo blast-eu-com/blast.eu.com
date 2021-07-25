@@ -155,6 +155,19 @@ class Setting:
         except Exception as e:
             return {"failure": e}
 
+    def list_by_realm_no_passwd(self, realm:str):
+        print(" >>> Enter file:setting:class:Setting:function:list_by_realm_no_passwd")
+        try:
+            setting = self.list_by_realm(realm)
+            print(setting)
+            del setting["hits"]["hits"][0]["_source"]["ansible"]["password"]
+            del setting["hits"]["hits"][0]["_source"]["ssh"]["password"]
+            del setting["hits"]["hits"][0]["_source"]["crypto"]
+            return setting
+
+        except Exception as e:
+            return {"failure": e}
+
     def list_ssh_password_by_realm(self, realm: str):
         """ this function returns the ssh password decrypted """
         print(" >>> Enter file:setting:class:Setting:function:list_ssh_password_by_realm")

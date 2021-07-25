@@ -15,7 +15,7 @@
    limitations under the License.
 */
 
-import Infrastructure from '../../../../infrastructure.js'
+import Infrastructure from '../../../infrastructure.js'
 import InfrastructureListInfo from './listInfo.js'
 import InfrastructureListClusters from './listClusters.js'
 import InfrastructureManageClusters from './manageClusters.js'

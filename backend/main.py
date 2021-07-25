@@ -28,6 +28,7 @@ from api.scriptlang import Scriptlang
 from api.cluster import Cluster
 from api.gsearch import Gsearch
 from api.node import Node
+from api.nodemode import NodeMode
 from api.infra import Infra
 from api.reporter import Reporter
 from api.scenario import Scenario
@@ -125,17 +126,25 @@ def aaa_login():
     account_password = request.get_json()["password"]
     return Response(json.dumps(account.authenticate(account_email, account_password)))
 
+@app.route('/api/v1/aaa/accounts/password', methods=["PUT"])
+def aaa_account_password_update():
+    """ this function update the password of a given account"""
+    account = Account(ES)
+    account_id = request.get_json()["id"]
+    password_data = {"old": request.get_json()["old_password"], "new": request.get_json()["new_password"]}
+    return Response(json.dumps(account.update_password(account_id, password_data)))
+
 @app.route('/api/v1/aaa/accounts/profile', methods=["GET"])
 def aaa_load_profile():
     """ this function load the account which will be used as cookie """
     account = Account(ES)
     return Response(json.dumps(account.load_account_profile(request.args.get("email"))))
 
-@app.route('/api/v1/aaa/accounts/realms/<realm>', methods=["POST"])
+@app.route('/api/v1/aaa/accounts/realms', methods=["PUT"])
 def aaa_account_activate_realm(realm):
     """ this function activate an account realm """
     account = Account(ES)
-    realms = request.get_json()
+    realm = request.get_json()["realm"]
     account_email = json.loads(request.cookies.get('account'))["email"]
     return Response(json.dumps(account.activate_realm(account_email, realm)))
 
@@ -169,6 +178,7 @@ def script_add(realm):
         "script_file_data": request.files["script_file_data"],
         "script_file_name": request.form["script_file_name"],
         "script_name": script_name,
+        "script_args": request.form["script_args"],
         "script_shareable": request.form["script_shareable"],
         "script_shareable_realms": request.form["script_shareable_realms"],
         "script_type": request.form["script_type"]
@@ -524,14 +534,14 @@ def node_add(realm):
 
 @app.route('/api/v1/realms/<realm>/nodes', methods=['PUT'])
 def node_update(realm):
-    """ this function add a new node into the database """
+    """ this function update the node data """
     node = Node(ES)
     account = Account(ES)
-    nodes = request.get_json()
+    node_data = request.get_json()
     account_email = json.loads(request.cookies.get('account'))["email"]
 
     if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(node.__add__(account_email, realm, nodes)))
+        return Response(json.dumps(node.update(node_data["id"], node_data["data"])))
     else:
         return Response({"failure": "account identifier and realm is not an active match"})
 
@@ -584,6 +594,22 @@ def node_rescan(realm, id):
 
     if account.is_active_realm_member(account_email, realm):
         return Response(json.dumps(node.rescan(data)))
+    else:
+        return Response({"failure": "account identifier and realm is not an active match"})
+
+# * *********************************************************************************************************
+# *
+# * NODE MODE PART -*- NODE MODE PART -*- NODE MODE PART -*- NODE MODE PART -*- NODE MODE PART -*- NODE MODE
+# * *********************************************************************************************************
+@app.route('/api/v1/realms/<realm>/nodemode', methods=['GET'])
+def nodemode_list(realm):
+    """ this function return the node status """
+    node_mode = NodeMode(ES)
+    account = Account(ES)
+    account_email = json.loads(request.cookies.get('account'))["email"]
+
+    if account.is_active_realm_member(account_email, realm):
+        return Response(json.dumps(node_mode.__list__()))
     else:
         return Response({"failure": "account identifier and realm is not an active match"})
 

@@ -15,8 +15,8 @@
    limitations under the License.
 */
 
-import Account from '../../../../aaa.js'
-import FrontendConfig from '../../../../frontend.js'
+import Account from '../../../aaa.js'
+import FrontendConfig from '../../../frontend.js'
 
 var account = new Account()
 var config = new FrontendConfig()

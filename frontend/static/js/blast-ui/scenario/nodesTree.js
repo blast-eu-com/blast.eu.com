@@ -14,8 +14,8 @@
    limitations under the License.
 */
 
-import Node from '../../../node.js'
-import Infrastructure from '../../../infrastructure.js'
+import Node from '../../node.js'
+import Infrastructure from '../../infrastructure.js'
 
 var node = new Node()
 var infra = new Infrastructure()

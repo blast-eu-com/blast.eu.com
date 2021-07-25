@@ -15,7 +15,7 @@
    limitations under the License.
 */
 
-import Cluster from '../../../../cluster.js'
+import Cluster from '../../../cluster.js'
 import ClusterListInfo from './listInfo.js'
 import ClusterListNodes from './listNodes.js'
 import ClusterManageNodes from './manageNodes.js'

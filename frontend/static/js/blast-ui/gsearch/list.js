@@ -15,7 +15,7 @@
    limitations under the License.
 */
 
-import { GSearch, GSearchScrollId } from '../../../gsearch.js'
+import { GSearch, GSearchScrollId } from '../../gsearch.js'
 
 const GSearchList = class {
 

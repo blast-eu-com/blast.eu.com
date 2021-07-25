@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-import { listAgg } from '../../../../../reporter.js'
+import { listAgg } from '../../../../reporter.js'
 
 const ReportSchedulerChart = class {
 

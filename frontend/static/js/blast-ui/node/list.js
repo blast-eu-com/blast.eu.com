@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-import Node from '../../../node.js'
+import Node from '../../node.js'
 var node = new Node()
 
 var NodeList = class {

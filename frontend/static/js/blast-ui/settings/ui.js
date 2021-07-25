@@ -16,7 +16,7 @@
 
 import AnsibleForm from "./ansible/form.js"
 import SshForm from "./ssh/form.js"
-import Setting from '../../../settings.js'
+import Setting from '../../settings.js'
 
 var ansibleForm = new AnsibleForm()
 var sshForm = new SshForm()

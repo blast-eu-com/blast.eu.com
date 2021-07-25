@@ -16,13 +16,13 @@
 */
 
 import ProfileForm from './form.js'
-import Account from '../../../aaa.js'
+import Account from '../../aaa.js'
 
 var account = new Account()
 var profileForm = new ProfileForm()
 
 
-function updateProfile() {
+const updateProfile = () => {
     let accountPicture = ($("input#accountPicture").prop("files")[0] === 'undefined') ? "undefined" : $("input#accountPicture").prop("files")[0]
     let profileData = {
         "accountPicture": accountPicture,
@@ -30,14 +30,22 @@ function updateProfile() {
         "accountFamilyName": $("input#accountFamilyName").val(),
         "accountEmail": $("input#accountEmail").val()
     }
-    account.update(profileData).then((Resp) => {
+    let passwordA = $("input#accountPasswordA").val()
+    let passwordB = $("input#accountPasswordB").val()
+    if ( passwordA === passwordB ) {
+        if ( passwordA !== "" ) {
+            profileData["password"] = passwordA
+        }
+
+        account.update(profileData).then((Resp) => {
         console.log(Resp)
         // account.cookies(config.session.accountEmail).then((setCookieResult) => {
         //    console.log(setCookieResult)
             // nav.loadNavBarProfilePicture()
             // location.reload()
         // })
-    })
+        })
+    }
 }
 
 function main() {

@@ -14,7 +14,7 @@
  *  limitations under the License.
 */
 
-import Scheduler from '../../../scheduler.js'
+import Scheduler from '../../scheduler.js'
 import ScenarioFilterAndSelect from '../scenario/filterAndSelect.js'
 
 var scenarioFilterAndSelect = new ScenarioFilterAndSelect()

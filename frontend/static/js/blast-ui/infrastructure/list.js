@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-import Infrastructure from '../../../infrastructure.js'
+import Infrastructure from '../../infrastructure.js'
 var infrastructure = new Infrastructure()
 
 var InfrastructureList = class {

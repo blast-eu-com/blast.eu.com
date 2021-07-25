@@ -52,6 +52,7 @@ class Node:
                     node["roles"] = discovered_data["roles"]
                     node["peers"] = discovered_data["peers"]
                     node["realm"] = realm
+                    node["mode"] = "running"
                     self.STATISTIC.__add__(self.STATISTIC_DATA)
                     resp_nodes_add.append(self.ES.index(index=self.DB_INDEX, body=json.dumps(node), refresh=True))
 
@@ -90,7 +91,7 @@ class Node:
         nodes = self.__list__(data["realm"])
         [self.__delete__({"id": node["_id"], "realm": data["realm"], "account_email": data["account_email"]}) for node in nodes["hits"]["hits"]]
 
-    def update(self, id: str, data: str):
+    def update(self, id: str, data: dict):
         print(" >>> Enter file:node:class:Node:function:update")
         try:
             return self.ES.update(index=self.DB_INDEX, id=id, body=json.dumps({"doc": data}), refresh=True)
@@ -296,3 +297,15 @@ class Node:
             print("backend Exception, file:node:class:node:func:rescan")
             print(e)
             return {"failure": str(e)}
+
+    def is_running(self, realm: str, node_id: str):
+        print(" >>> Enter file:node:class:Node:function:is_running")
+        try:
+            resp = self.list_by_ids(realm, node_id.split())
+            return True if resp["hits"]["hits"][0]["_source"]["mode"] == "running" else False
+            
+        except Exception as e:
+            print("backend Exception, file:node:class:node:func:is_running")
+            print(e)
+            return {"failure": str(e)}
+

@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-import { filterScroll, filterScrollData } from '../../../../../reporter.js'
+import { filterScroll, filterScrollData } from '../../../../reporter.js'
 
 const ReportSchedulerList = class {
 

@@ -15,14 +15,14 @@
    limitations under the License.
 */
 
-import FrontendConfig from '../../../frontend.js'
+import FrontendConfig from '../../frontend.js'
 
 var config = new FrontendConfig()
 
 const ProfileForm = class {
 
     constructor() {
-        this._pn = undefined
+        this._pn
         this.frame = `
             <form>
                 <div class="row">
@@ -30,6 +30,7 @@ const ProfileForm = class {
                     <div id="profileFirstName" class="col-md-6 mb-2"></div>
                     <div id="profileFamilyName" class="col-md-6 mb-2"></div>
                     <div id="profileEmail" class="col-md-12 mb-2"></div>
+                    <div id="profileChangePassword" class="col-md-12 mb-2"></div>
                     <div class="col-md-2">
                         <button class="btn btn-sm blast-btn" onclick="updateProfile();">Update</button>
                     </div>
@@ -60,6 +61,12 @@ const ProfileForm = class {
             <div id="accountEmailHelp" class="form-text">Set your email address.</div>
         `
 
+        this.linkChangePassword = `
+            <a class="p-4" href="/html/profile-chpasswd.html"><u>Change password</u></a>
+        `
+
+
+
     }
 
     set parentName(pn) { this._pn = pn }
@@ -84,6 +91,8 @@ const ProfileForm = class {
 
         $("#profileEmail").html(this.inputProfileEmail)
         $("#accountEmail").val(config.session.accountEmail)
+
+        $("#profileChangePassword").html(this.linkChangePassword)
 
     }
 

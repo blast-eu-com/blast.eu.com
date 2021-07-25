@@ -4,7 +4,7 @@
   "mappings" : {
     "dynamic": false,
     "properties" : {
-      "mode": {
+      "name": {
         "type" : "keyword"
       }
     }

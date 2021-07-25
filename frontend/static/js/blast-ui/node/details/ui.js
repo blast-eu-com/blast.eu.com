@@ -14,15 +14,17 @@
    limitations under the License.
 */
 
-import Node from '../../../../node.js'
+import Node from '../../../node.js'
 import NodeListInfo from  './listInfo.js'
 import NodeListPeers from './listPeers.js'
 import NodeListRoles from './listRoles.js'
+import ManageMode from './manageMode.js'
 
 var node = new Node()
 var nodeListInfo = new NodeListInfo()
 var nodeListPeers = new NodeListPeers()
 var nodeListRoles = new NodeListRoles()
+var manageMode = new ManageMode()
 
 const setButtonDeleteAction = (nodeId) => {
     $('#btnDelNode').on("click", function() {
@@ -41,7 +43,7 @@ const setButtonRescanAction = (nodeId) => {
 }
 
 const setPageTitle = (nodeName) => {
-    $("navNodeName").html(nodeName)
+    $("#navNodeName").html(nodeName)
 }
 
 async function main() {
@@ -52,14 +54,15 @@ async function main() {
         let nodeData = await node.listByIds([nodeId])
         node.load(nodeData["hits"]["hits"][0])
         setPageTitle(node.name)
-        setButtonDeleteAction(node.id)
-        setButtonRescanAction(node.id)
-        console.log(node)
+        setButtonDeleteAction(nodeId)
+        setButtonRescanAction(nodeId)
         nodeListInfo.render('nodeDetails', node)
         nodeListPeers.render('nodePeers', node)
         nodeListRoles.render('nodeRoles', node)
+        manageMode.render('nodeMode', node)
     }
 
 }
 
 window.main = main
+window.updateNodeMode = manageMode.updateNodeMode
