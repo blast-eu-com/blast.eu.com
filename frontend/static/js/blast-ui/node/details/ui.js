@@ -43,7 +43,7 @@ const setButtonRescanAction = (nodeId) => {
 }
 
 const setPageTitle = (nodeName) => {
-    $("navNodeName").html(nodeName)
+    $("#navNodeName").html(nodeName)
 }
 
 async function main() {
@@ -54,9 +54,8 @@ async function main() {
         let nodeData = await node.listByIds([nodeId])
         node.load(nodeData["hits"]["hits"][0])
         setPageTitle(node.name)
-        setButtonDeleteAction(node.id)
-        setButtonRescanAction(node.id)
-        console.log(node)
+        setButtonDeleteAction(nodeId)
+        setButtonRescanAction(nodeId)
         nodeListInfo.render('nodeDetails', node)
         nodeListPeers.render('nodePeers', node)
         nodeListRoles.render('nodeRoles', node)

@@ -49,7 +49,6 @@ const ManageMode = class {
 
     updateNodeMode = (nodeId) => {
         this.node.rawData["mode"] = $('select[name=select_node_mode] option:selected').val()
-        console.log(this.node.rawData)
         this.node.update(nodeId, this.node.rawData).then((updateRes) => {
             if ( Object.keys(updateRes).includes("result") && updateRes["result"] === "updated" ) { location.reload() }
         })

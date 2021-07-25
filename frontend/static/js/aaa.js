@@ -16,34 +16,6 @@
 import FrontendConfig from './frontend.js'
 let config = new FrontendConfig()
 
-let msgAccountPasswordFailure = `
-    <div aria-live="assertive" aria-atomic="true" class="toast fade show" data-autohide="false" >
-        <div class="toast-header">
-        <strong class="mr-auto">Blast</strong>
-        <small>now</small>
-        <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
-    <div class="toast-body">
-        <h5>Authentication Failure, Password is not correct.</h5>
-    </div>
-`
-
-let msgAccountFailure =  `
-    <div aria-live="assertive" aria-atomic="true" class="toast fade show" data-autohide="false" >
-        <div class="toast-header">
-        <strong class="mr-auto">Blast</strong>
-        <small>now</small>
-        <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
-    <div class="toast-body">
-        <h5>Authentication Failure, Account is not found.</h5>
-    </div>
-`
-
 const Account = class {
 
     constructor() {
@@ -91,6 +63,30 @@ const Account = class {
                 headers: {"Authorization": config.session.httpToken},
                 contentType: false,
                 processData: false,
+                success: (Resp) => {
+                    if (typeof Resp === 'string') { Resp = JSON.parse(Resp)}
+                    if (Object.keys(Resp).includes("tokenExpired")) {
+                        this.logout()
+                    } else { resolve(Resp) }
+                }
+            })
+        })
+    }
+
+    updatePassword = (account_data) => {
+        var id = config.session.accountId
+        var newPassword = account_data["newPassword"]
+        var oldPassword = account_data["oldPassword"]
+        var data = {"id": id, "old_password": oldPassword, "new_password": newPassword}
+        console.log(id, newPassword, oldPassword)
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: config.proxyAPI + '/aaa/accounts/password',
+                type: "PUT",
+                data: JSON.stringify(data),
+                headers: {"Authorization": config.session.httpToken},
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
                 success: (Resp) => {
                     if (typeof Resp === 'string') { Resp = JSON.parse(Resp)}
                     if (Object.keys(Resp).includes("tokenExpired")) {
@@ -170,9 +166,12 @@ const Account = class {
     activateRealm = (realm) => {
         return new Promise((resolve, reject) => {
             $.ajax({
-                url: config.proxyAPI + '/aaa/accounts/realms/' + realm,
-                type: "POST",
+                url: config.proxyAPI + '/aaa/accounts/realms',
+                type: "PUT",
+                data: JSON.stringify({"realm": realm}),
                 headers: {"Authorization": config.session.httpToken},
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
                 success: (Resp) => {
                     if (typeof Resp === 'string') { Resp = JSON.parse(Resp)}
                     if (Object.keys(Resp).includes("tokenExpired")) {
@@ -182,12 +181,6 @@ const Account = class {
             })
         })
     }
-
-    // joinRealm = () => { }
-
-    // leaveRealm = () => { }
-
-    // isRealmMember = () => { }
 
     getFormData = () => {
         return {
@@ -213,15 +206,6 @@ const Account = class {
                     if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
                     if (Object.keys(Resp).includes("tokenExpired")) {
                         this.logout()
-                    } else if (Object.keys(Resp).includes("failure")) {
-                        if (Object.values(Resp).includes("AccountPasswordNotCorrect")) {
-                            var toasterContent = $("#toaster").html() + msgAccountPasswordFailure
-                        } else if (Object.values(Resp).includes("AccountNotFound")) {
-                            var toasterContent = $("#toaster").html() + msgAccountFailure
-                        }
-                        $("#toaster").html('')
-                        $("#toaster").html(toasterContent)
-                        $(".toast").toast("show")
                     } else {
                         resolve(Resp)
                     }

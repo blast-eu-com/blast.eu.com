@@ -635,6 +635,8 @@ class Account:
         try:
             http_response = {}
             account = self.__list_to_login(email)["hits"]["hits"][0]
+            print(password, account["_source"]["password"])
+            print(pbkdf2_sha512.verify(password, account["_source"]["password"]))
             if pbkdf2_sha512.verify(password, account["_source"]["password"]):
                 http_response["jwt"] = self.__load_account_jwt(account)
                 return http_response
@@ -649,10 +651,34 @@ class Account:
     def update(self, account_id: str, data: dict):
         print(" >>> Enter file:aaa:class:Account:function:update")
         try:
-            res = self.ES.update(index=self.DB_INDEX, id=account_id, body=json.dumps({"doc": data}), refresh=True)
-            return res
+            return self.ES.update(index=self.DB_INDEX, id=account_id, body=json.dumps({"doc": data}), refresh=True)
+
         except Exception as e:
             print("backend Exception, file:aaa:class:account:func:update")
+            print(str(e))
+            return {"failure": str(e)}
+
+    def update_password(self, account_id: str, password_data: dict):
+        """
+        param: account_id:
+        param: password_data
+            new: the new account password
+            old: the old account password
+        account data is charged using the account id
+        checking if the old password is correct then update account with new password
+        else return an error.
+        """
+        print(" >>> Enter file:aaa:class:Account:function:update_password")
+        try:
+            account = self.__list_to_login(self.list_by_ids(account_id.split())["hits"]["hits"][0]["_source"]["email"])["hits"]["hits"][0]
+            if pbkdf2_sha512.verify(password_data["old"], account["_source"]["password"]):
+                account["_source"]["password"] = encrypt_password(password_data["new"])
+                return self.update(account_id, account["_source"])
+            else:
+                raise Exception("Account password update failed current password is not correct")
+
+        except Exception as e:
+            print("backend Exception, file:aaa:class:account:func:update_password")
             print(str(e))
             return {"failure": str(e)}
 

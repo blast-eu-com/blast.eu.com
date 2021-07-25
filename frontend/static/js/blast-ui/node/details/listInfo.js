@@ -34,7 +34,6 @@ const NodeListInfo = class {
                     html = html + ' <span class="badge blast-badge">' + nodeIp + '</span>'
                 })
             } else if ( idx !== "roles" && idx !== "peers" ) {
-                console.log("pass block b")
                 html = html + '<tr><td><b>' + idx.charAt(0).toUpperCase() + idx.slice(1) + '</b></td><td>' + val + "</td></tr>"
             }
         })
