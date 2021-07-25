@@ -1,5 +1,5 @@
 /*
-   Copyright 2020 Jerome DE LUCCHI
+   Copyright 2021 Jerome DE LUCCHI
 
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,26 +28,29 @@ const AccountPassword = class {
                     <div class="col-md-12 mb-2" id="AccountNewPasswordA"></div>
                     <div class="col-md-12 mb-2" id="AccountNewPasswordB"></div>
                     <div class="col-md-2">
-                        <button class="btn btn-sm blast-btn" onclick="changeAccountPassword();">Apply</button>
+                        <button class="btn btn-sm blast-btn" type="submit" onclick="changeAccountPassword();">Apply</button>
                     </div>
                 </div>
             </form>
         `
         this.inputAccountOldPassword = `
             <label for="accountOldPassword" class="form-label">Current password</label>
-            <input id="accountOldPassword" class="form-control" name="accountOldPassword" type="password" value=""/>
+            <input id="accountOldPassword" class="form-control" name="accountOldPassword" type="password"
+                pattern=".{8,}" title="Eight or more characters." value=""/>
             <div id="accountOldPasswordHelp" class="form-text">Set your current password.</div>
         `
 
         this.inputAccountNewPasswordA = `
             <label for="accountNewPasswordA" class="form-label">New password</label>
-            <input id="accountNewPasswordA" class="form-control" name="accountNewPasswordA" type="password" value=""/>
+            <input id="accountNewPasswordA" class="form-control" name="accountNewPasswordA" type="password"
+                pattern=".{8,}" title="Eight or more characters." value=""/>
             <div id="accountNewPasswordAHelp" class="form-text">Set your new password.</div>
         `
 
         this.inputAccountNewPasswordB = `
             <label for="accountNewPasswordB" class="form-label">Confirm new password</label>
-            <input id="accountNewPasswordB" class="form-control" name="accountNewPasswordB" type="password" value=""/>
+            <input id="accountNewPasswordB" class="form-control" name="accountNewPasswordB" type="password"
+                pattern=".{8,}" title="Eight or more characters." value=""/>
             <div id="accountNewPasswordBHelp" class="form-text">Confirm your new password.</div>
         `
 
