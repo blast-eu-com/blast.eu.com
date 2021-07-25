@@ -1,5 +1,5 @@
 /*
-   Copyright 2020 Jerome DE LUCCHI
+   Copyright 2021 Jerome DE LUCCHI
 
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,10 +29,12 @@ const changeAccountPassword = () => {
     let newPasswordB = $("#accountNewPasswordB").val()
 
     if ( oldPassword !== "" && newPasswordA === newPasswordB ) {
-        let account_data = {"oldPassword": oldPassword, "newPassword": newPasswordA}
-        account.updatePassword(account_data).then((Resp) => {
-            if ( Resp["result"] == "updated" ) { account.logout() }
-        })
+        if ( oldPassword !== newPasswordA) {
+            let account_data = {"oldPassword": oldPassword, "newPassword": newPasswordA}
+            account.updatePassword(account_data).then((Resp) => {
+                if ( Resp["result"] == "updated" ) { account.logout() }
+            })
+        }
     }
 
 }

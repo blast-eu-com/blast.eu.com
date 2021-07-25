@@ -1,5 +1,5 @@
 /*
-   Copyright 2020 Jerome DE LUCCHI
+   Copyright 2021 Jerome DE LUCCHI
 
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,7 +31,7 @@ const ProfileForm = class {
                     <div id="profileFamilyName" class="col-md-6 mb-2"></div>
                     <div id="profileEmail" class="col-md-12 mb-2"></div>
                     <div id="profileChangePassword" class="col-md-12 mb-2"></div>
-                    <div class="col-md-2">
+                    <div class="col-md-2 mt-4">
                         <button class="btn btn-sm blast-btn" onclick="updateProfile();">Update</button>
                     </div>
                 </div>
@@ -62,7 +62,7 @@ const ProfileForm = class {
         `
 
         this.linkChangePassword = `
-            <a class="p-4" href="/html/profile-chpasswd.html"><u>Change password</u></a>
+            <a href="/html/profile-chpasswd.html"><u>Change password</u></a>
         `
 
 
