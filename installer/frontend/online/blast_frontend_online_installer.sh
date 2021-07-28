@@ -73,10 +73,22 @@ install_blast_frontend_folder () {
   mkdir -p "$BLAST_FRONTEND_PATH"
 }
 
+install_blast_frontend_config_folder () {
+  echo_step_phase "@blastFrontend +install frontend config folder"
+  mkdir -p "$BLAST_FRONTEND_CONFIG_PATH"
+}
+
+install_blast_frontend_log_folder () {
+  echo_step_phase "@blastFrontend +install frontend log folder"
+  mkdir -p "$BLAST_FRONTEND_BLAST_FRONTEND_LOG_PATH"
+}
+
 install_blast_frontend_folders () {
   install_blast_frontend_root_folder
   install_blast_frontend_folder
   install_blast_frontend_run_folder
+  install_blast_frontend_config_folder
+  install_blast_frontend_log_folder
 }
 
 install_blast_frontend_required_pkg () {
