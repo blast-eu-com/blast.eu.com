@@ -59,7 +59,6 @@ install_blast_frontend_user () {
 
 install_blast_frontend_root_folder () {
   echo_step_phase "@blastFrontend +install root folder"
-  # if [[ -d "$BLAST_FRONTEND_PATH" ]]; then rm -fr "$BLAST_FRONTEND_PATH"; fi
   mkdir -p "$BLAST_FRONTEND_ROOT_PATH"
 }
 
@@ -80,7 +79,7 @@ install_blast_frontend_config_folder () {
 
 install_blast_frontend_log_folder () {
   echo_step_phase "@blastFrontend +install frontend log folder"
-  mkdir -p "$BLAST_FRONTEND_BLAST_FRONTEND_LOG_PATH"
+  mkdir -p "$BLAST_FRONTEND_LOG_PATH"
 }
 
 install_blast_frontend_folders () {
@@ -171,7 +170,6 @@ cleanup_blast_frontend_install () {
   echo_step_phase "@blastFront +cleanup blast server install tmp materials"
   rm -fr "$BLAST_FRONTEND_INSTALL_TMP"
 }
-
 
 # @main
 # install blast requirements
