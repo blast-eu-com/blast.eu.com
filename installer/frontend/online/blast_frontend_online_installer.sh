@@ -171,7 +171,6 @@ cleanup_blast_frontend_install () {
   rm -fr "$BLAST_FRONTEND_INSTALL_TMP"
 }
 
-
 # @main
 # install blast requirements
 install_blast_frontend_user
