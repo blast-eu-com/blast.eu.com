@@ -5,8 +5,8 @@
 ![Contact](https://img.shields.io/badge/contact-support@blast.eu.com-0995d3.svg)
 
 ## About
-Blast is an Open Source software scheduling and executing jobs scenarios for all type of cloud solution. 
-It allows you to manage and administrate your scheduled jobs via a friendly frontend, connected to a backend itself 
+Blast is an Open Source software agentless scheduling and executing jobs scenarios for all type of cloud solution. 
+It allows you to manage and administrate your scheduled jobs via a friendly frontend connected to a backend itself 
 connected to Elasticsearch. Blast UI offers to the operators the capability to execute recurrent/one-shot jobs on 
 one/serveral nodes sequencially/simultaneously. additionally you can browse through your scripts, playbooks and execution results.
 
