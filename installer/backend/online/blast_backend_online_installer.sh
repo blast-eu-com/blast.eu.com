@@ -21,7 +21,7 @@ BLAST_BACKEND_HOSTNAME="127.0.0.1"
 BLAST_BACKEND_PORT="28080"
 BLAST_BACKEND_PROTOCOL="http"
 BLAST_BACKEND_GIT_URL="https://github.com/blast-eu-com/blast.eu.com"
-BLAST_BACKEND_INSTALL_TMP="/tmp/${BLAST_BACKEND_NAME}"
+BLAST_BACKEND_INSTALL_PATH="/tmp/${BLAST_BACKEND_NAME}"
 BLAST_BACKEND_ROOT_PATH="/opt/${BLAST_BACKEND_NAME}"
 BLAST_BACKEND_LOG_PATH="/var/log/${BLAST_BACKEND_NAME}"
 BLAST_BACKEND_CONFIG_PATH="/etc/${BLAST_BACKEND_NAME}"
@@ -64,8 +64,8 @@ install_blast_backend_root_folder () {
 
 install_blast_backend_tmp_folder () {
   echo_step_phase "@blastServer +install tmp folder"
-  # if [[ -d "$BLAST_BACKEND_INSTALL_TMP" ]]; then rm -fr "$BLAST_BACKEND_INSTALL_TMP"; fi
-  mkdir -p "$BLAST_BACKEND_INSTALL_TMP"
+  # if [[ -d "$BLAST_BACKEND_TMP_PATH" ]]; then rm -fr "$BLAST_BACKEND_TMP_PATH"; fi
+  mkdir -p "$BLAST_BACKEND_TMP_PATH"
 }
 
 install_blast_backend_run_folder () {
@@ -111,7 +111,7 @@ install_blast_backend_virtualenv () {
 
 download_blast_backend_software () {
   echo_step_phase "@blastServer +download server software"
-  cd `dirname "$BLAST_BACKEND_INSTALL_TMP"`
+  cd `dirname "$BLAST_BACKEND_INSTALL_PATH"`
   git clone "$BLAST_BACKEND_GIT_URL"
 }
 
@@ -119,15 +119,15 @@ install_blast_backend_config_pip () {
   echo_step_phase "@blastServer +install server config pip"
   source "${BLAST_BACKEND_PATH}/bin/activate"
   pip3 install --upgrade pip
-  pip3 install -r "${BLAST_BACKEND_INSTALL_TMP}/installer/backend/requirements.txt"
+  pip3 install -r "${BLAST_BACKEND_TMP_PATH}/installer/backend/requirements.txt"
 }
 
 install_blast_backend_config_system_tree () {
   echo_step_phase "@blastServer +install server system tree"
   mkdir "$BLAST_BACKEND_CONFIG_PATH" "$BLAST_BACKEND_TMP_PATH" "${BLAST_BACKEND_PATH}/ansible" "${BLAST_BACKEND_PATH}/script" \
   "${BLAST_BACKEND_PATH}/session"
-  cp -pr "${BLAST_BACKEND_INSTALL_TMP}/backend" "$BLAST_BACKEND_ROOT_PATH"
-  ln -s "${BLAST_BACKEND_PATH}/backend.yml" "${BLAST_BACKEND_CONFIG_PATH}/backend.yml"
+  cp -pr "${BLAST_BACKEND_INSTALL_PATH}/backend" "$BLAST_BACKEND_ROOT_PATH"
+  ln -s "${BLAST_BACKEND_INSTALL_PATH}/installer/backend/online/backend.yml.template" "${BLAST_BACKEND_CONFIG_PATH}/backend.yml"
 }
 
 install_blast_backend_config_uwsgi () {
@@ -138,7 +138,7 @@ install_blast_backend_config_uwsgi () {
       -e "s|%BLAST_BACKEND_HOSTNAME%|${BLAST_BACKEND_HOSTNAME}|g" \
       -e "s|%BLAST_BACKEND_PORT%|${BLAST_BACKEND_PORT}|g" \
       -e "s|%BLAST_BACKEND_LOG_PATH%|${BLAST_BACKEND_LOG_PATH}|g" \
-      "${BLAST_BACKEND_INSTALL_TMP}/installer/backend/main.ini.template" >"${BLAST_BACKEND_PATH}/main.ini"
+      "${BLAST_BACKEND_TMP_PATH}/installer/backend/main.ini.template" >"${BLAST_BACKEND_PATH}/main.ini"
 }
 
 install_blast_backend_config_service () {
@@ -147,7 +147,7 @@ install_blast_backend_config_service () {
       -e "s|%BLAST_BACKEND_GRP%|${BLAST_BACKEND_GRP}|g" \
       -e "s|%BLAST_BACKEND_PATH%|${BLAST_BACKEND_PATH}|g" \
       -e "s|%BLAST_BACKEND_TMP_PATH%|${BLAST_BACKEND_TMP_PATH}|g" \
-      "${BLAST_BACKEND_INSTALL_TMP}/installer/backend/backend.blast.eu.com.service.template" >/lib/systemd/system/backend.blast.eu.com.service
+      "${BLAST_BACKEND_INSTALL_PATH}/installer/backend/backend.blast.eu.com.service.template" >/lib/systemd/system/backend.blast.eu.com.service
 }
 
 install_blast_backend_software_ownership () {
@@ -166,7 +166,7 @@ install_blast_backend_config_main () {
 
 cleanup_blast_server_install () {
   echo_step_phase "@blastServer +cleanup install tmp materials"
-  rm -fr "$BLAST_BACKEND_INSTALL_TMP"
+  rm -fr "$BLAST_BACKEND_INSTALL_PATH"
 }
 
 
