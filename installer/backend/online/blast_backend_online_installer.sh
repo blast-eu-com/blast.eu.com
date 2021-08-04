@@ -127,7 +127,7 @@ install_blast_backend_config_system_tree () {
   mkdir "$BLAST_BACKEND_CONFIG_PATH" "$BLAST_BACKEND_TMP_PATH" "${BLAST_BACKEND_PATH}/ansible" "${BLAST_BACKEND_PATH}/script" \
   "${BLAST_BACKEND_PATH}/session"
   cp -pr "${BLAST_BACKEND_INSTALL_PATH}/backend" "$BLAST_BACKEND_ROOT_PATH"
-  ln -s "${BLAST_BACKEND_INSTALL_PATH}/installer/backend/online/backend.yml.template" "${BLAST_BACKEND_CONFIG_PATH}/backend.yml"
+  cp -p "${BLAST_BACKEND_INSTALL_PATH}/installer/backend/online/backend.yml.template" "${BLAST_BACKEND_CONFIG_PATH}/backend.yml"
 }
 
 install_blast_backend_config_uwsgi () {
@@ -152,7 +152,7 @@ install_blast_backend_config_service () {
 
 install_blast_backend_software_ownership () {
   echo_step_phase "@blastServer +install server config ownership"
-  chown -R ${BLAST_BACKEND_USER}:${BLAST_BACKEND_GRP} $BLAST_BLAST_BACKEND_CONFIG_PATH $BLAST_BACKEND_PATH \
+  chown -R ${BLAST_BACKEND_USER}:${BLAST_BACKEND_GRP} $BLAST_BACKEND_CONFIG_PATH $BLAST_BACKEND_PATH \
   $BLAST_BACKEND_LOG_PATH $BLAST_BACKEND_RUN_PATH
 }
 
