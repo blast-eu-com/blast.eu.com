@@ -23,7 +23,7 @@ ENV BLAST_BACKEND_HOSTNAME="127.0.0.1"
 ENV BLAST_BACKEND_PORT="28080"
 ENV BLAST_BACKEND_PROTOCOL="http"
 ENV BLAST_BACKEND_ROOT_PATH="/opt/${BLAST_BACKEND_NAME}"
-ENV BLAST_BACKEND_INSTALL_TMP="/tmp/${BLAST_BACKEND_NAME}"
+ENV BLAST_BACKEND_INSTALL_PATH="/tmp/${BLAST_BACKEND_NAME}"
 ENV BLAST_BACKEND_CONFIG_PATH="/etc/${BLAST_BACKEND_NAME}"
 ENV BLAST_BACKEND_LOG_PATH="/var/log/${BLAST_BACKEND_NAME}"
 ENV BLAST_BACKEND_PATH="${BLAST_BACKEND_ROOT_PATH}/backend"
@@ -41,8 +41,8 @@ RUN apt-get update \
     && mkdir ${BLAST_BACKEND_PATH}/script ${BLAST_BACKEND_PATH}/session ${BLAST_BACKEND_PATH}/ansible ${BLAST_BACKEND_TMP_PATH} \
     && cd /tmp \
     && git clone $BLAST_BACKEND_GIT_URL \
-    && pip3 install -r ${BLAST_BACKEND_INSTALL_TMP}/installer/backend/requirements.txt \
-    && cp -pr ${BLAST_BACKEND_INSTALL_TMP}/backend ${BLAST_BACKEND_ROOT_PATH}/ \
+    && pip3 install -r ${BLAST_BACKEND_INSTALL_PATH}/installer/backend/requirements.txt \
+    && cp -pr ${BLAST_BACKEND_INSTALL_PATH}/backend ${BLAST_BACKEND_ROOT_PATH}/ \
     && ln -s ${BLAST_BACKEND_PATH}/backend.yml ${BLAST_BACKEND_CONFIG_PATH}/backend.yml \
     && sed -e "s|%BLAST_BACKEND_USER%|${BLAST_BACKEND_USER}|g" \
            -e "s|%BLAST_BACKEND_GRP%|${BLAST_BACKEND_GRP}|g" \
@@ -50,9 +50,9 @@ RUN apt-get update \
            -e "s|%BLAST_BACKEND_PORT%|${BLAST_BACKEND_PORT}|g" \
            -e "s|%BLAST_BACKEND_PROTOCOL%|${BLAST_BACKEND_PROTOCOL}|g" \
            -e "s|%BLAST_BACKEND_LOG_PATH%|${BLAST_BACKEND_LOG_PATH}|g" \
-           "${BLAST_BACKEND_INSTALL_TMP}/installer/backend/main.ini.template" >"${BLAST_BACKEND_PATH}/main.ini" \
+           "${BLAST_BACKEND_INSTALL_PATH}/installer/backend/main.ini.template" >"${BLAST_BACKEND_PATH}/main.ini" \
     && chown -R ${BLAST_BACKEND_USER}:${BLAST_BACKEND_GRP} $BLAST_BACKEND_ROOT_PATH $BLAST_BACKEND_CONFIG_PATH $BLAST_BACKEND_LOG_PATH \
-    && rm -fr ${BLAST_BACKEND_INSTALL_TMP}
+    && rm -fr ${BLAST_BACKEND_INSTALL_PATH}
 
 USER ${BLAST_BACKEND_USER}
 EXPOSE ${BLAST_BACKEND_PORT}
