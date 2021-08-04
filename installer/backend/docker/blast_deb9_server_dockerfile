@@ -43,7 +43,7 @@ RUN apt-get update \
     && git clone $BLAST_BACKEND_GIT_URL \
     && pip3 install -r ${BLAST_BACKEND_INSTALL_PATH}/installer/backend/requirements.txt \
     && cp -pr ${BLAST_BACKEND_INSTALL_PATH}/backend ${BLAST_BACKEND_ROOT_PATH}/ \
-    && ln -s ${BLAST_BACKEND_PATH}/backend.yml ${BLAST_BACKEND_CONFIG_PATH}/backend.yml \
+    && cp -p ${BLAST_BACKEND_PATH}/backend.yml ${BLAST_BACKEND_CONFIG_PATH}/backend.yml \
     && sed -e "s|%BLAST_BACKEND_USER%|${BLAST_BACKEND_USER}|g" \
            -e "s|%BLAST_BACKEND_GRP%|${BLAST_BACKEND_GRP}|g" \
            -e "s|%BLAST_BACKEND_HOSTNAME%|${BLAST_BACKEND_HOSTNAME}|g" \
