@@ -119,7 +119,7 @@ install_blast_backend_config_pip () {
   echo_step_phase "@blastServer +install server config pip"
   source "${BLAST_BACKEND_PATH}/bin/activate"
   pip3 install --upgrade pip
-  pip3 install -r "${BLAST_BACKEND_TMP_PATH}/installer/backend/requirements.txt"
+  pip3 install -r "${BLAST_BACKEND_INSTALL_PATH}/installer/backend/requirements.txt"
 }
 
 install_blast_backend_config_system_tree () {
@@ -127,7 +127,7 @@ install_blast_backend_config_system_tree () {
   mkdir "$BLAST_BACKEND_CONFIG_PATH" "$BLAST_BACKEND_TMP_PATH" "${BLAST_BACKEND_PATH}/ansible" "${BLAST_BACKEND_PATH}/script" \
   "${BLAST_BACKEND_PATH}/session"
   cp -pr "${BLAST_BACKEND_INSTALL_PATH}/backend" "$BLAST_BACKEND_ROOT_PATH"
-  cp -p "${BLAST_BACKEND_INSTALL_PATH}/installer/backend/online/backend.yml.template" "${BLAST_BACKEND_CONFIG_PATH}/backend.yml"
+  cp -p "${BLAST_BACKEND_INSTALL_PATH}/installer/backend/backend.yml.template" "${BLAST_BACKEND_CONFIG_PATH}/backend.yml"
 }
 
 install_blast_backend_config_uwsgi () {
@@ -138,7 +138,7 @@ install_blast_backend_config_uwsgi () {
       -e "s|%BLAST_BACKEND_HOSTNAME%|${BLAST_BACKEND_HOSTNAME}|g" \
       -e "s|%BLAST_BACKEND_PORT%|${BLAST_BACKEND_PORT}|g" \
       -e "s|%BLAST_BACKEND_LOG_PATH%|${BLAST_BACKEND_LOG_PATH}|g" \
-      "${BLAST_BACKEND_TMP_PATH}/installer/backend/main.ini.template" >"${BLAST_BACKEND_PATH}/main.ini"
+      "${BLAST_BACKEND_INSTALL_PATH}/installer/backend/main.ini.template" >"${BLAST_BACKEND_PATH}/main.ini"
 }
 
 install_blast_backend_config_service () {

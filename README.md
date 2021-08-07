@@ -35,11 +35,62 @@ $ chmod +x blast_frontend_online_installer.sh
 $ sudo ./blast_frontend_online_installer.sh
 ```
 
-#### Backend
+Backend
+---
+#### Install the backend
 From github repository download the installer/backend/online/blast_backend_online_installer.sh
 ```
 $ chmod +x blast_backend_online_installer.sh
 $ sudo ./blast_backend_online_installer.sh
+```
+
+#### Backend connectivity
+At the end of the script run, the blast backend will be ready to start listening on 127.0.0.1:28080 using http protocol
+if for some reasons the IP address, the port or the protocol must be changed by yourself, so edit the file:
+/opt/blast.eu.com/backend/main.ini then modify the appropriated values.
+
+#### Connect the Backend to Elasticsearch
+To inform the backend how to connect to the Elasticsearch API, edit the file: /etc/blast.eu.com/backend.yml then in the
+elasticsearch section ( as shown below ) update the ip, protocol, port accordingly.
+
+```
+elasticsearch:
+    # Set the IP address of the Elasticsearch API
+    # This value can be an IP address, a hostname or a FQDN
+    ip: 127.0.0.1
+
+    # Set the protocol of the Elasticsearch API
+    # This value can be http or https
+    protocol: http
+
+    # Set the port of the Elasticsearch API
+    # This value should be either 9200 or 9300
+    port: 9200
+
+```
+
+#### Backend service
+Update the service manager and start the blast backend.
+```
+$ sudo systemctl enable backend.blast.eu.com.service
+Created symlink /etc/systemd/system/multi-user.target.wants/backend.blast.eu.com.service -> /lib/systemd/system/backend.blast.eu.com.service.
+
+$ sudo systemctl start backend.blast.eu.com.service
+
+$ systemctl status backend.blast.eu.com.service
+* backend.blast.eu.com.service - uWSGI instance for server.blast.eu.com
+   Loaded: loaded (/lib/systemd/system/backend.blast.eu.com.service; enabled; vendor preset: enabled)
+   Active: active (running) since Sun 2021-08-08 10:08:59 CEST; 22s ago
+ Main PID: 22968 (uwsgi)
+   Status: "uWSGI is ready"
+    Tasks: 5 (limit: 467)
+   Memory: 38.6M
+   CGroup: /system.slice/backend.blast.eu.com.service
+           |-22968 /opt/blast.eu.com/backend/bin/uwsgi --ini /opt/blast.eu.com/backend/main.ini --stats /opt/blast.eu.com/backend/tmp/uwsgi-statsock
+           |-22971 /opt/blast.eu.com/backend/bin/uwsgi --ini /opt/blast.eu.com/backend/main.ini --stats /opt/blast.eu.com/backend/tmp/uwsgi-statsock
+           |-22972 /opt/blast.eu.com/backend/bin/uwsgi --ini /opt/blast.eu.com/backend/main.ini --stats /opt/blast.eu.com/backend/tmp/uwsgi-statsock
+           |-22973 /opt/blast.eu.com/backend/bin/uwsgi --ini /opt/blast.eu.com/backend/main.ini --stats /opt/blast.eu.com/backend/tmp/uwsgi-statsock
+           `-22974 /opt/blast.eu.com/backend/bin/uwsgi --ini /opt/blast.eu.com/backend/main.ini --stats /opt/blast.eu.com/backend/tmp/uwsgi-statsock
 ```
 
 ## Licensing
