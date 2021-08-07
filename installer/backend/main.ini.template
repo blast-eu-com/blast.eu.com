@@ -25,7 +25,7 @@ module =  main:app
 
 # enabling master process with n number of child process
 master = true
-processes = 16
+processes = 4
 
 # enabling multithreading and assigning threads per process
 enable-threads  = true
