@@ -45,7 +45,7 @@ $ sudo ./blast_backend_online_installer.sh
 ```
 
 #### Backend connectivity
-At the end of the script run, the blast backend will be ready to start listening on 127.0.0.1:28080 using http protocol
+At the end of the script run, the blast backend will be ready to start listening on http://127.0.0.1:28080
 if for some reasons the IP address, the port or the protocol must be changed by yourself, so edit the file:
 /opt/blast.eu.com/backend/main.ini then modify the appropriated values.
 
