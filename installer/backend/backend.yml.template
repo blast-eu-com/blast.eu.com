@@ -27,6 +27,10 @@ elasticsearch:
     # This value should be either 9200 or 9300
     port: 9200
 
+    # Set authenticate to True or False
+    # Define if authentication method is used to connect to Elasticsearch
+    authenticate: False
+
 scheduler:
     logging:
         # Define the directory where the scheduler logs should be stored
