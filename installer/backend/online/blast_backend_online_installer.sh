@@ -53,7 +53,7 @@ echo_step_phase () {
 
 install_blast_backend_user () {
   echo_step_phase "@blastServer +add user"
-  useradd -m -U -c "blast user" -s "/sbin/nologin" $BLAST_BACKEND_USER
+  useradd -m -U -c "blast user" -s `which nologin` $BLAST_BACKEND_USER
 }
 
 install_blast_backend_root_folder () {

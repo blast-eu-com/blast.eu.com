@@ -1,4 +1,5 @@
 ansible==2.10.4
+cryptography==3.4.7
 elasticsearch==7.10.0
 Flask==1.1.2
 Flask-Cors==3.0.8
