@@ -152,7 +152,14 @@ def aaa_account_activate_realm(realm):
 def aaa_account_list_by_realm(realm):
     """ this function return the account by given realm """
     account = Account(ES)
-    return Response(json.dumps(account.list_by_realm(realm)))
+    account_email = json.loads(request.cookies.get('account'))["email"]
+
+    # For security reasons
+    # Only a member of a given realm can view the list of the realm members
+    if account.is_active_realm_member(account_email, realm):
+        return Response(json.dumps(account.list_by_realm(realm)))
+    else:
+        return Response({"failure": "You are not member of this realm"})
 
 # * *********************************************************************************************************
 # *
