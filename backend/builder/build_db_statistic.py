@@ -26,7 +26,7 @@ from api import db
 __DATAMODEL_DIR = os.path.join(os.path.abspath('..'), 'datamodel')
 __DATAMODEL_REALM_FILE = os.path.join(__DATAMODEL_DIR, 'statistic.template.mapping')
 __ES_ADDR = db.ES_PROTOCOL + """://""" + str(db.ES_HOSTNAME) + """:""" + str(db.ES_PORT)
-__CREATE_INDEX_TEMPLATE = """curl -s -XPUT -H \"Content-Type: Application/Json\" """ + __ES_ADDR + """/_template/statistic -d@""" + __DATAMODEL_REALM_FILE
+__CREATE_INDEX_TEMPLATE = """curl -s -XPUT -H \"Content-Type: Application/Json\" """ + __ES_ADDR + """/_template/blast_statistic -d@""" + __DATAMODEL_REALM_FILE
 __CREATE_INDEX = """curl -s -XPUT """ + __ES_ADDR + """/statistic"""
 
 

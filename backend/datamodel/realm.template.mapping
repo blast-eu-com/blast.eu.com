@@ -1,5 +1,5 @@
 {
-  "index_patterns": "realm",
+  "index_patterns": "blast_realm",
   "order": 99,
   "mappings" : {
     "dynamic": false,

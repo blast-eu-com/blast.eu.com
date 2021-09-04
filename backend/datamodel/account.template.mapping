@@ -1,5 +1,5 @@
 {
-  "index_patterns": "account",
+  "index_patterns": "blast_account",
   "order": 99,
   "mappings" : {
     "dynamic": false,

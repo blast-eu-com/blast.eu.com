@@ -33,7 +33,7 @@ __DATAMODEL_REALM_FILE = os.path.join(__DATAMODEL_DIR, 'account.template.mapping
 __ES_ADDR = db.ES_PROTOCOL + """://""" + str(db.ES_HOSTNAME) + """:""" + str(db.ES_PORT)
 __SECRET = base64.urlsafe_b64encode(''.join([random.choice(string.ascii_letters + string.digits) for n in range(256)]).encode('utf-8')).decode("utf-8")
 
-__CREATE_INDEX_TEMPLATE = """curl -s -XPUT -H \"Content-Type: Application/Json\" """ + __ES_ADDR + """/_template/account -d@""" + __DATAMODEL_REALM_FILE
+__CREATE_INDEX_TEMPLATE = """curl -s -XPUT -H \"Content-Type: Application/Json\" """ + __ES_ADDR + """/_template/blast_account -d@""" + __DATAMODEL_REALM_FILE
 __ES_PROVISION_DEFAULT = """curl -s -XPOST -H \"Content-Type: Application/Json\" """ + __ES_ADDR + """/account/_doc -d '{
     "first_name": "admin",
     "family_name": "",

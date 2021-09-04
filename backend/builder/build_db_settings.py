@@ -42,7 +42,7 @@ if not os.path.isdir(__SESSION_LOCATION):
     os.chown(__SESSION_LOCATION, uid, gid)
 
 
-__CREATE_INDEX_TEMPLATE = """curl -s -XPUT -H \"Content-Type: Application/Json\" """ + __ES_ADDR + """/_template/setting -d@""" + __DATAMODEL_SETTING_FILE
+__CREATE_INDEX_TEMPLATE = """curl -s -XPUT -H \"Content-Type: Application/Json\" """ + __ES_ADDR + """/_template/blast_setting -d@""" + __DATAMODEL_SETTING_FILE
 __ES_PROVISION_DEFAULT = """curl -s -XPOST -H \"Content-Type: Application/Json\" """ + __ES_ADDR + """/setting/_doc -d '{
     "ansible": {
         "username" : "",

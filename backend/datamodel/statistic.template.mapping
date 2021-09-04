@@ -1,5 +1,5 @@
 {
-  "index_patterns": "statistic",
+  "index_patterns": "blast_statistic",
   "order": 99,
   "mappings" : {
     "dynamic": false,
