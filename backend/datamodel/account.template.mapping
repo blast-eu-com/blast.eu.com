@@ -1,30 +1,32 @@
 {
-  "index_patterns": "blast_account",
-  "order": 99,
-  "mappings" : {
-    "dynamic": false,
-    "properties" : {
-      "first_name": { "type": "text" },
-      "family_name": { "type": "text" },
-      "alias": { "type": "keyword" },
-      "picture": { "type": "keyword" },
-      "email" : { "type" : "keyword" },
-      "password": { "type" : "keyword" },
-      "secret": { "type": "keyword" },
-      "realm" : {
-        "type": "nested",
-        "properties": {
-            "name": { "type": "keyword" },
-            "favorite": { "type": "boolean" }
+    "index_patterns": "blast_account",
+    "priority": 99,
+    "template": {
+        "mappings" : {
+            "dynamic": false,
+            "properties" : {
+                "first_name": { "type": "text" },
+                "family_name": { "type": "text" },
+                "alias": { "type": "keyword" },
+                "picture": { "type": "keyword" },
+                "email" : { "type" : "keyword" },
+                "password": { "type" : "keyword" },
+                "secret": { "type": "keyword" },
+                "realm" : {
+                    "type": "nested",
+                    "properties": {
+                        "name": { "type": "keyword" },
+                        "active": { "type": "boolean" }
+                    }
+                }
+            }
+        },
+        "settings" : {
+            "index" : {
+                "number_of_shards" : "1",
+                "number_of_replicas" : "0",
+                "refresh_interval": "1s"
+            }
         }
-      }
     }
-  },
-  "settings" : {
-    "index" : {
-        "number_of_shards" : "1",
-        "number_of_replicas" : "0",
-        "refresh_interval": "1s"
-    }
-  }
 }

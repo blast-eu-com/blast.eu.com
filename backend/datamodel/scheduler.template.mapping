@@ -1,48 +1,50 @@
 {
-  "index_patterns": "blast_obj_scheduler",
-  "order": 99,
-  "mappings" : {
-    "dynamic": false,
-    "properties" : {
-      "name": { "type": "keyword" },
-      "description": { "type": "text" },
-      "realm": { "type": "keyword" },
-      "scenario_ids": { "type": "keyword" },
-      "status": { "type": "keyword" },
-      "flag_parallel_mode": { "type": "boolean" },
-      "frequency": {
-        "type": "nested",
-        "properties": {
-            "daily": {
-                "type": "nested",
-                "properties": {
-                    "monday": { "type": "boolean" },
-                    "tuesday": { "type": "boolean" },
-                    "wednesday": { "type": "boolean" },
-                    "thursday": { "type": "boolean" },
-                    "friday": { "type": "boolean" },
-                    "saturday": { "type": "boolean" },
-                    "sunday": { "type": "boolean" },
-                    "all": { "type": "boolean" }
+    "index_patterns": "blast_obj_scheduler",
+    "priority": 99,
+    "template": {
+        "mappings" : {
+            "dynamic": false,
+            "properties" : {
+                "name": { "type": "keyword" },
+                "description": { "type": "text" },
+                "realm": { "type": "keyword" },
+                "scenario_ids": { "type": "keyword" },
+                "status": { "type": "keyword" },
+                "flag_parallel_mode": { "type": "boolean" },
+                "frequency": {
+                    "type": "nested",
+                    "properties": {
+                        "daily": {
+                            "type": "nested",
+                            "properties": {
+                                "monday": { "type": "boolean" },
+                                "tuesday": { "type": "boolean" },
+                                "wednesday": { "type": "boolean" },
+                                "thursday": { "type": "boolean" },
+                                "friday": { "type": "boolean" },
+                                "saturday": { "type": "boolean" },
+                                "sunday": { "type": "boolean" },
+                                "all": { "type": "boolean" }
+                            }
+                        },
+                        "interval": {
+                            "type": "nested",
+                            "properties": {
+                                "min": { "type": "integer" },
+                                "sec": { "type": "integer" }
+                            }
+                        },
+                        "time": { "type": "date" }
+                    }
                 }
-            },
-            "interval": {
-                "type": "nested",
-                "properties": {
-                    "min": { "type": "integer" },
-                    "sec": { "type": "integer" }
-                }
-            },
-            "time": { "type": "date" }
+            }
+        },
+        "settings" : {
+            "index" : {
+                "number_of_shards" : "1",
+                "number_of_replicas" : "0",
+                "refresh_interval": "1s"
+            }
         }
-      }
     }
-  },
-  "settings" : {
-    "index" : {
-        "number_of_shards" : "1",
-        "number_of_replicas" : "0",
-        "refresh_interval": "1s"
-    }
-  }
 }

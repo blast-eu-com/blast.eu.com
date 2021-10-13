@@ -1,38 +1,40 @@
 {
-  "index_patterns": "blast_setting",
-  "order": 99,
-  "mappings" : {
-    "dynamic": false,
-    "properties" : {
-        "ansible":{
-            "properties": {
-                "username" : { "type": "keyword" },
-                "password" : { "type": "keyword" },
-                "certificate": { "type": "keyword" },
-                "inventory": {
+    "index_patterns": "blast_setting",
+    "priority": 99,
+    "template": {
+        "mappings" : {
+            "dynamic": false,
+            "properties" : {
+                "ansible":{
                     "properties": {
+                        "username" : { "type": "keyword" },
+                        "password" : { "type": "keyword" },
+                        "certificate": { "type": "keyword" },
+                        "inventory": {
+                            "properties": {
+                                "location": { "type": "keyword" }
+                            }
+                        }
+                    }
+                },
+                "ssh" : {
+                    "properties": {
+                        "username" : { "type" : "keyword" },
+                        "password" : { "type" : "keyword" },
+                        "certificate" : { "type" : "keyword" },
                         "location": { "type": "keyword" }
                     }
-                }
+                },
+                "crypto" : { "type" : "keyword" },
+                "realm": { "type" : "keyword" }
             }
         },
-        "ssh" : {
-            "properties": {
-                "username" : { "type" : "keyword" },
-                "password" : { "type" : "keyword" },
-                "certificate" : { "type" : "keyword" },
-                "location": { "type": "keyword" }
+        "settings" : {
+            "index" : {
+                "number_of_shards" : "1",
+                "number_of_replicas" : "0",
+                "refresh_interval": "1s"
             }
-        },
-        "crypto" : { "type" : "keyword" },
-        "realm": { "type" : "keyword" }
+        }
     }
-  },
-  "settings" : {
-    "index" : {
-        "number_of_shards" : "1",
-        "number_of_replicas" : "0",
-        "refresh_interval": "1s"
-    }
-  }
 }

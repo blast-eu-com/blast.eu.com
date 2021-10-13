@@ -1,27 +1,29 @@
 {
-  "index_patterns": "blast_obj_script",
-  "order": 99,
-  "mappings" : {
-    "dynamic": false,
-    "properties" : {
-      "name": { "type": "keyword" },
-      "description": { "type": "text" },
-      "location": { "type": "keyword" },
-      "filename": { "type": "keyword" },
-      "args": { "type": "keyword" },
-      "content": { "type": "text" },
-      "roles": { "type": "keyword" },
-      "realm" : { "type": "keyword" },
-      "shareable": { "type": "boolean" },
-      "shareable_realms": { "type": "keyword" },
-      "type": { "type": "keyword" }
+    "index_patterns": "blast_obj_script",
+    "priority": 99,
+    "template": {
+        "mappings" : {
+            "dynamic": false,
+            "properties" : {
+                "name": { "type": "keyword" },
+                "description": { "type": "text" },
+                "location": { "type": "keyword" },
+                "filename": { "type": "keyword" },
+                "args": { "type": "keyword" },
+                "content": { "type": "text" },
+                "roles": { "type": "keyword" },
+                "realm" : { "type": "keyword" },
+                "shareable": { "type": "boolean" },
+                "shareable_realms": { "type": "keyword" },
+                "type": { "type": "keyword" }
+            }
+        },
+        "settings" : {
+            "index" : {
+                "number_of_shards" : "1",
+                "number_of_replicas" : "0",
+                "refresh_interval": "1s"
+            }
+        }
     }
-  },
-  "settings" : {
-    "index" : {
-        "number_of_shards" : "1",
-        "number_of_replicas" : "0",
-        "refresh_interval": "1s"
-    }
-  }
 }
