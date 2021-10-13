@@ -1,0 +1,39 @@
+{
+    "index_patterns": "blast_request",
+    "priority": 99,
+    "template": {
+        "mappings" : {
+            "dynamic": false,
+            "properties" : {
+                "object": { "type": "keyword" },
+                "status": { "type": "keyword" },
+                "sender" : { "type" : "keyword" },
+                "receiver": { "type" : "keyword" },
+                "action": {
+                    "type": "nested",
+                    "properties": {
+                        "name": { "type": "keyword" },
+                        "status": { "type": "keyword" },
+                        "timestamp": { "type": "date" }
+                    }
+                },
+                "timestamp": { "type": "date" },
+                "message": { "type": "text" },
+                "data" : {
+                    "type": "nested",
+                    "properties": {
+                        "key": { "type": "keyword" },
+                        "value": { "type": "keyword" }
+                    }
+                }
+            }
+        },
+        "settings" : {
+            "index" : {
+                "number_of_shards" : "1",
+                "number_of_replicas" : "0",
+                "refresh_interval": "1s"
+            }
+        }
+    }
+}
