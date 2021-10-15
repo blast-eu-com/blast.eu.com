@@ -63,7 +63,7 @@ def portmap_provision(realm):
 class Realm:
     def __init__(self, ESConnector):
         self.ES = ESConnector
-        self.DB_INDEX = 'realm'
+        self.DB_INDEX = 'blast_realm'
         self.ACCOUNT = Account(self.ES)
         self.CLUSTER = cluster.Cluster(self.ES)
         self.INFRA = infra.Infra(self.ES)
@@ -71,62 +71,68 @@ class Realm:
         self.PORTMAP = Portmap(self.ES)
         self.SETTING = Setting(self.ES)
 
-    def __add__(self, account_email: str, realms: list):
+    def add(self, account_email: str, realm: dict):
         """ this function create a new realm """
         # adding a new realm into the database
         # the data must contain several information fields like :
         # name, description and settings
         # the realm settings will be impacting the user
-        print(" >>> Enter file:aaa:class:realm:function:__add__")
+        print(" >>> Enter file:aaa:class:realm:function:add")
         try:
-            resp_realm_add = []
-            for realm in realms:
-                print(realm)
-                if self.list_by_names(realm["name"].split(" "))["hits"]["total"]["value"] == 0:
-                    realm["account_email"] = account_email
-                    new_realm = self.ES.index(index=self.DB_INDEX, body=json.dumps(realm), refresh=True)
+            # as the realm name must be uniq
+            # create a new realm if the realm name is free.
+            if self.list_by_name(realm["name"])["hits"]["total"]["value"] == 0:
+                realm["account_email"] = account_email
+                new_realm = self.ES.index(index=self.DB_INDEX, body=json.dumps(realm), refresh=True)
 
-                    if new_realm["result"] == "created":
-                        if self.SETTING.__add__(realm["name"]):
-                            acc = self.ACCOUNT.list_by_email(account_email)
-                            print(acc)
+                # create the setting object if the realm is successfully created
+                # get the account details to add the new realm in it
+                if new_realm["result"] == "created":
+                    if self.SETTING.__add__(realm["name"]):
+                        acc = self.ACCOUNT.list_by_email(account_email)["hits"]["hits"][0]
+                        acc["_source"]["realm"].append({"name": realm["name"], "active": False})
+                        account_update = self.ACCOUNT.update(acc["_id"], acc["_source"])
 
-                            if acc["hits"]["total"]["value"] > 0:
-                                account_id = acc["hits"]["hits"][0]["_id"]
-                                account_core = acc["hits"]["hits"][0]["_source"]
-                                account_core["realm"].append({"name": realm["name"], "favorite": False})
-                                account_update = self.ACCOUNT.update(account_id, account_core)
+                        # create the portmap table for the new realm if the account is successfully updated
+                        # return the realm creation output
+                        if account_update["result"] == "updated":
+                            portmap_provision(realm["name"])
+                            return new_realm
 
-                                if account_update["result"] == "updated":
-                                    portmap_provision(realm["name"])
-                                    resp_realm_add.append(new_realm)
-            return resp_realm_add
+                        else:
+                            raise Exception("Portmap creation issue")
+                    else:
+                        raise Exception("Setting creation issue")
+                else:
+                    raise Exception("Realm creation issue")
+            else:
+                raise Exception("Realm name is already used")
 
         except Exception as e:
-            print("backend Exception, file:aaa:class:realm:func:__add__")
+            print("backend Exception, file:aaa:class:realm:func:add")
             print(str(e))
             return {"failure": str(e)}
 
-    def __delete__(self, account_email: str, realm_ids: list):
+    def delete(self, account_email: str, realm_name: str):
         """ this function delete an existing account object from the database """
-        print(" >>> Enter file:aaa:class:realm:function:__delete__")
+        print(" >>> Enter file:aaa:class:realm:function:delete")
         try:
-            resp_realm_del = []
-            for realm_id in realm_ids:
-                realm_name = self.list_by_ids(realm_id.split(" "))["_source"]["name"]
-                links = self.ACCOUNT.list_by_active_realm(realm_name)
-                if not links["hits"]["total"]["value"] > 0:
-                    self.NODE.delete_by_realm({"realm": realm_name, "account_email": account_email})
-                    self.CLUSTER.delete_by_realm({"realm": realm_name, "account_email": account_email})
-                    self.INFRA.delete_by_realm({"realm": realm_name, "account_email": account_email})
-                    self.SETTING.delete_by_realm(realm_name)
-                    self.PORTMAP.delete_by_realm(realm_name)
-                    self.ACCOUNT.delete_by_realm(realm_name)
-                    resp_realm_del.append(self.ES.delete(index=self.DB_INDEX, id=realm_id, refresh=True))
-            return resp_realm_del
+            realm_id = self.list_by_name(realm_name)["hits"]["hits"][0]["_id"]
+            link_account_realm = self.ACCOUNT.list_by_active_realm(realm_name)
+            if not link_account_realm["hits"]["total"]["value"] > 0:
+                self.NODE.delete_by_realm({"realm": realm_name, "account_email": account_email})
+                self.CLUSTER.delete_by_realm({"realm": realm_name, "account_email": account_email})
+                self.INFRA.delete_by_realm({"realm": realm_name, "account_email": account_email})
+                self.SETTING.delete_by_realm(realm_name)
+                self.PORTMAP.delete_by_realm(realm_name)
+                self.ACCOUNT.delete_by_realm(realm_name)
+                return self.ES.delete(index=self.DB_INDEX, id=realm_id, refresh=True)
+
+            else:
+                raise Exception("Realm cannot be deleted because some accounts use this realm as active realm")
 
         except Exception as e:
-            print("backend Exception, file:aaa:class:realm:func:__delete__")
+            print("backend Exception, file:aaa:class:realm:func:delete")
             print(str(e))
             return {"failure": str(e)}
 
@@ -142,9 +148,24 @@ class Realm:
             print(str(e))
             return {"failure": str(e)}
 
-    def __list__(self):
+    def is_realm_owner(self, account_email: str, realm: str):
+        """
+            This function checks if the given account_email is the owner of the given realm.
+            If the account_email is defined as the owner then True is returned else False.
+        """
+        print(" >>> Enter file:aaa:class:Account:function:is_realm_owner")
+        try:
+            realm = self.list_by_name(realm)
+            return True if realm["hits"]["hits"][0]["_source"]["account_email"] == account_email else False
+
+        except Exception as e:
+            print("backend Exception, file:aaa:class:account:func:is_realm_owner")
+            print(str(e))
+            return {"failure": str(e)}
+
+    def list(self):
         """ this function returns all the realm object present in the database """
-        print(" >>> Enter file:aaa:class:realm:function:__list__")
+        print(" >>> Enter file:aaa:class:realm:function:list")
         try:
             req = json.dumps(
                 {
@@ -161,22 +182,22 @@ class Realm:
                     ]
                 }
             )
-            return self.ES.search(index=self.DB_INDEX, body=req)
+            return self.ES.search(index=self.DB_INDEX, body=req, _source_excludes="account_email")
 
         except Exception as e:
-            print("backend Exception, file:aaa:class:realm:func:__list__")
+            print("backend Exception, file:aaa:class:realm:func:list")
             print(e)
             return {"failure": e}
 
-    def list_by_ids(self, ids: list):
+    def list_by_id(self, id: str):
         """ this function returns the realm by realm id as passed via function param """
-        print(" >>> Enter file:aaa:class:realm:function:list_by_ids")
+        print(" >>> Enter file:aaa:class:realm:function:list_by_id")
         try:
             req = json.dumps(
                 {
                     "query": {
-                        "terms": {
-                            "_id": ids
+                        "term": {
+                            "_id": id
                         }
                     },
                     "sort": [
@@ -191,20 +212,20 @@ class Realm:
             return self.ES.search(index=self.DB_INDEX, body=req)
 
         except Exception as e:
-            print("backend Exception, file:aaa:class:realm:func:list_by_ids")
+            print("backend Exception, file:aaa:class:realm:func:list_by_id")
             print(str(e))
             return {"failure": str(e)}
 
-    def list_by_names(self, names: list):
+    def list_by_name(self, name: str):
         """ this function returns the realm object with the given name """
-        print(" >>> Enter file:aaa:class:realm:function:list_by_names")
+        print(" >>> Enter file:aaa:class:realm:function:list_by_name")
         try:
             req = json.dumps(
                 {
                     "size": 10000,
                     "query": {
-                        "terms": {
-                            "name": names
+                        "term": {
+                            "name": name
                         }
                     },
                     "sort": [
@@ -216,20 +237,46 @@ class Realm:
                     ]
                 }
             )
-            print(req)
-            return self.ES.search(index=self.DB_INDEX, body=req)
+            return self.ES.search(index=self.DB_INDEX, body=req, _source_excludes="account_email")
 
         except Exception as e:
-            print("backend Exception, file:aaa:class:realm:func:list_by_names")
+            print("backend Exception, file:aaa:class:realm:func:list_by_name")
             print(str(e))
             return {"failure": str(e)}
 
+    def list_by_name_full(self, name: str):
+        """ this function returns the realm object with the given name """
+        print(" >>> Enter file:aaa:class:realm:function:list_all_by_name")
+        try:
+            req = json.dumps(
+                {
+                    "size": 10000,
+                    "query": {
+                        "term": {
+                            "name": name
+                        }
+                    },
+                    "sort": [
+                        {
+                            "name": {
+                                "order": "asc"
+                            }
+                        }
+                    ]
+                }
+            )
+            return self.ES.search(index=self.DB_INDEX, body=req)
+
+        except Exception as e:
+            print("backend Exception, file:aaa:class:realm:func:list_all_by_name")
+            print(str(e))
+            return {"failure": str(e)}
 
 class Account:
 
     def __init__(self, ESConnector):
         self.ES = ESConnector
-        self.DB_INDEX = 'account'
+        self.DB_INDEX = 'blast_account'
         self.SETTING = Setting(self.ES)
 
     def activate_realm(self, account_email: str, new_realm: str):
@@ -240,9 +287,9 @@ class Account:
         """
         print(" >>> Enter file:aaa:class:Account:function:activate_realm")
         try:
-            acc = self.__list_to_login(account_email)["hits"]["hits"][0]
+            acc = self.list_to_login(account_email)["hits"]["hits"][0]
             for realm in acc["_source"]["realm"]:
-                realm["favorite"] = True if realm["name"] == new_realm else False
+                realm["active"] = True if realm["name"] == new_realm else False
             return self.update(acc["_id"], acc["_source"])
 
         except Exception as e:
@@ -251,7 +298,14 @@ class Account:
             return {"failure": str(e)}
 
     def add_account(self, data: dict):
+        """ Add a new account from given data, email, password and realm """
         print(" >>> Enter file:aaa:class:Account:function:add_account")
+
+        if data["realm"] != "default":
+            rlm = Realm(self.ES)
+            rlm_desc = str("The realm " + data["realm"])
+            rlm.add(data["email"], {"name": data["realm"], "description": rlm_desc})
+
         try:
             req = json.dumps(
                 {
@@ -261,8 +315,8 @@ class Account:
                     "secret": SECRET,
                     "realm": [
                         {
-                            "name": "default",
-                            "favorite": True
+                            "name": data["realm"],
+                            "active": True
                         }
                     ]
                 }
@@ -274,8 +328,8 @@ class Account:
             print(str(e))
             return {"failure": str(e)}
 
-    def __add__(self, data: dict):
-        print(" >>> Enter file:aaa:class:Account:function:__add__")
+    def add(self, data: dict):
+        print(" >>> Enter file:aaa:class:Account:function:add")
         try:
             res_search_account = self.list_by_email(data["email"])
             if "hits" in res_search_account.keys():
@@ -284,35 +338,61 @@ class Account:
             self.add_account(data)
 
         except Exception as e:
-            print("backend Exception, file:aaa:class:account:func:__add__")
+            print("backend Exception, file:aaa:class:account:func:add")
             print(str(e))
             return {"failure": str(e)}
 
-    def __delete__(self, account_email: str, account_ids: list):
+    def delete(self, account_email: str, account_id: str):
         """
         This function delete one or more existing account
         param: account_email: the account_email of the account requesting the deletion
         param: account_ids: the list of account id to be deleted
         """
-        print(" >>> Enter file:aaa:class:Account:function:__delete__")
+        print(" >>> Enter file:aaa:class:Account:function:delete")
         try:
-            resp_accounts_del = []
-            for account_id in account_ids:
-                resp_accounts_del.append(self.ES.delete(index=self.DB_INDEX, id=account_id, refresh=True))
-            return resp_accounts_del
+            return self.ES.delete(index=self.DB_INDEX, id=account_id, refresh=True)
 
         except Exception as e:
-            print("backend Exception, file:aaa:class:account:func:__delete__")
+            print("backend Exception, file:aaa:class:account:func:delete")
+            print(str(e))
+            return {"failure": str(e)}
+
+    def grant_account_to_realm(self, account_email: str, realm_name: str):
+        """ This function grant account into a realm """
+        print(" >>> Enter file:aaa:class:realm:function:grant_account_to_realm")
+        try:
+            account = self.list_by_email(account_email)["hits"]["hits"][0]
+            account["_source"]["realm"].append({"name": realm_name, "active": False})
+            return self.update(account["_id"], account["_source"])
+
+        except Exception as e:
+            print("backend Exception, file:aaa:class:realm:func:grant_account_to_realm")
+            print(str(e))
+            return {"failure": str(e)}
+
+    def revoke_account_from_realm(self, account_email: str, realm_name: str):
+        """ This function revoke account from a realm. The realm must not be the account active realm """
+        print(" >>> Enter file:aaa:class:realm:function:revoke_account_from_realm")
+        try:
+            account = self.list_by_email(account_email)["hits"]["hits"][0]
+            for idx in range(account["_source"]["realm"]):
+                if account["_source"]["realm"][idx]["name"] == realm_name:
+                    if not account["_source"]["realm"][idx]["active"]:
+                        del account["_source"]["realm"][idx]
+                        return self.update(account["_id"], account["_source"])
+                    else:
+                        return {"failure": str("You cannot be revoked from active realm.")}
+
+        except Exception as e:
+            print("backend Exception, file:aaa:class:realm:func:revoke_account_from_realm")
             print(str(e))
             return {"failure": str(e)}
 
     def delete_by_realm(self, realm: str):
-        """
-        This function delete realm from all users
-        """
+        """ This function delete realm from all users """
         print(" >>> Enter file:aaa:class:Account:function:delete_by_realm")
         try:
-            accounts = self.__list_by_realm_full(realm)
+            accounts = self.list_by_realm_full(realm)
             for account in accounts["hits"]["hits"]:
                 for idx in range(0, len(account["_source"]["realm"])-1):
                     if account["_source"]["realm"][idx]["name"] == realm:
@@ -344,10 +424,25 @@ class Account:
             print(str(e))
             return {"failure": str(e)}
 
+    def is_realm_member(self, account_email: str, realm: str):
+        """ This function check if the account_email passed is member of the realm passed """
+        print(" >>> Enter file:aaa:class:Account:function:is_realm_member")
+        try:
+            accounts = self.list_by_realm(realm)
+            for account in accounts["hits"]["hits"]:
+                if account["_source"]["email"] == account_email:
+                    return True
+            return False
+
+        except Exception as e:
+            print("backend Exception, file:aaa:class:account:func:is_realm_member")
+            print(str(e))
+            return {"failure": str(e)}
+
     def is_valid_token(self, email: str, token: str):
         print(" >>> Enter file:aaa:class:Account:function:is_valid_token")
         try:
-            secret = self.__list_to_login(email)["hits"]["hits"][0]["_source"]["secret"]
+            secret = self.list_to_login(email)["hits"]["hits"][0]["_source"]["secret"]
             jwt.decode(token, secret, verify=True)
             return True
 
@@ -356,9 +451,9 @@ class Account:
             print(str(e))
             return False
 
-    def __list__(self):
+    def list(self):
         """ this function list and account by id """
-        print(" >>> Enter file:aaa:class:Account:function:__list__")
+        print(" >>> Enter file:aaa:class:Account:function:list")
         try:
             req = json.dumps(
                 {
@@ -378,19 +473,19 @@ class Account:
             return self.ES.search(index=self.DB_INDEX, body=req, _source_excludes="password,secret")
 
         except Exception as e:
-            print("backend Exception, file:aaa:class:account:func: __list__")
+            print("backend Exception, file:aaa:class:account:func: list")
             print(str(e))
             return {"failure": str(e)}
 
-    def list_by_ids(self, account_ids: list):
+    def list_by_id(self, account_id: str):
         """ this function list the record matching the account id passed as param """
-        print(" >>> Enter file:aaa:class:Account:function:list_by_ids")
+        print(" >>> Enter file:aaa:class:Account:function:list_by_id")
         try:
             req = json.dumps(
                 {
                     "query": {
-                        "terms": {
-                            "_id": account_ids
+                        "term": {
+                            "_id": account_id
                         }
                     },
                     "sort": [
@@ -406,7 +501,7 @@ class Account:
             return self.ES.search(index=self.DB_INDEX, body=req, _source_excludes="password,secret")
 
         except Exception as e:
-            print("backend Exception, file:aaa:class:account:func: list_by_ids")
+            print("backend Exception, file:aaa:class:account:func:list_by_id")
             print(str(e))
             return {"failure": str(e)}
 
@@ -470,11 +565,9 @@ class Account:
             print(str(e))
             return {"failure": str(e)}
 
-    def __list_by_realm_full(self, realm: str):
-        """
-        This function returns a list of full account records
-        """
-        print(" >>> Enter file:aaa:class:Account:function:__list_by_realm_full")
+    def list_by_realm_full(self, realm: str):
+        """ This function returns a list of full account records """
+        print(" >>> Enter file:aaa:class:Account:function:list_by_realm_full")
         try:
             req = json.dumps(
                 {
@@ -501,7 +594,7 @@ class Account:
             return self.ES.search(index=self.DB_INDEX, body=req)
 
         except Exception as e:
-            print("backend Exception, file:aaa:class:account:func:__list_by_realm_full")
+            print("backend Exception, file:aaa:class:account:func:list_by_realm_full")
             print(str(e))
             return {"failure": str(e)}
 
@@ -524,7 +617,7 @@ class Account:
                                         },
                                         {
                                             "term": {
-                                                "realm.favorite": True
+                                                "realm.active": True
                                             }
                                         }
                                     ]
@@ -545,27 +638,27 @@ class Account:
             return self.ES.search(index=self.DB_INDEX, body=req)
 
         except Exception as e:
-            print("backend Exception, file:aaa:class:account:func: list_by_active_realm")
+            print("backend Exception, file:aaa:class:account:func:list_by_active_realm")
             print(str(e))
             return {"failure": str(e)}
 
     def list_active_realm(self, account_id: str):
         print(" >>> Enter file:aaa:class:Account:function:list_active_realm")
         try:
-            accounts = self.list_by_ids(account_id.split(" "))
+            accounts = self.list_by_id(account_id)
             print(accounts)
             for realm in accounts["hits"]["hits"][0]["_source"]["realm"]:
-                if realm["favorite"]:
+                if realm["active"]:
                     return realm
 
         except Exception as e:
-            print("backend Exception, file:aaa:class:account:func: list_active_realm")
+            print("backend Exception, file:aaa:class:account:func:list_active_realm")
             print(str(e))
             return {"failure": str(e)}
 
-    def __list_to_login(self, email: str):
+    def list_to_login(self, email: str):
         """ this function returns the record matching the email passed as param """
-        print(" >>> Enter file:aaa:class:Account:function:__list_to_login")
+        print(" >>> Enter file:aaa:class:Account:function:list_to_login")
         try:
             req = json.dumps(
                 {
@@ -579,14 +672,14 @@ class Account:
             return self.ES.search(index=self.DB_INDEX, body=req)
 
         except Exception as e:
-            print("backend Exception, file:aaa:class:account:func:__list_to_login")
+            print("backend Exception, file:aaa:class:account:func:list_to_login")
             print(str(e))
             return {"failure": str(e)}
 
     @staticmethod
-    def __load_account_jwt(account):
+    def load_account_jwt(account):
         """ this function returns a jwt for the account passed as argument """
-        print(" >>> Enter file:aaa:class:Account:function:__load_account_jwt")
+        print(" >>> Enter file:aaa:class:Account:function:load_account_jwt")
         account_secret = account["_source"]["secret"]
         account_email = account["_source"]["email"]
         jwt_payload = {"email": account_email, "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=480)}
@@ -604,7 +697,7 @@ class Account:
 
             account = self.list_by_email(account_email)
             realm_name = self.list_active_realm(account["hits"]["hits"][0]["_id"])["name"]
-            realm_details = realm.list_by_names(realm_name.split(" "))
+            realm_details = realm.list_by_name(realm_name)
 
             for sclang in scriptlang.__list__()["hits"]["hits"]:
                 scriptlangs[sclang["_source"]["name"]] = sclang["_source"]["picture"]
@@ -634,11 +727,11 @@ class Account:
         print(" >>> Enter file:aaa:class:Account:function:Authenticate")
         try:
             http_response = {}
-            account = self.__list_to_login(email)["hits"]["hits"][0]
+            account = self.list_to_login(email)["hits"]["hits"][0]
             print(password, account["_source"]["password"])
             print(pbkdf2_sha512.verify(password, account["_source"]["password"]))
             if pbkdf2_sha512.verify(password, account["_source"]["password"]):
-                http_response["jwt"] = self.__load_account_jwt(account)
+                http_response["jwt"] = self.load_account_jwt(account)
                 return http_response
             else:
                 raise Exception("Authentication failure: User or Password is not correct")
@@ -670,7 +763,7 @@ class Account:
         """
         print(" >>> Enter file:aaa:class:Account:function:update_password")
         try:
-            account = self.__list_to_login(self.list_by_ids(account_id.split())["hits"]["hits"][0]["_source"]["email"])["hits"]["hits"][0]
+            account = self.list_to_login(self.list_by_id(account_id)["hits"]["hits"][0]["_source"]["email"])["hits"]["hits"][0]
             if pbkdf2_sha512.verify(password_data["old"], account["_source"]["password"]):
                 account["_source"]["password"] = encrypt_password(password_data["new"])
                 return self.update(account_id, account["_source"])
@@ -685,7 +778,7 @@ class Account:
     def update_profile(self, account_id: str, data: dict):
         print(" >>> Enter file:aaa:class:Account:function:update_profile")
         try:
-            current_account = self.list_by_ids(account_id.split(" "))["hits"]["hits"][0]["_source"]
+            current_account = self.list_by_id(account_id)["hits"]["hits"][0]["_source"]
 
             if data["account_picture"] != "undefined":
                 current_account["picture"] = account_id

@@ -19,15 +19,24 @@ let config = new FrontendConfig()
 const Account = class {
 
     constructor() {
-        this._email = undefined
-        this._password = undefined
+        this._loginEmail
+        this._loginPassword
+        this._registerEmail
+        this._registerPassword
+        this._realm
     }
 
-    set email(email) { this._email = email }
-    set password(password) { this._password = password }
+    set loginEmail(email) { this._loginEmail = email }
+    set loginPassword(password) { this._loginPassword = password }
+    set registerEmail(email) { this._registerEmail = email }
+    set registerPassword(password) { this._registerPassword = password }
+    set realm(realm) { this._realm = realm }
 
-    get email() { return this._email }
-    get password() { return this._password }
+    get loginEmail() { return this._loginEmail }
+    get loginPassword() { return this._loginPassword }
+    get registerEmail() { return this._registerEmail }
+    get registerPassword() { return this._registerPassword }
+    get realm() { return this._realm }
 
     add = (formData) => {
         return new Promise((resolve, reject) => {
@@ -38,10 +47,12 @@ const Account = class {
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: (Resp) => {
-                    if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) {
-                        this.logout()
-                    } else { resolve(Resp)}
+                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
+                    if (Object.keys(Resp).includes("failure")) {
+                        console.log("failure")
+                    } else {
+                        resolve(Resp)
+                    }
                 }
             })
         })
@@ -64,10 +75,14 @@ const Account = class {
                 contentType: false,
                 processData: false,
                 success: (Resp) => {
-                    if (typeof Resp === 'string') { Resp = JSON.parse(Resp)}
+                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
                     if (Object.keys(Resp).includes("tokenExpired")) {
-                        this.logout()
-                    } else { resolve(Resp) }
+                        account.logout()
+                    } else if (Object.keys(Resp).includes("failure")) {
+                        console.log("failure")
+                    } else {
+                        resolve(Resp)
+                    }
                 }
             })
         })
@@ -88,10 +103,14 @@ const Account = class {
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: (Resp) => {
-                    if (typeof Resp === 'string') { Resp = JSON.parse(Resp)}
+                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
                     if (Object.keys(Resp).includes("tokenExpired")) {
-                        this.logout()
-                    } else { resolve(Resp) }
+                        account.logout()
+                    } else if (Object.keys(Resp).includes("failure")) {
+                        console.log("failure")
+                    } else {
+                        resolve(Resp)
+                    }
                 }
             })
         })
@@ -106,10 +125,14 @@ const Account = class {
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: (Resp) => {
-                    if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
-                    if (Objects.keys(Resp).includes("tokenExpired")) {
-                        this.logout()
-                    } else { resolve(Resp)}
+                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) {
+                        account.logout()
+                    } else if (Object.keys(Resp).includes("failure")) {
+                        console.log("failure")
+                    } else {
+                        resolve(Resp)
+                    }
                 }
             })
         })
@@ -122,10 +145,14 @@ const Account = class {
                 type: "GET",
                 headers: {"Authorization": config.session.httpToken},
                 success: (Resp) => {
-                    if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
+                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
                     if (Object.keys(Resp).includes("tokenExpired")) {
-                        this.logout()
-                    } else { resolve(Resp) }
+                        account.logout()
+                    } else if (Object.keys(Resp).includes("failure")) {
+                        console.log("failure")
+                    } else {
+                        resolve(Resp)
+                    }
                 }
             })
         })
@@ -138,10 +165,14 @@ const Account = class {
                 type: "GET",
                 headers: {"Authorization": config.session.httpToken},
                 success: (Resp) => {
-                    if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
+                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
                     if (Object.keys(Resp).includes("tokenExpired")) {
-                        this.logout()
-                    } else { resolve(Resp) }
+                        account.logout()
+                    } else if (Object.keys(Resp).includes("failure")) {
+                        console.log("failure")
+                    } else {
+                        resolve(Resp)
+                    }
                 }
             })
         })
@@ -154,10 +185,14 @@ const Account = class {
                 type: "GET",
                 headers: {"Authorization": config.session.httpToken},
                 success: (Resp) => {
-                    if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
+                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
                     if (Object.keys(Resp).includes("tokenExpired")) {
-                        this.logout()
-                    } else { resolve(Resp) }
+                        account.logout()
+                    } else if (Object.keys(Resp).includes("failure")) {
+                        console.log("failure")
+                    } else {
+                        resolve(Resp)
+                    }
                 }
             })
         })
@@ -173,25 +208,36 @@ const Account = class {
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: (Resp) => {
-                    if (typeof Resp === 'string') { Resp = JSON.parse(Resp)}
+                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
                     if (Object.keys(Resp).includes("tokenExpired")) {
-                        this.logout()
-                    } else { resolve(Resp) }
+                        account.logout()
+                    } else if (Object.keys(Resp).includes("failure")) {
+                        console.log("failure")
+                    } else {
+                        resolve(Resp)
+                    }
                 }
             })
         })
     }
 
-    getFormData = () => {
-        return {
-            "email": this.email,
-            "password": this.password
-        }
+    getFormRegisterData = () => {
+        return { "email": this.registerEmail, "password": this.registerPassword, "realm": this.realm }
     }
 
-    setFormData = () => {
-        this.email = $("input[name=accountEmail]").val()
-        this.password = $("input[name=accountPassword]").val()
+    getFormLoginData = () => {
+        return { "email": this.loginEmail, "password": this.loginPassword }
+    }
+
+    setFormRegisterData = () => {
+        this.registerEmail = $("input[name=registerAccountEmail]").val()
+        this.registerPassword = $("input[name=registerAccountPassword]").val()
+        this.realm = $("#checkboxDefaultRealm").is(':checked') ? "default" : $("#registerAccountRealm").val()
+    }
+
+    setFormLoginData = () => {
+        this.loginEmail = $("input[name=loginAccountEmail]").val()
+        this.loginPassword = $("input[name=loginAccountPassword]").val()
     }
 
     authenticate = (formData) => {
@@ -203,9 +249,9 @@ const Account = class {
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: (Resp) => {
-                    if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) {
-                        this.logout()
+                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
+                    if (Object.keys(Resp).includes("failure")) {
+                        console.log("failure")
                     } else {
                         resolve(Resp)
                     }
@@ -241,18 +287,22 @@ const Account = class {
                 headers: {"Authorization": 'Bearer ' + $.cookie('jwt')},
                 data: "email=" + email,
                 success: (Resp) => {
-                    if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
-                    if ( Object.keys(Resp).includes("tokenExpired")) {
-                        this.logout()
-                    } else { resolve(Resp) }
+                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) {
+                        account.logout()
+                    } else if (Object.keys(Resp).includes("failure")) {
+                        console.log("failure")
+                    } else {
+                        resolve(Resp)
+                    }
                 }
             })
         })
     }
 
     login = () => {
-        this.setFormData()
-        let loginData = this.getFormData()
+        this.setFormLoginData()
+        let loginData = this.getFormLoginData()
         this.authenticate(loginData).then((accountLoginResult) => {
             if ( Object.keys(accountLoginResult).includes("jwt") ) {
                 $.cookie('jwt', accountLoginResult["jwt"], {path: "/"})
@@ -268,9 +318,9 @@ const Account = class {
     }
 
     register = async () => {
-        this.setFormData()
-        let loginData = this.getFormData()
-        let R = await this.add(loginData)
+        this.setFormRegisterData()
+        let registerData = this.getFormRegisterData()
+        let R = await this.add(registerData)
     }
 }
 
