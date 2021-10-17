@@ -35,6 +35,7 @@
         <script src="/js/fancytree-2.38.0/jquery.fancytree-all-deps.min.js"></script>
         <script src="/js/jquery-cookie-1.4.1/jquery.cookie.js"></script>
         <script src="/js/blast-ui/scheduler/ui.js" type="module"></script>
+        <script src="/js/blast-ui/main/navBars/ui.js" type="module"></script>
     </head>
 
 
@@ -61,11 +62,7 @@
             <div id="nav_container" class="min-vw-100 bg-dark blast-nav"></div>
 
             <div id="side_nav_container" class="d-inline-block min-vh-100 blast-sidenav">
-                <script type="module">
-                    import Nav from "/js/nav.js"
-                    let nav = new Nav()
-                    nav.loadNavBars("scheduler");
-                </script>
+                <script type="module">mainUI("scheduler");</script>
             </div>
 
             <div id="blast-disp" class="min-vh-100 blast-disp">

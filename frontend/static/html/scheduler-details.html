@@ -32,6 +32,7 @@
         <script src="/js/bootstrap-5.0.0-beta2-dist/js/bootstrap.min.js"></script>
         <script src="/js/jquery-cookie-1.4.1/jquery.cookie.js"></script>
         <script src="/js/blast-ui/scheduler/details/ui.js" type="module"></script>
+        <script src="/js/blast-ui/main/navBars/details/ui.js" type="module"></script>
     </head>
 
 
@@ -59,11 +60,7 @@
                  style="position: fixed; top: 0; z-index: 1000"></div>
 
             <div id="side_nav_container" class="d-inline-block min-vh-100 blast-sidenav">
-                <script type="module">
-                    import Nav from "/js/nav.js"
-                    let nav = new Nav()
-                    nav.loadNavBars("scheduler");
-                </script>
+                <script type="module">mainUI("scheduler");</script>
             </div>
 
             <div class="min-vh-100 blast-disp">

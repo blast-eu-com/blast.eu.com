@@ -27,6 +27,7 @@
         <script src="/js/jquery-1.12.4/jquery-1.12.4.min.js"></script>
         <script src="/js/jquery-cookie-1.4.1/jquery.cookie.js"></script>
         <script src="/js/bootstrap-4.5.2-dist/js/bootstrap.min.js"></script>
+        <script src="/js/blast-ui/main/navBars/ui.js" type="module"></script>
 
     </head>
     <body class="d-flex flex-column min-vh-100 bg-light" margin="0" style="overflow: hidden">
@@ -55,11 +56,7 @@
 
             <div id="side_nav_container" class="d-inline-block min-vh-100"
                 style="position: fixed; top: 0; width: 250px; float: left; background-color: #f2f2f2; border-right: 1px solid #e9ecef">
-                <script type="module">
-                    import Nav from "/js/nav.js"
-                    let nav = new Nav()
-                    nav.loadNavBars("dashboard");
-                </script>
+                <script type="module">mainUI("dashboard");</script>
             </div>
 
             <div class="min-vh-100" style="margin-left: 250px; margin-top: -100px; background-color: #ffffff;"></div>

@@ -33,6 +33,7 @@
         <script src="/js/settings.js" type="module"></script>
         <script src="/js/profile.js" type="module"></script>
         <script src="/js/blast-ui/settings/ui.js" type="module"></script>
+        <script src="/js/blast-ui/main/navBars/ui.js" type="module"></script>
     </head>
 
     <body class="d-flex flex-column min-vh-100 bg-light" margin="0" onload="main();">
@@ -58,11 +59,7 @@
             <div id="nav_container" class="min-vw-100 bg-dark blast-nav"></div>
 
             <div id="side_nav_container" class="d-inline-block min-vh-100 blast-sidenav">
-                <script type="module">
-                    import Nav from "/js/nav.js"
-                    let nav = new Nav()
-                    nav.loadNavBars("settings");
-                </script>
+                <script type="module">mainUI("settings");</script>
             </div>
 
             <div id="blast-disp" class="min-vh-100 blast-disp">

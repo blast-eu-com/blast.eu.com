@@ -38,6 +38,7 @@
         <!-- Load Blast -->
         <link rel="stylesheet" type="text/css" href="/css/blast.eu.com.css" />
         <script src="/js/blast-ui/report/ui.js" type="module"></script>
+        <script src="/js/blast-ui/main/navBars/ui.js" type="module"></script>
     </head>
 
 
@@ -64,11 +65,7 @@
             <div id="nav_container" class="min-vw-100 bg-dark blast-nav"></div>
 
             <div id="side_nav_container" class="d-inline-block min-vh-100 blast-nav-background blast-sidenav">
-                <script type="module">
-                    import Nav from "/js/nav.js"
-                    let nav = new Nav()
-                    nav.loadNavBars("report");
-                </script>
+                <script type="module">mainUI("report");</script>
             </div>
 
             <div id="blast-disp" class="min-vh-100 blast-disp">
