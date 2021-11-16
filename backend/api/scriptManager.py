@@ -289,11 +289,11 @@ class ScriptManager:
             print(e)
             return {"failure": str(e)}
 
-    def node_details(self, realm: str, node_id: list):
+    def node_details(self, realm: str, node_id: str):
 
         try:
             nod = node.Node(self.ES)
-            return nod.list_by_ids(realm, node_id)
+            return nod.list_by_id(realm, node_id)
 
         except Exception as e:
             print("backend Exception, file:scriptManager:class:scriptManager:func:node_details")
@@ -304,7 +304,7 @@ class ScriptManager:
 
         try:
             scr = script.Script(self.ES)
-            return scr.list_by_ids(realm, script_id.split(" "))["hits"]["hits"][0]
+            return scr.list_by_id(realm, script_id)["hits"]["hits"][0]
 
         except Exception as e:
             print("backend Exception, file:scriptManager:class:scriptManager:func:script_details")
@@ -518,7 +518,8 @@ class ScriptManager:
         try:
             print(" >>> Enter file:scriptManager:class:scriptManager:function:run_ansible_script")
             node_name = []
-            for node_data in self.node_details(self.script_realm, self.node_id)["hits"]["hits"]:
+            for ansible_node_id in self.node_id:
+                node_data = self.node_details(self.script_realm, ansible_node_id)["hits"]["hits"][0]
                 if node_data["_source"]["scan_by_ip"]:
                     node_name.append(node_data["_source"]["ip_reference"])
                 else:
