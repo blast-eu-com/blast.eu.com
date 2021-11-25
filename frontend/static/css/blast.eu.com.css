@@ -88,6 +88,18 @@ pre {
     transform: scale(1.02)
 }
 
+.blast-login-btn {
+    font-weight: bold;
+    background-color: #00BB4F;
+    color: white;
+}
+
+.blast-login-btn:hover {
+    color: white;
+    background-color: #00BB4F;
+    transform: scale(1.02)
+}
+
 .blast-btn-no-shadow {
     color: #212529;
     padding: 0;
@@ -140,12 +152,19 @@ pre {
     background-color: #0995D3;
 }
 
+.blast-obj-title {
+    position: fixed;
+    z-index: 1000;
+    top: 65px;
+    width: 88%;
+}
+
 .blast-sidenav {
     position: fixed;
     left: 0;
     width: 12%;
     float: left;
-    margin-top: -33px;
+    margin-top: 66px;
     border-right: 1px solid #e9ecef;
     z-index: 1;
     background-color: #FFF;
@@ -155,7 +174,7 @@ pre {
     position: absolute;
     left: 12%;
     width: 88%;
-    margin-top: -33px;
+    margin-top: 120px;
     background-color: #FAFAFA;
     float: left;
     z-index: 0;
