@@ -17,43 +17,37 @@
 """
 
 import os
-import sys
 import json
-from env import _SERVER_DIR
-sys.path.insert(0, _SERVER_DIR)
-from api import db
+from env import _DATAMODEL_DIR, _ESC
 
-__DATAMODEL_DIR = os.path.join(os.path.abspath('..'), 'datamodel')
-__DATAMODEL_REPORT_FILE = os.path.join(__DATAMODEL_DIR, 'report.template.mapping')
-__ES_ADDR = db.ES_PROTOCOL + """://""" + str(db.ES_HOSTNAME) + """:""" + str(db.ES_PORT)
-
-__CREATE_INDEX_TEMPLATE = """curl -s -XPUT -H \"Content-Type: Application/Json\" """ + __ES_ADDR + """/_template/blast_obj_report -d@""" + __DATAMODEL_REPORT_FILE
-__CREATE_INDEX = """curl -s -XPUT """ + __ES_ADDR + """/blast_obj_report"""
+__DATAMODEL_REPORT_FILE = os.path.join(_DATAMODEL_DIR, 'report.template.mapping')
+__INDEX_NAME = "blast_obj_report"
+__INDEX_TEMPLATE_DATA = json.load(open(__DATAMODEL_REPORT_FILE, "r"))
+__INDEX_DATA = {"mappings": __INDEX_TEMPLATE_DATA["template"]["mappings"]}
 
 
 def defineIndexTemplate():
 
-    try:
-        if json.load(os.popen(__CREATE_INDEX_TEMPLATE))["acknowledged"]:
-            return True
-    except KeyError:
-        return False
+    ret = _ESC.es.indices.put_index_template(name=__INDEX_NAME, body=json.dumps(__INDEX_TEMPLATE_DATA))
+    if not ret["acknowledged"]:
+        raise Exception(ret)
 
 
 def createIndex():
 
-    try:
-        if json.load(os.popen(__CREATE_INDEX))["acknowledged"]:
-            return True
-    except KeyError:
-        return False
+    ret = _ESC.es.indices.create(index=__INDEX_NAME, body=json.dumps(__INDEX_DATA))
+    if not ret["acknowledged"]:
+        raise Exception(ret)
 
 
 def main():
 
-    if defineIndexTemplate():
-        if createIndex():
-            sys.exit(0)
+    try:
+        defineIndexTemplate()
+        createIndex()
+
+    except Exception as e:
+        print(e)
 
 
 if __name__ == "__main__":

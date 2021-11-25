@@ -17,50 +17,43 @@
 """
 
 import os
-import sys
 import json
-from env import _SERVER_DIR
-sys.path.insert(0, _SERVER_DIR)
-from api import db
+from env import _DATAMODEL_DIR, _ESC
 
-__DATAMODEL_DIR = os.path.join(os.path.abspath('..'), 'datamodel')
-__DATAMODEL_NODE_FILE = os.path.join(__DATAMODEL_DIR, 'node_type.template.mapping')
-__ES_ADDR = db.ES_PROTOCOL + """://""" + str(db.ES_HOSTNAME) + """:""" + str(db.ES_PORT)
-__CREATE_INDEX_TEMPLATE = """curl -s -XPUT -H \"Content-Type: Application/Json\" """ + __ES_ADDR + """/_template/blast_node_type -d@""" + __DATAMODEL_NODE_FILE
-__NODE_TYPES = [
+__DATAMODEL_NODE_TYPE_FILE = os.path.join(_DATAMODEL_DIR, 'node_type.template.mapping')
+__INDEX_NAME = "blast_node_type"
+__INDEX_DATA = [
     {"type": "elasticsearch"},
     {"type": "kibana"},
     {"type": "logstash"},
     {"type": "nginx"},
     {"type": "mysql"}
 ]
+__INDEX_TEMPLATE_DATA = json.load(open(__DATAMODEL_NODE_TYPE_FILE, "r"))
 
 def defineIndexTemplate():
 
-    try:
-        if json.load(os.popen(__CREATE_INDEX_TEMPLATE))["acknowledged"]:
-            return True
-    except KeyError:
-        return False
+    ret = _ESC.es.indices.put_index_template(name=__INDEX_NAME, body=json.dumps(__INDEX_TEMPLATE_DATA))
+    if not ret["acknowledged"]:
+        raise Exception(ret)
 
 
 def provisionDefault():
 
-    try:
-        for type in __NODE_TYPES:
-            __ES_PROVISION_DEFAULT = """curl -s -XPOST -H \"Content-Type: Application/Json\" """ + __ES_ADDR + """/blast_node_type/_doc -d \'""" + json.dumps(type) + """\'"""
-            if not json.load(os.popen(__ES_PROVISION_DEFAULT))["result"] == "created":
-                return False
-        return True
-    except KeyError:
-        return False
+    for document in __INDEX_DATA:
+        ret = _ESC.es.index(index=__INDEX_NAME, body=json.dumps(document))
+        if not ret["result"] == "created":
+            raise Exception(ret)
 
 
 def main():
 
-    if defineIndexTemplate():
-        if provisionDefault():
-            sys.exit(0)
+    try:
+        defineIndexTemplate()
+        provisionDefault()
+
+    except Exception as e:
+        print(e)
 
 
 if __name__ == "__main__":

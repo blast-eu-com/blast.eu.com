@@ -14,6 +14,8 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 """
+
+import re
 import os
 import jwt
 import json
@@ -79,34 +81,41 @@ class Realm:
         # the realm settings will be impacting the user
         print(" >>> Enter file:aaa:class:realm:function:add")
         try:
-            # as the realm name must be uniq
-            # create a new realm if the realm name is free.
-            if self.list_by_name(realm["name"])["hits"]["total"]["value"] == 0:
-                realm["account_email"] = account_email
-                new_realm = self.ES.index(index=self.DB_INDEX, body=json.dumps(realm), refresh=True)
+            # make sure the realm name is not empty.
+            if realm["name"] == '':
+                raise Exception("Realm name is required. Empty is not accepted.")
 
-                # create the setting object if the realm is successfully created
-                # get the account details to add the new realm in it
-                if new_realm["result"] == "created":
-                    if self.SETTING.__add__(realm["name"]):
-                        acc = self.ACCOUNT.list_by_email(account_email)["hits"]["hits"][0]
-                        acc["_source"]["realm"].append({"name": realm["name"], "active": False})
-                        account_update = self.ACCOUNT.update(acc["_id"], acc["_source"])
+            # make sure the realm name follow the correct pattern.
+            realm_name_pattern = re.compile('[a-zA-Z0-9\-_]+')
+            if not realm_name_pattern.fullmatch(realm["name"]):
+                raise Exception("Cluster name is not valid. Alphanumeric characters and '_', '-', are accepted.")
 
-                        # create the portmap table for the new realm if the account is successfully updated
-                        # return the realm creation output
-                        if account_update["result"] == "updated":
-                            portmap_provision(realm["name"])
-                            return new_realm
+            # make sure the realm name is not already used. no duplicate
+            if not self.list_by_name(realm["name"])["hits"]["total"]["value"] == 0:
+                raise Exception("Realm name is already used.")
 
-                        else:
-                            raise Exception("Portmap creation issue")
-                    else:
-                        raise Exception("Setting creation issue")
-                else:
-                    raise Exception("Realm creation issue")
-            else:
-                raise Exception("Realm name is already used")
+            realm["account_email"] = account_email
+            new_realm = self.ES.index(index=self.DB_INDEX, body=json.dumps(realm), refresh=True)
+
+            # create the setting object if the realm is successfully created
+            # get the account details to add the new realm in it
+            if not new_realm["result"] == "created":
+                raise Exception("Realm creation internal error.")
+
+            if not self.SETTING.add(realm["name"]):
+                raise Exception("Realm settings add failure.")
+
+            acc = self.ACCOUNT.list_by_email(account_email)["hits"]["hits"][0]
+            acc["_source"]["realm"].append({"name": realm["name"], "active": False})
+            account_update = self.ACCOUNT.update(acc["_id"], acc["_source"])
+
+            # create the portmap table for the new realm if the account is successfully updated
+            # return the realm creation output
+            if not account_update["result"] == "updated":
+                raise Exception("Realm portmap add failure.")
+
+            portmap_provision(realm["name"])
+            return new_realm
 
         except Exception as e:
             print("backend Exception, file:aaa:class:realm:func:add")
@@ -288,9 +297,12 @@ class Account:
         print(" >>> Enter file:aaa:class:Account:function:activate_realm")
         try:
             acc = self.list_to_login(account_email)["hits"]["hits"][0]
-            for realm in acc["_source"]["realm"]:
-                realm["active"] = True if realm["name"] == new_realm else False
-            return self.update(acc["_id"], acc["_source"])
+
+            for rlm in acc["_source"]["realm"]:
+                rlm["active"] = True if rlm["name"] == new_realm else False
+
+            account_activate_realm_res = self.update(acc["_id"], acc["_source"])
+            return account_activate_realm_res
 
         except Exception as e:
             print("backend Exception, file:aaa:class:account:func:active_realm")
@@ -301,12 +313,14 @@ class Account:
         """ Add a new account from given data, email, password and realm """
         print(" >>> Enter file:aaa:class:Account:function:add_account")
 
-        if data["realm"] != "default":
-            rlm = Realm(self.ES)
-            rlm_desc = str("The realm " + data["realm"])
-            rlm.add(data["email"], {"name": data["realm"], "description": rlm_desc})
-
         try:
+            # Create a new realm with every new user.
+            # Except if the user accept to be part of the default realm
+            if data["realm"] != "default":
+                rlm = Realm(self.ES)
+                rlm_desc = str("The realm " + data["realm"])
+                rlm.add(data["email"], {"name": data["realm"], "description": rlm_desc})
+
             req = json.dumps(
                 {
                     "email": data["email"],
@@ -321,7 +335,9 @@ class Account:
                     ]
                 }
             )
-            return self.ES.index(index=self.DB_INDEX, body=req, refresh=True)
+
+            account_add_res = self.ES.index(index=self.DB_INDEX, body=req, refresh=True)
+            return account_add_res
 
         except Exception as e:
             print("backend Exception, file:aaa:class:account:func:add_account")
@@ -331,10 +347,10 @@ class Account:
     def add(self, data: dict):
         print(" >>> Enter file:aaa:class:Account:function:add")
         try:
-            res_search_account = self.list_by_email(data["email"])
-            if "hits" in res_search_account.keys():
-                if res_search_account["hits"]["total"]["value"] > 1:
-                    return {"failure": "AccountAlreadyExist"}
+            # make sure the identifier posted by the operator is not already taken.
+            if self.list_by_email(data["email"])["hits"]["total"]["value"] > 0:
+                raise Exception("Account identifier already exists. Use another identifier to create a new account.")
+
             self.add_account(data)
 
         except Exception as e:
@@ -702,20 +718,18 @@ class Account:
             for sclang in scriptlang.__list__()["hits"]["hits"]:
                 scriptlangs[sclang["_source"]["name"]] = sclang["_source"]["picture"]
 
-            if realm_details["hits"]["total"]["value"] == 1:
-                stg = self.SETTING.list_by_realm_no_passwd(realm_name)
-                http_response["account"] = account["hits"]["hits"][0]["_source"]
-                http_response["account"]["id"] = account["hits"]["hits"][0]["_id"]
-                http_response["realm"] = realm_details["hits"]["hits"][0]["_source"]
-                http_response["realm"]["id"] = realm_details["hits"]["hits"][0]["_id"]
-                http_response["setting"] = stg["hits"]["hits"][0]["_source"]
-                http_response["setting"]["id"] = stg["hits"]["hits"][0]["_id"]
-                http_response["scriptlangs"] = scriptlangs
-                print(http_response)
-                return http_response
+            if not realm_details["hits"]["total"]["value"] == 1:
+                raise Exception("Account realm loading issue. Internal Error")
 
-            else:
-                raise ValueError("Loading realm details failure: realm maybe not found")
+            stg = self.SETTING.list_by_realm_no_passwd(realm_name)
+            http_response["account"] = account["hits"]["hits"][0]["_source"]
+            http_response["account"]["id"] = account["hits"]["hits"][0]["_id"]
+            http_response["realm"] = realm_details["hits"]["hits"][0]["_source"]
+            http_response["realm"]["id"] = realm_details["hits"]["hits"][0]["_id"]
+            http_response["setting"] = stg["hits"]["hits"][0]["_source"]
+            http_response["setting"]["id"] = stg["hits"]["hits"][0]["_id"]
+            http_response["scriptlangs"] = scriptlangs
+            return http_response
 
         except Exception as e:
             print("backend Exception, file:aaa:class:account:func:load_account_profile")
@@ -726,15 +740,12 @@ class Account:
         """ this function login an account and return JWT token """
         print(" >>> Enter file:aaa:class:Account:function:Authenticate")
         try:
-            http_response = {}
             account = self.list_to_login(email)["hits"]["hits"][0]
-            print(password, account["_source"]["password"])
-            print(pbkdf2_sha512.verify(password, account["_source"]["password"]))
-            if pbkdf2_sha512.verify(password, account["_source"]["password"]):
-                http_response["jwt"] = self.load_account_jwt(account)
-                return http_response
-            else:
-                raise Exception("Authentication failure: User or Password is not correct")
+
+            if not pbkdf2_sha512.verify(password, account["_source"]["password"]):
+                raise Exception("Authentication failed. User or Password is not correct")
+
+            return {"jwt": self.load_account_jwt(account)}
 
         except Exception as e:
             print("backend Exception, file:aaa:class:account:func:login")
@@ -764,11 +775,13 @@ class Account:
         print(" >>> Enter file:aaa:class:Account:function:update_password")
         try:
             account = self.list_to_login(self.list_by_id(account_id)["hits"]["hits"][0]["_source"]["email"])["hits"]["hits"][0]
-            if pbkdf2_sha512.verify(password_data["old"], account["_source"]["password"]):
-                account["_source"]["password"] = encrypt_password(password_data["new"])
-                return self.update(account_id, account["_source"])
-            else:
-                raise Exception("Account password update failed current password is not correct")
+
+            if not pbkdf2_sha512.verify(password_data["old"], account["_source"]["password"]):
+                raise Exception("Account password update failed. Password is not correct")
+
+            account["_source"]["password"] = encrypt_password(password_data["new"])
+            account_update_passwd_res = self.update(account_id, account["_source"])
+            return account_update_passwd_res
 
         except Exception as e:
             print("backend Exception, file:aaa:class:account:func:update_password")

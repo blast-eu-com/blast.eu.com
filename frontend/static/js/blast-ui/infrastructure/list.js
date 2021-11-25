@@ -175,22 +175,16 @@ var InfrastructureList = class {
     }
 
     simpleListWindowCoreData() {
-        try {
-            let pageLength = $("select#selSamplePerPage option:selected").val()
-            pageLength === undefined ? this.numRecord = 10 : this.numRecord = parseInt(pageLength)
-            infrastructure.list().then((infrastructures) => {
-                if (infrastructures["hits"]["total"]["value"] > 0) {
-                    this.simpleListCoreData(infrastructures["hits"]["hits"])
-                    this.simpleListWindowPagination()
-                } else {
-                    throw 'noInfrastructuresFound'
-                }
-            })
-        } catch (e) {
-            if (e === 'noInfrastructuresFound') {
+        let pageLength = $("select#selSamplePerPage option:selected").val()
+        pageLength === undefined ? this.numRecord = 10 : this.numRecord = parseInt(pageLength)
+        infrastructure.list().then((infrastructures) => {
+            if (infrastructures["hits"]["total"]["value"] > 0) {
+                this.simpleListCoreData(infrastructures["hits"]["hits"])
+                this.simpleListWindowPagination()
+            } else {
                 $("#" + this.parentName).html(this.msgInfrastructureNotFound)
             }
-        }
+        })
     }
 
     render = (parentName) => {

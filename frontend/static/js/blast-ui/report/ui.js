@@ -27,7 +27,6 @@ const runReportFilter = () => {
         reportForm.setFormData()
         reportSchedulerUI(reportForm.formData)
     } else if ($("#reportScenario").hasClass('active')) {
-        console.log("asasas")
         reportForm.objectNameSelected = 'scenario'
         reportForm.setFormData()
         reportScenarioUI(reportForm.formData)

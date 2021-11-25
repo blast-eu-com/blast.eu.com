@@ -16,8 +16,12 @@
 */
 
 import Realm from '../../realm.js'
-
+import Toast from '../main/notification/toast.js'
+import {dictionary} from '../main/message/en/dictionary.js'
 var realm = new Realm()
+var toast = new Toast()
+toast.msgPicture = '../../../img/object/realm.svg'
+
 
 const RealmForm = class {
 
@@ -35,12 +39,12 @@ const RealmForm = class {
         `
         this.inputRealmName = `
              <label for="realmName" class="form-label">Realm Name</label>
-             <input id="realmName" type="text" name="realmName" class="form-control" required pattern="\w+"/>
+             <input id="realmName" type="text" name="realmName" class="form-control">
              <div id="realmNameHelp" class="form-text">Give a name to your new realm.</div>
         `
         this.inputRealmDescription = `
             <label for="realmDesc" class="form-label">Realm Description</label>
-            <input id="realmDesc" type="text" name="realmDesc" class="form-control" required/>
+            <input id="realmDesc" type="text" name="realmDesc" class="form-control"/>
             <div id="realmDescHelp" class="form-text">Describe your new realm in a few words.</div>
         `
 
@@ -65,10 +69,24 @@ const RealmForm = class {
         $("#realmDescriptionContainer").html(this.inputRealmDescription)
     }
 
-    addRealm = () => {
+    addRealm = async () => {
         this.setFormData()
-        realm.add([this.formData]).then((resCreateRealm) => { location.reload() })
+        let actionRes, realmData = this.formData
+        realm.add(realmData).then((Resp) => {
+            if ( Resp["result"] === "created" ) {
+                toast.msgTitle = "Realm create Success"
+                toast.msgText = dictionary["realm"]["add"].replace('%realmName%', realmData["name"])
+                actionRes = "success"
+            } else if ( Object.keys(Resp).includes("failure") ) {
+                toast.msgTitle = "Realm create Failure"
+                toast.msgText = Resp["failure"]
+                actionRes = "failure"
+            }
+            toast.notify(actionRes)
+            setTimeout(() => { location.reload() }, 2000)
+        })
     }
+
 
     render = (parentName) => {
         this.parentName = parentName

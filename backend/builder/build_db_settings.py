@@ -20,63 +20,70 @@ import os
 import sys
 import json
 from pwd import getpwnam
-from env import _SERVER_DIR
-sys.path.insert(0, _SERVER_DIR)
-from api import db
+from env import _SERVER_DIR, _DATAMODEL_DIR, _ESC
 from cryptography.fernet import Fernet
 
 
+__SESSION_USER = "blast"
+__SESSION_GRP = "blast"
 __REALM = 'default' if len(sys.argv) == 1 else sys.argv[1]
 __SESSION_LOCATION = os.path.join(_SERVER_DIR, 'session')
-__DATAMODEL_DIR = os.path.join(_SERVER_DIR, 'datamodel')
-__DATAMODEL_SETTING_FILE = os.path.join(__DATAMODEL_DIR, 'setting.template.mapping')
+__DATAMODEL_SETTING_FILE = os.path.join(_DATAMODEL_DIR, 'setting.template.mapping')
 __CRYPTO = Fernet.generate_key().decode('utf-8')
-__ES_ADDR = db.ES_PROTOCOL + """://""" + str(db.ES_HOSTNAME) + """:""" + str(db.ES_PORT)
 __SSH_LOCATION = '/tmp/blast'
+__INDEX_NAME = "blast_setting"
+__INDEX_DATA = {
+    "ansible": {
+        "username": "",
+        "password": "",
+        "certificate": "",
+        "is_password_set": False,
+        "inventory": {
+            "location": __SESSION_LOCATION
+        }
+    },
+    "ssh": {
+        "username": "",
+        "password": "",
+        "certificate": "",
+        "is_password_set": False,
+        "location": __SSH_LOCATION
+    },
+    "crypto": __CRYPTO,
+    "realm": __REALM
+}
+__INDEX_TEMPLATE_DATA = json.load(open(__DATAMODEL_SETTING_FILE, "r"))
 
 
 if not os.path.isdir(__SESSION_LOCATION):
     os.makedirs(__SESSION_LOCATION)
-    uid = getpwnam('jay').pw_uid
-    gid = getpwnam('jay').pw_gid
+    uid = getpwnam(__SESSION_USER).pw_uid
+    gid = getpwnam(__SESSION_GRP).pw_gid
     os.chown(__SESSION_LOCATION, uid, gid)
 
 
-__CREATE_INDEX_TEMPLATE = """curl -s -XPUT -H \"Content-Type: Application/Json\" """ + __ES_ADDR + """/_template/blast_setting -d@""" + __DATAMODEL_SETTING_FILE
-__ES_PROVISION_DEFAULT = """curl -s -XPOST -H \"Content-Type: Application/Json\" """ + __ES_ADDR + """/setting/_doc -d '{
-    "ansible": {
-        "username" : "",
-        "password" : "",
-        "certificate" : "",
-        "inventory" : {
-            "location" : \"""" + __SESSION_LOCATION + """\"
-        }
-    },
-    "ssh": {    
-        "username" : "",
-        "password" : "",
-        "certificate" : "",
-        "location": \"""" + __SSH_LOCATION + """\"
-    },
-    "crypto": \"""" + __CRYPTO + """\",
-    "realm": \"""" + __REALM + """\"
-}'"""
-
 def defineIndexTemplate():
 
-    return True if json.load(os.popen(__CREATE_INDEX_TEMPLATE))["acknowledged"] else False
+    ret = _ESC.es.indices.put_index_template(name=__INDEX_NAME, body=json.dumps(__INDEX_TEMPLATE_DATA))
+    if not ret["acknowledged"]:
+        raise Exception(ret)
 
 
 def provisionDefault():
 
-    return True if json.load(os.popen(__ES_PROVISION_DEFAULT))["result"] == "created" else False
+    ret = _ESC.es.index(index=__INDEX_NAME, body=json.dumps(__INDEX_DATA))
+    if not ret["result"] == "created":
+        raise Exception(ret)
 
 
 def main():
 
-    if defineIndexTemplate():
-        if provisionDefault():
-            sys.exit(0)
+    try:
+        defineIndexTemplate()
+        provisionDefault()
+
+    except Exception as e:
+        print(e)
 
 
 if __name__ == "__main__":

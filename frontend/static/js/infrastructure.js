@@ -41,140 +41,98 @@ let Infrastructure = class {
     get clusters() { return this._clusters }
     get rawData() { return this._data }
 
-    add = function(infrastructures) {
-        /* this function return the rampart API response *
-         * from the url /infrastructure/add              */
+    add = function(infrastructure) {
         return new Promise(function(resolve, reject) {
             $.ajax({
                 url: config.proxyAPI + '/realms/' + config.session.realm + '/infrastructures',
                 type: "POST",
                 headers: {'Authorization': config.session.httpToken},
-                data: JSON.stringify({"infrastructures": infrastructures}),
+                data: JSON.stringify({"infrastructure": infrastructure}),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function(Resp) {
-                    if ( typeof Resp === 'string' ) {
-                        Resp = JSON.parse(Resp)
-                        if (Object.keys(Resp).includes("tokenExpired")) {
-                            account.logoutAccount()
-                        } else if (Object.keys(Resp).includes("failure")) {
-                            console.log("failure")
-                        }
-                    } else if ( typeof Resp === 'object') {
-                        resolve(Resp)
-                    }
+                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })
     }
 
-    add_cluster = function(infra_id, clusters) {
+    add_cluster = function(infra_id, cluster) {
         return new Promise(function(resolve, reject) {
             $.ajax({
                 url: config.proxyAPI + '/realms/' + config.session.realm + '/infrastructures/' + infra_id + '/clusters',
                 type: "POST",
                 headers: {'Authorization': config.session.httpToken},
-                data: JSON.stringify({"clusters": clusters}),
+                data: JSON.stringify({"cluster": cluster}),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function(Resp) {
-                    if ( typeof Resp === 'string' ) {
-                        Resp = JSON.parse(Resp)
-                        if (Object.keys(Resp).includes("tokenExpired")) {
-                            account.logoutAccount()
-                        } else if (Object.keys(Resp).includes("failure")) {
-                            console.log("failure")
-                        }
-                    } else if ( typeof Resp === 'object') {
-                        resolve(Resp)
-                    }
+                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })
     }
 
-    delete = function(infra_ids) {
-        /* this function returns the rampart API response *
-         * from the url /infrastructure/delete            */
+    delete = function(infraId) {
         return new Promise( function(resolve, reject) {
             $.ajax({
                 url: config.proxyAPI + '/realms/' + config.session.realm + '/infrastructures',
                 type: "DELETE",
                 headers: {'Authorization': config.session.httpToken},
-                data: JSON.stringify({'infrastructure_ids': infra_ids}),
+                data: JSON.stringify({'infrastructure_id': infraId}),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function(Resp) {
-                    if ( typeof Resp === 'string' ) {
-                        Resp = JSON.parse(Resp)
-                        if (Object.keys(Resp).includes("tokenExpired")) {
-                            account.logoutAccount()
-                        } else if (Object.keys(Resp).includes("failure")) {
-                            console.log("failure")
-                        }
-                    } else if ( typeof Resp === 'object') {
-                        resolve(Resp)
-                    }
+                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })
     }
 
-    delete_cluster = function(infra_id, cluster_ids) {
+    delete_cluster = function(infraId, clusterName) {
         return new Promise(function(resolve, reject) {
             $.ajax({
-                url: config.proxyAPI + '/realms/' + config.session.realm + '/infrastructures/' + infra_id + '/clusters',
+                url: config.proxyAPI + '/realms/' + config.session.realm + '/infrastructures/' + infraId + '/clusters',
                 type: "DELETE",
                 headers: {'Authorization': config.session.httpToken},
-                data: JSON.stringify({"cluster_ids": cluster_ids}),
+                data: JSON.stringify({"cluster_name": clusterName}),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function(Resp) {
-                    if ( typeof Resp === 'string' ) {
-                        Resp = JSON.parse(Resp)
-                        if (Object.keys(Resp).includes("tokenExpired")) {
-                            account.logoutAccount()
-                        } else if (Object.keys(Resp).includes("failure")) {
-                            console.log("failure")
-                        }
-                    } else if ( typeof Resp === 'object') {
-                        resolve(Resp)
-                    }
+                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })
     }
     
     list = function() {
-        /* this function is returning rampart API response *
-         * from the url /infrastructure/list               */
          return new Promise(function(resolve, reject) {
             $.ajax({
                 url: config.proxyAPI + '/realms/' + config.session.realm + '/infrastructures',
                 type: "GET",
                 headers: {'Authorization': config.session.httpToken},
                 success: function(Resp) {
-                    if ( typeof Resp === "string" ) { Resp = JSON.parse(Resp) }
-                    if ( Object.keys(Resp).includes("tokenExpired")) { account.logoutAccount()
-                        } else { resolve(Resp) }
+                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })
     }
 
-    listByIds = function(infraIds) {
-        /* this function is returning rampart API response *
-         * from the url /infrastructure/list_by_id         */
+    listById = function(infraId) {
         return new Promise(function(resolve, reject) {
             $.ajax({
                 url: config.proxyAPI + '/realms/' + config.session.realm + '/infrastructures/ids',
                 type: "GET",
-                data: {"ids": infraIds},
+                data: {"id": infraId},
                 headers: {'Authorization': config.session.httpToken},
                 success: function(Resp) {
-                    if ( typeof Resp === "string" ) { Resp = JSON.parse(Resp) }
-                    if ( Object.keys(Resp).includes("tokenExpired")) { account.logoutAccount()
-                        } else { resolve(Resp) }
+                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })
@@ -187,9 +145,8 @@ let Infrastructure = class {
                 type: "GET",
                 headers: {"Authorization": config.session.httpToken},
                 success: function (Resp) {
-                    if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
-                    if ("tokenExpired" in Resp) { account.logoutAccount()
-                        } else { resolve(Resp) }
+                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })

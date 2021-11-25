@@ -78,26 +78,18 @@ let Scenario = class {
     get scenarioScriptPageMax() { return this.scriptPageMax }
     get scenarioScriptFiltered() { return this.scriptFiltered }
 
-    add = (scenarios) => {
+    add = (scenario) => {
         return new Promise((resolve, reject) => {
             $.ajax({
                 url: config.proxyAPI + '/realms/' + config.session.realm + '/scenarios',
                 type: "POST",
                 headers: {'Authorization': config.session.httpToken},
-                data: JSON.stringify({"scenarios": scenarios}),
+                data: JSON.stringify({"scenario": scenario}),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: (Resp) => {
-                    if ( typeof Resp === 'string' ) {
-                        Resp = JSON.parse(Resp)
-                        if (Object.keys(Resp).includes("tokenExpired")) {
-                            account.logout()
-                        } else if (Object.keys(Resp).includes("failure")) {
-                            console.log("failure")
-                        }
-                    } else if ( typeof Resp === 'object') {
-                        resolve(Resp)
-                    }
+                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })
@@ -123,10 +115,8 @@ let Scenario = class {
                 type: "GET",
                 headers: {"Authorization": config.session.httpToken},
                 success: (Resp) => {
-                    if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) {
-                        account.logout()
-                    } else { resolve(Resp) }
+                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })
@@ -140,10 +130,8 @@ let Scenario = class {
                 data: {"ids": scenarioIds},
                 headers: {"Authorization": config.session.httpToken},
                 success: (Resp) => {
-                    if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) {
-                        account.logout()
-                    } else { resolve(Resp) }
+                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })
@@ -156,16 +144,14 @@ let Scenario = class {
                 type: "GET",
                 headers: {"Authorization": config.session.httpToken},
                 success: (Resp) => {
-                    if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) {
-                        account.logout()
-                    } else { resolve(Resp) }
+                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })
     }
 
-    execScript(scenario) {
+    execute(scenario) {
         return new Promise((resolve, reject) => {
             $.ajax({
                 url: config.proxyAPI + '/realms/' + config.session.realm + '/scenarios/execute',
@@ -175,25 +161,11 @@ let Scenario = class {
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: (Resp) => {
-                    if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
-                    if ("tokenExpired" in Resp) {
-                        account.logout()
-                    } else { resolve(Resp) }
+                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })
-    }
-
-    runScenario = (formData) => {
-        // this.scripts = await this.runScriptsId()
-        // this.nodes = await this.runNodesId()
-        // this.setFormData()
-        console.log(formData)
-        if (formData["nodes"].length > 0 && formData["scripts"].length > 0) {
-            this.execScript(formData).then((scriptRunResult) => {
-                console.log("return")
-            })
-        }
     }
 
     getFormData = () => {
@@ -225,11 +197,6 @@ let Scenario = class {
             })
         })
     }
-
-    saveScenario = async (formData) => {
-        this.add([formData]).then((res) => { console.log(res) })
-    }
-
 }
 
 let sce = new Scenario()

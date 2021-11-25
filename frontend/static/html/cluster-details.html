@@ -20,13 +20,11 @@
         <meta charset="UTF-8">
         <meta title="management">
         <link rel="icon" href="/img/favicon.ico" />
-        <!-- Load bootstrap stack
-        <link rel="stylesheet" type="text/css" href="/css/bootstrap-4.5.2-dist/css/bootstrap.min.css" />
-        <script src="/js/bootstrap-4.5.2-dist/js/bootstrap.min.js"></script> -->
+        <!-- Load bootstrap stack -->
         <link rel="stylesheet" type="text/css" href="/css/bootstrap-5.0.0-beta2-dist/css/bootstrap.min.css" />
-        <script src="/js/bootstrap-5.0.0-beta2-dist/js/bootstrap.min.js"></script>
-        <!-- End Load bootstrap stack -->
         <link rel="stylesheet" type="text/css" href="/css/blast.eu.com.css" />
+        <!-- End Load bootstrap stack -->
+        <script src="/js/bootstrap-5.0.0-beta2-dist/js/bootstrap.min.js"></script>
         <script src="/js/jquery-1.12.4/jquery-1.12.4.min.js"></script>
         <script src="/js/jquery-cookie-1.4.1/jquery.cookie.js"></script>
         <script src="/js/blast-ui/cluster/details/ui.js" type="module"></script>
@@ -49,19 +47,14 @@
         </script>
 
         <div class="container p-0 min-vh-100 min-vw-100">
-
-            <div aria-live="polite" aria-atomic="true" style="position: relative; min-height: 100px;">
-                <div id="toaster" style="position: absolute; top: 65px; right: 30px"></div></div>
-
             <div id="nav_container" class="min-vw-100 bg-dark blast-nav"></div>
-
             <div id="side_nav_container" class="d-inline-block min-vh-100 blast-sidenav">
                 <script type="module">mainUI("cluster");</script>
             </div>
 
             <div id="blast-disp" class="min-vh-100 blast-disp">
                 <div>
-                    <nav aria-label="breadcrumb">
+                    <nav class="blast-obj-title" aria-label="breadcrumb">
                         <ol class="breadcrumb blast-breadcrumb shadow-sm text-white fs-4">
                             <li class="breadcrumb-item">
                                 <a href="/html/cluster.html" class="text-white">Cluster</a>
@@ -96,5 +89,6 @@
                 </div>
             </div>
         </div>
+        <div id="notification-container" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11"></div>
     </body>
 </html>

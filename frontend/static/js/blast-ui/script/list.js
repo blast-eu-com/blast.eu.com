@@ -173,22 +173,16 @@ var ScriptList = class {
     }
 
     simpleListWindowCoreData() {
-        try {
-            let pageLength = $("select#selSamplePerPage option:selected").val()
-            pageLength === undefined ? this.numRecord = 10 : this.numRecord = parseInt(pageLength)
-            script.list().then((scripts) => {
-                if (scripts["hits"]["total"]["value"] > 0) {
-                    this.simpleListCoreData(scripts["hits"]["hits"])
-                    this.simpleListWindowPagination()
-                } else {
-                    throw 'noScriptsFound'
-                }
-            })
-        } catch (e) {
-            if (e === 'noScriptsFound') {
+        let pageLength = $("select#selSamplePerPage option:selected").val()
+        pageLength === undefined ? this.numRecord = 10 : this.numRecord = parseInt(pageLength)
+        script.list().then((scripts) => {
+            if (scripts["hits"]["total"]["value"] > 0) {
+                this.simpleListCoreData(scripts["hits"]["hits"])
+                this.simpleListWindowPagination()
+            } else {
                 $("#" + this.parentName).html(this.msgScriptNotFound)
             }
-        }
+        })
     }
 
     render = (parentName) => {

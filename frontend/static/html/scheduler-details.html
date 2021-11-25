@@ -32,11 +32,11 @@
         <script src="/js/bootstrap-5.0.0-beta2-dist/js/bootstrap.min.js"></script>
         <script src="/js/jquery-cookie-1.4.1/jquery.cookie.js"></script>
         <script src="/js/blast-ui/scheduler/details/ui.js" type="module"></script>
-        <script src="/js/blast-ui/main/navBars/details/ui.js" type="module"></script>
+        <script src="/js/blast-ui/main/navBars/ui.js" type="module"></script>
     </head>
 
 
-    <body class="d-flex flex-column bg-light" margin="0" onload="main();">
+    <body class="d-flex flex-column min-vh-100 bg-light" margin="0" onload="main();">
         <!-- Preload -->
         <div id="preload" class="preload"></div>
         <script>
@@ -52,20 +52,14 @@
         </script>
 
         <div class="container p-0 min-vh-100 min-vw-100">
-
-            <div aria-live="polite" aria-atomic="true" style="position: relative; min-height: 100px;">
-                <div id="toaster" style="position: absolute; top: 65px; right: 30px"></div></div>
-
-            <div id="nav_container" class="min-vw-100 bg-dark"
-                 style="position: fixed; top: 0; z-index: 1000"></div>
-
+            <div id="nav_container" class="min-vw-100 bg-dark blast-nav"></div>
             <div id="side_nav_container" class="d-inline-block min-vh-100 blast-sidenav">
                 <script type="module">mainUI("scheduler");</script>
             </div>
 
             <div class="min-vh-100 blast-disp">
                 <div>
-                    <nav aria-label="breadcrumb">
+                    <nav class="blast-obj-title" aria-label="breadcrumb">
                         <ol class="breadcrumb blast-breadcrumb fs-4 text-white shadow-sm">
                             <li class="breadcrumb-item"><a href="/html/scheduler.html" class="text-white">Scheduler</a></li>
                             <li class="breadcrumb-item active" aria-current="page">
@@ -87,5 +81,6 @@
                 </div>
             </div>
         </div>
+        <div id="notification-container" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11"></div>
     </body>
 </html>

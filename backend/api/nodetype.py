@@ -27,32 +27,32 @@ class NodeType:
         self.es = db.ESConnector().es
         self.DB_INDEX = 'blast_node_type'
 
-    def __add__(self, nodeType: str):
+    def add(self, nodeType: str):
 
         """ this function add a new node into the database """
         try:
             self.es.index(index=self.DB_INDEX, body=json.dumps({"type": nodeType}))
 
-        except elasticsearch.exceptions.ConnectionError as e:
+        except Exception as e:
             return {"failure": e}
 
-    def __delete__(self, id: str):
+    def delete(self, id: str):
 
         """ this function delete an existing node type """
         try:
             self.es.delete(index=self.DB_INDEX, id=id)
 
-        except elasticsearch.exceptions.ConnectionError as e:
+        except Exception as e:
             return {"failure": e}
 
-    def __list__(self):
+    def list(self):
 
         """ this function returns all the node type """
         try:
             req = json.dumps({"size": 1000, "query": {"match_all": {}}})
             return self.es.search(index=self.DB_INDEX, body=req)
 
-        except elasticsearch.exceptions.ConnectionError as e:
+        except Exception as e:
             return {"failure": e}
 
     def list_by_id(self, id: str):
@@ -61,7 +61,7 @@ class NodeType:
         try:
             return self.es.get(index=self.DB_INDEX, id=id)
 
-        except elasticsearch.exceptions.ConnectionError as e:
+        except Exception as e:
             return {"failure": e}
 
     def list_by_type(self, node_type: str):
@@ -70,5 +70,5 @@ class NodeType:
         try:
             return self.es.search(index=self.DB_INDEX, body='{"query":{"match":{"type":"' + node_type + '"}}}')
 
-        except elasticsearch.exceptions.ConnectionError as e:
+        except Exception as e:
             return {"failure": e}

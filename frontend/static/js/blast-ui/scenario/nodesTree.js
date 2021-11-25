@@ -36,8 +36,11 @@ const ScenarioNodesTree = class {
 
     runNodesId = async () => {
         let nodesId = []
-        let nodesData = await node.listByNames(this.runNodes())
-        for ( let i=0; i<nodesData["hits"]["hits"].length; i++ ) { nodesId.push(nodesData["hits"]["hits"][i]["_id"]) }
+        let nodesList = this.runNodes()
+        for ( let i=0; i < nodesList.length; i++ ) {
+            let nodeData = await node.listByName(nodesList[i])
+            nodesId.push(nodeData["hits"]["hits"][0]["_id"])
+        }
         return nodesId
     }
 

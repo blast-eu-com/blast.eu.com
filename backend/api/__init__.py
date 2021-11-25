@@ -25,6 +25,7 @@ from .nodemode import NodeMode
 from .nodetype import NodeType
 from .aaa import Account, Realm
 from .reporter import Reporter
+from .request import Request
 from .scheduler import Scheduler
 from .schedulerManager import SchedulerManager
 from .setting import Setting, Portmap

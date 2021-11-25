@@ -60,3 +60,6 @@ ${BUILDER_PATH}/build_db_scenario.py
 
 # BUILD REPORT
 ${BUILDER_PATH}/build_db_report.py
+
+# BUILD REQUEST
+${BUILDER_PATH}/build_db_request.py

@@ -28,7 +28,13 @@ const ClusterListNodes = class {
                 htmlTableCore = htmlTableCore + `
                 <tr><td style="width: 16px">
                 <img src="/img/object/node.svg" height="24" width="24" /></td>`
-                $.each(nodeObj, function(idx, val) { htmlTableCore = htmlTableCore + '<td>' + val + '</td>' })
+                $.each(nodeObj, function(idx, val) {
+                    if ( idx === "id") {
+                        htmlTableCore = htmlTableCore + '<td><a href="/html/node-details.html?id=' + val + '"><span class="badge blast-badge">' + val + '</span></td>'
+                    } else {
+                        htmlTableCore = htmlTableCore + '<td>' + val + '</td>'
+                    }
+                })
                 htmlTableCore = htmlTableCore + '</tr>'
             })
         }

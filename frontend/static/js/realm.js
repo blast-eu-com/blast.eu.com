@@ -14,7 +14,6 @@
    limitations under the License.
 */
 import FrontendConfig from './frontend.js'
-import Nav from './nav.js'
 import Account from './aaa.js'
 var config = new FrontendConfig()
 var account = new Account()
@@ -41,52 +40,35 @@ const Realm = class {
     get accountEmail() { return this._accountEmail }
     get rawData() { return this._data }
 
-    add = (realms) => {
+    add = (realm) => {
         return new Promise(function(resolve, reject) {
             $.ajax({
                 url: config.proxyAPI + '/realms',
                 type: "POST",
                 headers: {'Authorization': config.session.httpToken},
-                data: JSON.stringify({"realms": realms}),
+                data: JSON.stringify({"realm": realm}),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function(Resp) {
-                    if ( typeof Resp === 'string' ) {
-                        Resp = JSON.parse(Resp)
-                        if (Object.keys(Resp).includes("tokenExpired")) {
-                            account.logout()
-                        } else if (Object.keys(Resp).includes("failure")) {
-                            console.log("failure")
-                        }
-                    } else if ( typeof Resp === 'object') {
-                        resolve(Resp)
-
-                    }
+                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })
     }
 
-    delete = function(realmIds) {
+    delete = function(realmName) {
         return new Promise(function(resolve, reject) {
             $.ajax({
-                url: config.proxyAPI + '/realms',
+                url: config.proxyAPI + '/realms/' + realmName,
                 type: "DELETE",
                 headers: {'Authorization': config.session.httpToken},
-                data: JSON.stringify({"realm_ids": realmIds}),
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
+                // data: JSON.stringify({"realm_ids": realmIds}),
+                // contentType: "application/json; charset=utf-8",
+                // dataType: "json",
                 success: function(Resp) {
-                    if ( typeof Resp === 'string' ) {
-                        Resp = JSON.parse(Resp)
-                        if (Object.keys(Resp).includes("tokenExpired")) {
-                            account.logout()
-                        } else if (Object.keys(Resp).includes("failure")) {
-                            console.log("failure")
-                        }
-                    } else if ( typeof Resp === 'object') {
-                        resolve(Resp)
-                    }
+                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
        })
@@ -99,27 +81,22 @@ const Realm = class {
                 type: "GET",
                 headers: {'Authorization': config.session.httpToken},
                 success: function(Resp) {
-                    if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) {
-                        account.logout()
-                    } else { resolve(Resp) }
+                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })
     }
 
-    listByIds = function(realmIds) {
+    listByName = function(realmName) {
         return new Promise(function(resolve, reject) {
             $.ajax({
-                url: config.proxyAPI + '/realms/ids',
+                url: config.proxyAPI + '/realms/' + realmName,
                 type: "GET",
-                data: {"ids": realmIds},
                 headers: {'Authorization': config.session.httpToken},
                 success: function(Resp) {
-                    if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) {
-                        account.logout()
-                    } else { resolve(Resp) }
+                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })

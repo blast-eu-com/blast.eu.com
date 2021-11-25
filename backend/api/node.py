@@ -15,7 +15,9 @@
    limitations under the License.
 """
 
+import re
 import json
+import socket
 from api import statistic
 from api.setting import Setting
 from api.discovery import discover
@@ -30,80 +32,104 @@ class Node:
         self.STATISTIC_DATA = self.STATISTIC.STATISTIC_DATA
         self.STATISTIC_DATA["object_type"] = 'node'
 
-    def __add__(self, account_email: str, realm: str, nodes: list):
-        """ this function add a new node into the database """
-        print(" >>> Enter file:node:class:Node:function:__add__")
+    def add(self, account_email: str, realm: str, node: dict):
+        """
+            Add a new node in a given realm
+        """
+        print(" >>> Enter file:node:class:Node:function:add")
+        print(node)
         try:
-            resp_nodes_add = []
-            self.STATISTIC_DATA["object_action"] = 'create'
-            self.STATISTIC_DATA["timestamp"] = statistic.UTC_time()
-            self.STATISTIC_DATA["realm"] = realm
-            self.STATISTIC_DATA["account_email"] = account_email
-            print(nodes)
-            for node in nodes:
-                self.STATISTIC_DATA["object_name"] = node["name"]
-                if node["scan_by_ip"]:
-                    host_net_info = node["ip_reference"] = node["ip"]
-                else:
-                    host_net_info = node["name"]
-                discovered_data = self.scan(realm, host_net_info)
-                if "failure" not in discovered_data.keys():
-                    node["ip"] = discovered_data["ip"]
-                    node["roles"] = discovered_data["roles"]
-                    node["peers"] = discovered_data["peers"]
-                    node["realm"] = realm
-                    node["mode"] = "running"
-                    self.STATISTIC.__add__(self.STATISTIC_DATA)
-                    resp_nodes_add.append(self.ES.index(index=self.DB_INDEX, body=json.dumps(node), refresh=True))
+            # make sure node name and node ip are not empty.
+            if node["name"] == "" and node["ip"] == "":
+                raise Exception("Node name and Node IP are required. Empty value are not accepted.")
 
-                else:
-                    raise Exception(discovered_data["failure"])
-            return resp_nodes_add
+            # make sure the ip is a valid IPv4 or IPv6 address.
+            ipv46_pattern = re.compile('(\.?[0-9]{1,3}){4}|(:?[0-9a-zA-Z]{,4}){,8}')
+            if not ipv46_pattern.fullmatch(node["ip"]):
+                raise Exception("Node IP is not a valid IPv4/IPv6 address.")
+
+            # make sure reference data are useful
+            loopback_pattern = re.compile('127(.[0-9]{1,3}){3}|(0{0,4}:{1,2}){1,7}(0{0,3}1)')
+            if node["scan_by_ip"]:
+                host_net_info = node["ip_reference"] = node["ip"]
+                if loopback_pattern.fullmatch(node["ip"]):
+                    raise Exception("Node IP should not be a loopback address.")
+            else:
+                host_net_info = node["name"]
+                resolve_hostname = socket.gethostbyname(node["name"])
+                if loopback_pattern.fullmatch(resolve_hostname):
+                    raise Exception("Node name should not be a loopback alias.")
+
+            discovered_data = self.scan(realm, host_net_info)
+            if "failure" in discovered_data.keys():
+                raise Exception(discovered_data["failure"])
+
+            node["ip"] = discovered_data["ip"]
+            node["roles"] = discovered_data["roles"]
+            node["peers"] = discovered_data["peers"]
+            node["realm"] = realm
+            node["mode"] = "running"
+
+            node_add_res = self.ES.index(index=self.DB_INDEX, body=json.dumps(node), refresh=True)
+            if node_add_res["result"] == "created":
+                self.STATISTIC_DATA["object_action"] = 'create'
+                self.STATISTIC_DATA["timestamp"] = statistic.UTC_time()
+                self.STATISTIC_DATA["realm"] = realm
+                self.STATISTIC_DATA["account_email"] = account_email
+                self.STATISTIC_DATA["object_name"] = node["name"]
+                self.STATISTIC.add(self.STATISTIC_DATA)
+
+            return node_add_res
+
+        except (socket.gaierror, socket.herror):
+            print("backend Exception, file:node:class:node:func:add")
+            return {"failure": "Node name resolution failure, the node name maybe not correct."}
 
         except Exception as e:
-            print("backend Exception, file:node:class:node:func:__add__")
+            print("backend Exception, file:node:class:node:func:add")
             print(e)
             return {"failure": str(e)}
 
-    def __delete__(self, account_email: str, realm: str, node_ids: list):
+    def delete(self, account_email: str, realm: str, node_id: str):
         """ this function delete an existing node by id """
-        print(" >>> Enter file:node:class:Node:function:__delete__")
+        print(" >>> Enter file:node:class:Node:function:delete")
         try:
-            resp_nodes_del = []
-            self.STATISTIC_DATA["object_action"] = 'delete'
-            self.STATISTIC_DATA["timestamp"] = statistic.UTC_time()
-            self.STATISTIC_DATA["account_email"] = account_email
-            self.STATISTIC_DATA["realm"] = realm
-            nodes = self.list_by_ids(realm, node_ids)["hits"]["hits"]
-            for node in nodes:
+            node = self.list_by_id(realm, node_id)["hits"]["hits"]
+            node_del_res = self.ES.delete(index=self.DB_INDEX, id=node["_id"], refresh=True)
+            if node_del_res["result"] == "deleted":
+                self.STATISTIC_DATA["object_action"] = 'delete'
+                self.STATISTIC_DATA["timestamp"] = statistic.UTC_time()
+                self.STATISTIC_DATA["account_email"] = account_email
+                self.STATISTIC_DATA["realm"] = realm
                 self.STATISTIC_DATA["object_name"] = node["_source"]["name"]
-                self.STATISTIC.__add__(self.STATISTIC_DATA)
-                resp_nodes_del.append(self.ES.delete(index=self.DB_INDEX, id=node["_id"], refresh=True))
+                self.STATISTIC.add(self.STATISTIC_DATA)
+
+            return node_del_res
 
         except Exception as e:
-            print("backend Exception, file:node:class:node:func:__delete__")
+            print("backend Exception, file:node:class:node:func:delete")
             print(e)
             return {"failure": str(e)}
 
     def delete_by_realm(self, data: dict):
         """ this function delete all the node that belong the same realm """
         print(" >>> Enter file:node:class:Node:function:delete_by_realm")
-        nodes = self.__list__(data["realm"])
-        [self.__delete__({"id": node["_id"], "realm": data["realm"], "account_email": data["account_email"]}) for node in nodes["hits"]["hits"]]
+        nodes = self.list(data["realm"])
+        [self.delete({"id": node["_id"], "realm": data["realm"], "account_email": data["account_email"]}) for node in nodes["hits"]["hits"]]
 
-    def update(self, id: str, data: dict):
+    def update(self, node_id: str, data: dict):
         print(" >>> Enter file:node:class:Node:function:update")
         try:
-            return self.ES.update(index=self.DB_INDEX, id=id, body=json.dumps({"doc": data}), refresh=True)
+            return self.ES.update(index=self.DB_INDEX, id=node_id, body=json.dumps({"doc": data}), refresh=True)
 
         except Exception as e:
             print("backend Exception, file:node:class:node:func:update")
             print(e)
             return {"failure": e}
 
-    def __list__(self, realm: str):
+    def list(self, realm: str):
         """ this function returns all the node object present in the database """
-        print(" >>> Enter file:node:class:Node:function:__list__")
+        print(" >>> Enter file:node:class:Node:function:list")
         try:
             req = json.dumps(
                 {
@@ -125,13 +151,13 @@ class Node:
             return self.ES.search(index=self.DB_INDEX, body=req)
 
         except Exception as e:
-            print("backend Exception, file:node:class:node:func:__list__")
+            print("backend Exception, file:node:class:node:func:list")
             print(e)
             return {"failure": str(e)}
 
-    def list_by_ids(self, realm: str, node_ids: list):
+    def list_by_id(self, realm: str, node_id: str):
         """ this function returns all the node object by id """
-        print(" >>> Enter file:node:class:Node:function:list_by_ids")
+        print(" >>> Enter file:node:class:Node:function:list_by_id")
         try:
             req = json.dumps(
                 {
@@ -140,8 +166,8 @@ class Node:
                         "bool": {
                             "filter": [
                                 {
-                                    "terms": {
-                                        "_id": node_ids
+                                    "term": {
+                                        "_id": node_id
                                     }
                                 },
                                 {
@@ -164,13 +190,13 @@ class Node:
             return self.ES.search(index=self.DB_INDEX, body=req)
 
         except Exception as e:
-            print("backend Exception, file:node:class:node:func:list_by_ids")
+            print("backend Exception, file:node:class:node:func:list_by_id")
             print(e)
             return {"failure": str(e)}
 
-    def list_by_names(self, realm: str, names: list):
+    def list_by_name(self, realm: str, name: str):
         """ this function returns all the node object by name """
-        print(" >>> Enter file:node:class:Node:function:list_by_names")
+        print(" >>> Enter file:node:class:Node:function:list_by_name")
         try:
             req = json.dumps(
                 {
@@ -184,8 +210,8 @@ class Node:
                                     }
                                 },
                                 {
-                                    "terms": {
-                                        "name": names
+                                    "term": {
+                                        "name": name
                                     }
                                 }
                             ]
@@ -203,7 +229,7 @@ class Node:
             return self.ES.search(index=self.DB_INDEX, body=req)
 
         except Exception as e:
-            print("backend Exception, file:node:class:node:func:list_by_names")
+            print("backend Exception, file:node:class:node:func:list_by_name")
             print(e)
             return {"failure": str(e)}
 
@@ -244,15 +270,12 @@ class Node:
             print(e)
             return {"failure": str(e)}
 
-    def map_id_name(self, realm: str, node_ids: list):
+    def map_id_name(self, realm: str, node_id: str):
         """ This function returns a JSON object of {"id_a": "name_a", "id_b": "name_b", ... } """
         print(" >>> Enter file:node:class:Node:function:map_id_name")
         try:
-            mapping = {}
-            resp = self.list_by_ids(realm, node_ids)
-            for node in resp["hits"]["hits"]:
-                mapping[node["_source"]["name"]] = node["_id"]
-            return mapping
+            node = self.list_by_id(realm, node_id)["hits"]["hits"][0]
+            return node["_source"]["name"]
 
         except Exception as e:
             print(e)
@@ -275,7 +298,7 @@ class Node:
     def rescan(self, data: dict):
         print(" >>> Enter file:node:class:Node:function:rescan")
         try:
-            node_data = self.list_by_ids(data["realm"], data["id"].split(" "))["hits"]["hits"][0]["_source"]
+            node_data = self.list_by_id(data["realm"], data["id"])["hits"]["hits"][0]["_source"]
             self.STATISTIC_DATA["object_action"] = 'update'
             self.STATISTIC_DATA["object_name"] = node_data["name"]
             self.STATISTIC_DATA["timestamp"] = statistic.UTC_time()
@@ -287,7 +310,7 @@ class Node:
                 node_data["ip"] = discovered_data["ip"]
                 node_data["roles"] = discovered_data["roles"]
                 node_data["peers"] = discovered_data["peers"]
-                self.STATISTIC.__add__(self.STATISTIC_DATA)
+                self.STATISTIC.add(self.STATISTIC_DATA)
                 return self.update(data["id"], node_data)
 
             else:
@@ -301,7 +324,7 @@ class Node:
     def is_running(self, realm: str, node_id: str):
         print(" >>> Enter file:node:class:Node:function:is_running")
         try:
-            resp = self.list_by_ids(realm, node_id.split())
+            resp = self.list_by_id(realm, node_id)
             return True if resp["hits"]["hits"][0]["_source"]["mode"] == "running" else False
             
         except Exception as e:

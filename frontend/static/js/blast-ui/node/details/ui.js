@@ -51,7 +51,7 @@ async function main() {
     let urlParams = new URLSearchParams(window.location.href.split('?')[1])
     if ( urlParams.has("id") ) {
         let nodeId = urlParams.get("id")
-        let nodeData = await node.listByIds([nodeId])
+        let nodeData = await node.listById(nodeId)
         node.load(nodeData["hits"]["hits"][0])
         setPageTitle(node.name)
         setButtonDeleteAction(nodeId)

@@ -16,8 +16,12 @@
 */
 
 import Cluster from '../../cluster.js'
-
+import Toast from '../main/notification/toast.js'
+import {dictionary} from '../main/message/en/dictionary.js'
 var cluster = new Cluster()
+var toast = new Toast()
+toast.msgPicture = '../../../img/object/cluster.svg'
+
 
 const ClusterForm = class {
 
@@ -60,12 +64,19 @@ const ClusterForm = class {
 
     addCluster = () => {
         this.setFormData()
-        cluster.add([this.formData]).then((Resp) => {
-            for ( let idx in Resp ) {
-                if ( Resp[idx]["result"] === "created" ) {
-                    location.reload()
-                }
+        let actionRes, clusterData = this.formData
+        cluster.add(clusterData).then((Resp) => {
+            if ( Resp["result"] === "created" ) {
+                toast.msgTitle = "Cluster create Success"
+                toast.msgText = dictionary["cluster"]["add"].replace('%clusterName%', clusterData["name"])
+                actionRes = "success"
+            } else if ( Object.keys(Resp).includes("failure") ) {
+                toast.msgTitle = "Cluster create Failure"
+                toast.msgText = Resp["failure"]
+                actionRes = "failure"
             }
+            toast.notify(actionRes)
+            setTimeout(() => { location.reload() }, 2000)
         })
     }
 

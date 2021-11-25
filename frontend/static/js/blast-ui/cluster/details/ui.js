@@ -27,7 +27,7 @@ var clusterManageNodes = new ClusterManageNodes()
 
 const setButtonDeleteAction = function(clusterId) {
     $('#btnDelCluster').on("click", function() {
-        cluster.delete([clusterId]).then(function(Resp) { location.href = "/html/cluster.html" })
+        cluster.delete(clusterId).then(function(Resp) { location.href = "/html/cluster.html" })
     })
 }
 
@@ -39,7 +39,7 @@ async function main() {
     let urlParams = new URLSearchParams(window.location.href.split('?')[1])
     if (urlParams.has("id")) {
         let clusterId = urlParams.get("id")
-        let clusterData = await cluster.listByIds([clusterId])
+        let clusterData = await cluster.listById(clusterId)
         cluster.load(clusterData["hits"]["hits"][0])
         setPageTitle(cluster.name)
         setButtonDeleteAction(cluster.id)

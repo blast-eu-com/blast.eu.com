@@ -31,10 +31,6 @@
     <!-- <body class="d-flex flex-column" style="background-image: url('/img/blast_first_page_3.jpeg'); background-position: center"> -->
     <body class="d-flex flex-column">
         <div class="container p-0 min-vh-100 min-vw-100">
-
-            <!-- <div aria-live="polite" aria-atomic="true" style="position: relative; min-height: 100px;">
-                <div id="toaster" style="position: absolute; top: 50px; right: 30px"></div></div> -->
-
             <div class="container min-vh-100 min-vw-100">
                 <div class="row min-vh-100">
                     <div class="col-md-6" style="background-color: #FEFEFE">
@@ -57,7 +53,7 @@
                                             </div>
                                             <div class="row">
                                                 <div class="col-3">
-                                                    <button class="btn blast-btn" onclick="loginAccount();">Login</button>
+                                                    <button class="btn blast-login-btn" onclick="loginAccount();">Login</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -81,7 +77,7 @@
                                             </div>
                                             <div class="row">
                                                 <div class="col-3">
-                                                    <button class="btn blast-btn" onclick="registerAccount();">Register</button>
+                                                    <button class="btn blast-login-btn" onclick="registerAccount();">Register</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -95,24 +91,22 @@
                     </div>
                 </div>
             </div>
-            <div style="position: fixed; bottom: 0px; padding-top: 12.5px; border-top: thin solid black; height: 50px; width: 100%; text-align: center; background-color: #343A40; color: #ffffff">
-                <p>Copyright &copy; 2021 Blast.eu.com<p>
-            </div>
-            <script>
-                function updateRegisterMenu() {
-                    var inputCheckbox = document.getElementById("checkboxDefaultRealm")
-                    var registerAccountRealmContainer = document.getElementById("registerAccountRealmContainer")
-                    var defaultRealmTextContainer = document.getElementById("defaultRealmTextContainer")
-                    if ( inputCheckbox.checked ) {
-                        registerAccountRealmContainer.style.display = "none"
-                        defaultRealmTextContainer.style.display = "flex"
-                    }
-                    else {
-                        registerAccountRealmContainer.style.display = "flex"
-                        defaultRealmTextContainer.style.display = "none"
-                    }
-                }
-            </script>
+            <div style="position: fixed; bottom: 0px; padding-top: 12.5px; border-top: thin solid black; height: 50px; width: 100%; text-align: center; background-color: #343A40; color: #ffffff"><div><p>Copyright &copy; 2021 Blast.eu.com</divp></div>
         </div>
+        <div id="notification-container" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11"></div>
+        <script>
+            function updateRegisterMenu() {
+                var inputCheckbox = document.getElementById("checkboxDefaultRealm")
+                var registerAccountRealmContainer = document.getElementById("registerAccountRealmContainer")
+                var defaultRealmTextContainer = document.getElementById("defaultRealmTextContainer")
+                if ( inputCheckbox.checked ) {
+                    registerAccountRealmContainer.style.display = "none"
+                    defaultRealmTextContainer.style.display = "flex"
+                } else {
+                    registerAccountRealmContainer.style.display = "flex"
+                    defaultRealmTextContainer.style.display = "none"
+                }
+            }
+        </script>
     </body>
 </html>

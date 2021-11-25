@@ -111,12 +111,6 @@ class Request:
             print(str(e))
             return {"failure": str(e)}
 
-    def exec_request(self, request_data):
-        pass
-
-    def reject_request(self, request_data):
-        pass
-
     def list(self, account_email):
         """
             This function returns all the requests where

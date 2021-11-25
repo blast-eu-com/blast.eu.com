@@ -17,17 +17,12 @@
 """
 
 import os
-import sys
 import json
-from env import _SERVER_DIR
-sys.path.insert(0, _SERVER_DIR)
-from api import db
+from env import _DATAMODEL_DIR, _ESC
 
-__REALM = 'default'
-__DATAMODEL_DIR = os.path.join(os.path.abspath('..'), 'datamodel')
-__DATAMODEL_REALM_FILE = os.path.join(__DATAMODEL_DIR, 'script_lang.template.mapping')
-__ES_ADDR = db.ES_PROTOCOL + """://""" + str(db.ES_HOSTNAME) + """:""" + str(db.ES_PORT)
-__SCRIPTLANG = [
+__DATAMODEL_SCRIPT_LANG_FILE = os.path.join(_DATAMODEL_DIR, 'script_lang.template.mapping')
+__INDEX_NAME = "blast_script_lang"
+__INDEX_DATA = [
     {"name": "Ansible", "picture": "Ansible.svg"},
     {"name": "Bash", "picture": "Bash.svg"},
     {"name": "Julia", "picture": "Julia.svg"},
@@ -35,36 +30,32 @@ __SCRIPTLANG = [
     {"name": "Python", "picture": "Python.svg"},
     {"name": "Ruby", "picture": "Ruby.svg"}
 ]
-
-__CREATE_INDEX_TEMPLATE = """curl -s -XPUT -H \"Content-Type: Application/Json\" """ + __ES_ADDR + """/_template/blast_script_lang -d@""" + __DATAMODEL_REALM_FILE
+__INDEX_TEMPLATE_DATA = json.load(open(__DATAMODEL_SCRIPT_LANG_FILE, "r"))
 
 
 def defineIndexTemplate():
 
-    try:
-        if json.load(os.popen(__CREATE_INDEX_TEMPLATE))["acknowledged"]:
-            return True
-    except KeyError:
-        return False
+    ret = _ESC.es.indices.put_index_template(name=__INDEX_NAME, body=json.dumps(__INDEX_TEMPLATE_DATA))
+    if not ret["acknowledged"]:
+        raise Exception(ret)
 
 
 def provisionDefault():
 
-    try:
-        for lang in __SCRIPTLANG:
-            __ES_PROVISION_DEFAULT = """curl -s -XPOST -H \"Content-Type: Application/Json\" """ + __ES_ADDR + """/blast_script_lang/_doc -d \'""" + json.dumps(lang) + """\'"""
-            if not json.load(os.popen(__ES_PROVISION_DEFAULT))["result"] == "created":
-                return False
-        return True
-    except KeyError:
-        return False
+    for document in __INDEX_DATA:
+        ret = _ESC.es.index(index=__INDEX_NAME, body=json.dumps(document))
+        if not ret["result"] == "created":
+            raise Exception(ret)
 
 
 def main():
 
-    if defineIndexTemplate():
-        if provisionDefault():
-            sys.exit(0)
+    try:
+        defineIndexTemplate()
+        provisionDefault()
+
+    except Exception as e:
+        print(e)
 
 
 if __name__ == "__main__":

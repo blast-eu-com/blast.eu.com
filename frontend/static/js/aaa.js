@@ -14,7 +14,12 @@
    limitations under the License.
 */
 import FrontendConfig from './frontend.js'
+import Toast from './blast-ui/main/notification/toast.js'
+
 let config = new FrontendConfig()
+let toast = new Toast()
+toast.msgPicture = '/'
+
 
 const Account = class {
 
@@ -251,7 +256,9 @@ const Account = class {
                 success: (Resp) => {
                     if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
                     if (Object.keys(Resp).includes("failure")) {
-                        console.log("failure")
+                        toast.msgTitle = 'Login Failure'
+                        toast.msgText = Resp["failure"]
+                        toast.notify()
                     } else {
                         resolve(Resp)
                     }

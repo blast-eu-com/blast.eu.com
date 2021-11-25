@@ -26,7 +26,7 @@ var realmListMembers = new RealmListMembers()
 const setButtonLeaveAction = function(realm) {
     $('#containerRealmActions').html(`<a id="btnLeaveRealm" class="btn btn-sm btn-primary ml-auto">Delete</a>`)
     $('#btnLeaveRealm').on("click", async function() {
-        let R = await realm.delete(realm.id)
+        let R = await realm.delete(realm.name)
         if ( R["result"] === "deleted" ) { location.href = "/html/realm.html" }
     })
 }
@@ -34,10 +34,6 @@ const setButtonLeaveAction = function(realm) {
 const setButtonJoinAction = function() {
     $('#containerRealmActions').html(`<a id="btnJoinRealm" class="btn btn-primary ml-auto">join</a>`)
     $('#btnJoinRealm').on("click", async function() {})
-}
-
-const setPageAction = function() {
-
 }
 
 const setPageTitle = function(realm) {
@@ -49,12 +45,21 @@ async function main() {
     if ( urlParams.has("realm_id") ) {
         let realmId = urlParams.get("realm_id")
         let realmName = urlParams.get("realm_name")
-        let realmData = await realm.listByIds([realmId])
-        realm.load(realmData["hits"]["hits"][0])
-        setPageTitle(realm)
-        if ( realmName !== "default" ) { setPageAction() }
-        realmListInfo.render('realmListInfo', realm)
-        realmListMembers.render('realmListMembers', realm)
+        let realmData = await realm.listByName(realmName)
+        if (!Object.keys(realmData).includes("failure")){
+            // failure to access the content of a realm maybe due to a permission denied
+            // if a user try to access the content of a realm or if a user tries to access non active realm
+            // read the failure message to identify the type of failure.
+            realm.load(realmData["hits"]["hits"][0])
+            setPageTitle(realm)
+            realmListInfo.render('realmListInfo', realm)
+            realmListMembers.render('realmListMembers', realm)
+        } else {
+            // As the user fails to access the content of the realm because he is not part of it
+            // the navigation redirect him to the realm subscription page. It will then have the choice
+            // to subscribe to the realm if he wishes.
+            window.location.href = "/html/realm-subscription.html?realm_name=" + realmName
+        }
     }
 }
 

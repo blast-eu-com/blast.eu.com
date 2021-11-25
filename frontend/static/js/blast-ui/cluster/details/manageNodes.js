@@ -17,9 +17,13 @@
 
 import Cluster from '../../../cluster.js'
 import Node from '../../../node.js'
-
+import Toast from '../../main/notification/toast.js'
+import {dictionary} from '../../main/message/en/dictionary.js'
 var cluster = new Cluster()
 var node = new Node()
+var toast = new Toast()
+toast.msgPicture = '../../../img/object/cluster.svg'
+
 
 const ClusterManageNodes = class {
 
@@ -36,8 +40,20 @@ const ClusterManageNodes = class {
     addNodeToCluster = () => {
         let nodeId = $('select[name=select_cluster_node_add] option:selected').val()
         let nodeName = $('select[name=select_cluster_node_add] option:selected').text()
-        let ClusterNodeData = {"id": nodeId, "name": nodeName }
-        cluster.add_node(this.cluster_id, [ClusterNodeData]).then(function(resp) { location.reload() })
+        let actionRes
+        cluster.add_node(this.clusterId, {"id": nodeId, "name": nodeName}).then((Resp) => {
+            if ( Resp["result"] === 'updated' ) {
+                toast.msgTitle = "Cluster add node Success"
+                toast.msgText = dictionary["cluster"]["addNode"].replace('%nodeName%', nodeName)
+                actionRes = "success"
+            } else if (Object.keys(Resp).includes("failure")) {
+                toast.msgTitle = "Cluster add node Failure"
+                toast.msgText = Resp["failure"]
+                actionRes = "failure"
+            }
+            toast.notify(actionRes)
+            setTimeout(() => { location.reload() }, 2000 )
+        })
     }
 
     setClusterManageAddNodes = async (cluster) => {
@@ -70,15 +86,28 @@ const ClusterManageNodes = class {
         cluster.nodes.forEach(function(nodeObj) {
             let option = document.createElement("option")
             let optionContent = document.createTextNode(nodeObj["name"])
-            option.setAttribute("value", nodeObj["id"])
+            option.setAttribute("value", nodeObj["name"])
             option.appendChild(optionContent)
             select.appendChild(option)
         })
     }
 
     remNodeFromCluster = () => {
-        let nodeId = $('select[name=select_cluster_node_rem] option:selected').val()
-        cluster.delete_node(this.cluster_id, [nodeId]).then(function(resp) { location.reload() })
+        let nodeName = $('select[name=select_cluster_node_rem] option:selected').val()
+        let actionRes
+        cluster.delete_node(this.clusterId, nodeName).then((Resp) => {
+            if ( Resp["result"] === 'updated' ) {
+                toast.msgTitle = "Cluster delete node Success"
+                toast.msgText = dictionary["cluster"]["deleteNode"].replace('%nodeName%', nodeName)
+                actionRes = "success"
+            } else if ( Object.keys(Resp).includes("failure") ) {
+                 toast.msgTitle = "Cluster delete node Failure"
+                 toast.msgText = Resp["failure"]
+                 actionRes = "failure"
+            }
+            toast.notify(actionRes)
+            setTimeout(() => { location.reload() }, 2000)
+        })
     }
 
     addFrame = () => {
@@ -87,7 +116,7 @@ const ClusterManageNodes = class {
 
     render = (parentName, cluster) => {
         this.parentName = parentName
-        this.cluster_id = cluster.id
+        this.clusterId = cluster.id
         this.addFrame()
         this.setClusterManageAddNodes(cluster)
         this.setClusterManageRemNodes(cluster)

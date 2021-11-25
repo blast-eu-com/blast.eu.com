@@ -91,9 +91,9 @@ class Setting:
 
     def __init__(self, ESConnector):
         self.ES = ESConnector
-        self.DB_INDEX = 'setting'
+        self.DB_INDEX = 'blast_setting'
 
-    def __add__(self, realm: str):
+    def add(self, realm: str):
         """ this function add a new setting document into the database """
         print(" >>> Enter file:setting:class:Setting:function:__add__")
         try:
@@ -105,7 +105,7 @@ class Setting:
             print(e)
             return {"failure": str(e)}
 
-    def __delete__(self, id: str):
+    def delete(self, id: str):
         """ this function delete the setting identified as id part of the realm id as passed in arg """
         print(" >>> Enter file:setting:class:Setting:function:__delete__")
         try:
@@ -122,7 +122,7 @@ class Setting:
         settings = self.list_by_realm(realm)
         [self.__delete__(setting["_id"]) for setting in settings["hits"]["hits"]]
 
-    def __list__(self, realm: str):
+    def list(self, realm: str):
         """ this function returns all the settings attached to the realm id passed as arg """
         print(" >>> Enter file:setting:class:Setting:function:__list__")
         try:
@@ -185,19 +185,18 @@ class Setting:
 
                 # encrypt the new ssh password
                 if data["ssh"]["password"] != "":
-                    data["ssh"]["password"] = encrypt_password(setting["_source"]["crypto"].encode('utf-8'),
-                                                               data["ssh"]["password"])
+                    data["ssh"]["password"] = encrypt_password(setting["_source"]["crypto"].encode('utf-8'), data["ssh"]["password"])
+                    data["ssh"]["is_password_set"] = True
                 else:
                     data["ssh"]["password"] = setting["_source"]["ssh"]["password"]
 
                 # encrypt the new ansible password
                 if data["ansible"]["password"] != "":
-                    data["ansible"]["password"] = encrypt_password(setting["_source"]["crypto"].encode('utf-8'),
-                                                                   data["ansible"]["password"])
+                    data["ansible"]["password"] = encrypt_password(setting["_source"]["crypto"].encode('utf-8'), data["ansible"]["password"])
+                    data["ansible"]["is_password_set"] = True
                 else:
                     data["ansible"]["password"] = setting["_source"]["ansible"]["password"]
 
-            print(data)
             return self.ES.update(index=self.DB_INDEX, id=id, body=json.dumps({"doc": data}), refresh=True)
 
         except Exception as e:

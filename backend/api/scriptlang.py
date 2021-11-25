@@ -15,8 +15,6 @@
    limitations under the License.
 """
 import json
-import elasticsearch
-
 
 
 class Scriptlang:
@@ -35,6 +33,6 @@ class Scriptlang:
             req = json.dumps({"query": {"match_all": {}}})
             return self.ES.search(index=self.DB_INDEX, body=req)
 
-        except elasticsearch.exceptions.ConnectionError as e:
+        except Exception as e:
             return {"failure": e}
 

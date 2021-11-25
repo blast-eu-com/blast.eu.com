@@ -42,7 +42,11 @@ const AnsibleForm = class {
             <div>
                 <label for="ansibleUserPassword" class="form-label">Ansible Password</div>
                 <input id="ansibleUserPassword" type="password" name="ansibleUserPassword" class="form-control" />
-                <div id="ansibleUserPasswordHelp" class="form-text">Define the Ansible password for the Ansible username given.</div>
+                <!-- <div id="ansibleUserPasswordHelp" class="form-text">Define the Ansible password for the Ansible username given.</div> -->
+                <div id="ansibleUserPasswordHelp">
+                    <input class="form-check-input" type="checkbox" value="" id="ansibleUserPasswordSet" disabled>
+                    <label class="form-check-label" for="ansibleUserPasswordSet">Ansible Password set</label>
+                </div>
             </div>
         `
         this.inputAnsibleCertificate = `
@@ -83,6 +87,7 @@ const AnsibleForm = class {
         $("#ansibleUserName").val(ansible["username"])
         $("#ansibleUserCertificate").val(ansible["certificate"])
         $("#ansibleInventoryLocation").val(ansible["inventory"]["location"])
+        if (ansible["is_password_set"]) { $("#ansibleUserPasswordSet").prop("checked", true) }
     }
 
     render(parentName) {

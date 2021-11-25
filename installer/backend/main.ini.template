@@ -6,7 +6,6 @@ uid = %BLAST_BACKEND_USER%
 gid = %BLAST_BACKEND_GRP%
 
 socket = %BLAST_BACKEND_HOSTNAME%:%BLAST_BACKEND_PORT%
-protocol = %BLAST_BACKEND_PROTOCOL%
 
 # name of project you during "django-admin startproject <name>"
 project_name = backend

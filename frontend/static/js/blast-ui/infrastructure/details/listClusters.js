@@ -32,7 +32,13 @@ const InfrastructureListClusters = class {
         clusterListSorted.forEach(function(clusterObj) {
             htmlTableCore = htmlTableCore + `<tr><td style="width: 16px">
                 <img src="/img/object/cluster.svg" height="24" width="24" /></td>`
-            $.each(clusterObj, function(idx, val) { htmlTableCore = htmlTableCore + '<td>' + val + '</td>' })
+            $.each(clusterObj, function(idx, val) {
+                if ( idx === "id" ) {
+                    htmlTableCore = htmlTableCore + '<td><a href="/html/cluster-details.html?id=' + val + '"><span class="badge blast-badge">' + val + '</span></a></td>'
+                } else {
+                   htmlTableCore = htmlTableCore + '<td>' + val + '</td>'
+                }
+            })
             htmlTableCore = htmlTableCore + '</tr>'
         })
         $("#" + this.parentName).html(htmlTableHeader + htmlTableCore + htmlTableFooter)

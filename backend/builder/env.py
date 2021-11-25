@@ -17,6 +17,25 @@
 """
 
 import os
+import sys
+import yaml
+
 
 _CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
 _SERVER_DIR = os.path.dirname(_CURRENT_DIR)
+_DATAMODEL_DIR = os.path.join(_SERVER_DIR, 'datamodel')
+_BLAST_BACKEND_CONFIG_FILE = "/etc/blast.eu.com/backend.yml"
+_BACKEND_CONFIG_DATA = yaml.load(open(_BLAST_BACKEND_CONFIG_FILE, "r"), Loader=yaml.FullLoader)
+
+
+sys.path.insert(0, _SERVER_DIR)
+from api import db
+
+
+if _BACKEND_CONFIG_DATA["elasticsearch"]["authenticate"]:
+    cmd = 'grep -wi "BLAST_ELASTIC_USER" /lib/systemd/system/backend.blast.eu.com.service | cut -f2 -d\\" | cut -f2- -d='
+    os.environ["BLAST_ELASTIC_USER"] = os.popen(cmd).read().split('\n')[0]
+    cmd = 'grep -wi "BLAST_ELASTIC_USER_PWD" /lib/systemd/system/backend.blast.eu.com.service | cut -f2 -d\\" | cut -f2- -d='
+    os.environ["BLAST_ELASTIC_USER_PWD"] = os.popen(cmd).read().split('\n')[0]
+
+_ESC = db.ESConnector()

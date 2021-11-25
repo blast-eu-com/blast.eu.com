@@ -24,9 +24,9 @@ const FrontendConfig = class {
          * this way the backend is not available from outside expect passing thru the nginx (frontend)
          */
         this.frontend = {
-            hostname: "192.168.168.54", // this hostname must be the frontend site url
-            port: "80", // this port must be the frontend port number
-            protocol: "http", // this protocol must be the site protocol
+            hostname: "192.168.168.59", // this hostname must be the frontend site url
+            port: "443", // this port must be the frontend port number
+            protocol: "https", // this protocol must be the site protocol
             version: "v1",
             webServerPath: "/opt/blast.eu.com/frontend/static",
             httpImgFolder: "/img"

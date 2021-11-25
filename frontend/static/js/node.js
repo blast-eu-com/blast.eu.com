@@ -61,26 +61,18 @@ let Node = class {
     get peers() { return this._peers }
     get mode() { return this._mode }
 
-    add = function(nodes) {
+    add = function(node) {
         return new Promise( function(resolve, reject) {
             $.ajax({
                 url: config.proxyAPI + '/realms/' + config.session.realm + '/nodes',
                 type: "POST",
                 headers: {'Authorization': config.session.httpToken},
-                data: JSON.stringify({"nodes": nodes}),
+                data: JSON.stringify({"node": node}),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function(Resp) {
-                    if ( typeof Resp === 'string' ) {
-                        Resp = JSON.parse(Resp)
-                        if (Object.keys(Resp).includes("tokenExpired")) {
-                            account.logout()
-                        } else if (Object.keys(Resp).includes("failure")) {
-                            console.log("failure")
-                        }
-                    } else if ( typeof Resp === 'object') {
-                        resolve(Resp)
-                    }
+                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })
@@ -96,51 +88,31 @@ let Node = class {
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function(Resp) {
-                    if ( typeof Resp === 'string' ) {
-                        Resp = JSON.parse(Resp)
-                        if (Object.keys(Resp).includes("tokenExpired")) {
-                            account.logout()
-                        } else if (Object.keys(Resp).includes("failure")) {
-                            console.log("failure")
-                        }
-                    } else if ( typeof Resp === 'object') {
-                        resolve(Resp)
-                    }
+                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
        })
     }
 
-    delete = function(node_ids) {
+    delete = function(nodeId) {
        return new Promise( function(resolve, reject) {
             $.ajax({
                 url: config.proxyAPI + '/realms/' + config.session.realm + '/nodes',
                 type: "DELETE",
                 headers: {'Authorization': config.session.httpToken},
-                data: json.stringify({"node_ids": node_ids}),
+                data: json.stringify({"node_id": nodeId}),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function(Resp) {
-                    if ( typeof Resp === 'string' ) {
-                        Resp = JSON.parse(Resp)
-                        if (Object.keys(Resp).includes("tokenExpired")) {
-                            account.logout()
-                        } else if (Object.keys(Resp).includes("failure")) {
-                            console.log("failure")
-                        }
-                    } else if ( typeof Resp === 'object') {
-                        resolve(Resp)
-                    }
+                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })
     }
 
-    list = () => {
-        /* this function returns a rampart API response from the /node/list *
-         *                                                                  *
-         * when it comes to node the list always take the cluster id because* 
-         * node information are always coming from elasticsearch cluster    */
+    list = function() {
         return new Promise( function( resolve, reject) {
             $.ajax({
                 url: config.proxyAPI + '/realms/' + config.session.realm + '/nodes',
@@ -148,47 +120,37 @@ let Node = class {
                 headers: {'Authorization': config.session.httpToken},
                 success: function(Resp) {
                     if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if ( Object.keys(Resp).includes("tokenExpired")) {
-                        account.logout()
-                    } else { resolve(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })
     }
 
-    listByIds = (nodeIds) => {
-        /*
-         * this function returns a rampart API response from the /node/list_by_id *
-         * the node details will be displayed to inform user
-        */
+    listById = (nodeId) => {
         return new Promise( function( resolve, reject) {
             $.ajax({
                 url: config.proxyAPI + '/realms/' + config.session.realm + '/nodes/ids',
                 type: "GET",
-                data: {"ids": nodeIds},
+                data: {"id": nodeId},
                 headers: {'Authorization': config.session.httpToken},
                 success: function(Resp) {
                     if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if ( Object.keys(Resp).includes("tokenExpired")) {
-                        account.logout()
-                    } else { resolve(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })
     }
 
-    listByNames = (names) => {
+    listByName = (name) => {
         return new Promise(function(resolve, reject) {
             $.ajax({
                 url: config.proxyAPI + '/realms/' + config.session.realm + '/nodes/names',
                 type: "GET",
                 headers: {"Authorization": config.session.httpToken },
-                data: {"names": names},
+                data: {"name": name},
                 success: function(Resp) {
                     if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if ( Object.keys(Resp).includes("tokenExpired")) {
-                        account.logout()
-                    } else { resolve(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })
@@ -202,9 +164,7 @@ let Node = class {
                 headers: {'Authorization': config.session.httpToken},
                 success: function(Resp) {
                     if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if ( Object.keys(Resp).includes("tokenExpired")) {
-                        account.logout()
-                    } else { resolve(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })
@@ -218,9 +178,7 @@ let Node = class {
                 headers: {'Authorization': config.session.httpToken},
                 success: function(Resp) {
                     if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if ( Object.keys(Resp).includes("tokenExpired")) {
-                        account.logout()
-                    } else { resolve(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })

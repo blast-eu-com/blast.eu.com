@@ -15,6 +15,13 @@
    limitations under the License.
 */
 
+import Scenario from '../../scenario.js'
+import Toast from '../main/notification/toast.js'
+import {dictionary} from '../main/message/en/dictionary.js'
+var scenario = new Scenario()
+var toast = new Toast()
+toast.msgPicture = '../../../img/object/scenario.svg'
+
 const ScenarioForm = class {
 
     constructor(parentName) {
@@ -94,21 +101,45 @@ const ScenarioForm = class {
     }
 
     oneShotScenario = async () => {
-        this.setFormData()
+        let actionRes, scenarioData = this.setFormData()
         this.formData["nodes"] = await this.scenarioNodesTree.runNodesId()
         this.formData["scripts"] = await this.scriptFilterAndSelect.runScriptsId()
-        this.scenario.runScenario(this.formData)
+        scenario.execute(this.formData).then((Resp) => {
+            if (Resp["result"] === "created") {
+                toast.msgTitle = "Scenario execute Success"
+                toast.msgText = "Scenario execute"
+                actionRes = "success"
+            } else if ( Object.keys(Resp).includes("failure") ) {
+                toast.msgTitle = "Scenario execute Failure"
+                toast.msgText = Resp["failure"]
+                actionRes = "failure"
+            }
+            toast.notify(actionRes)
+            setTimeout(() => { location.reload() }, 2000)
+        })
     }
 
     saveScenario = async () => {
         this.setFormData()
         this.formData["nodes"] = await this.scenarioNodesTree.runNodesId()
         this.formData["scripts"] = await this.scriptFilterAndSelect.runScriptsId()
-        this.scenario.saveScenario(this.formData)
+        let actionRes, scenarioData = this.formData
+        scenario.add(scenarioData).then((Resp) => {
+            if (Resp["result"] === "created") {
+                toast.msgTitle = "Scenario create Success"
+                toast.msgText = dictionary["scenario"]["add"].replace('%scenarioName%', scenarioData["name"])
+                actionRes = "success"
+            } else if ( Object.keys(Resp).includes("failure") ) {
+                toast.msgTitle = "Scenario create Failure"
+                toast.msgText = Resp["failure"]
+                actionRes = "failure"
+            }
+            toast.notify(actionRes)
+            setTimeout(() => { location.reload() }, 2000)
+        })
     }
 
-    render = (scenario, scenarioNodesTree, scriptFilterAndSelect) => {
-        this.scenario = scenario
+    render = (scenarioNodesTree, scriptFilterAndSelect) => {
         this.scenarioNodesTree = scenarioNodesTree
         this.scriptFilterAndSelect = scriptFilterAndSelect
         this.addFrame()

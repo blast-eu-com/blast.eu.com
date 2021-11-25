@@ -49,19 +49,14 @@
         </script>
 
         <div class="container p-0 min-vh-100 min-vw-100">
-
-            <div aria-live="polite" aria-atomic="true" style="position: relative; min-height: 100px;">
-                <div id="toaster" style="position: absolute; top: 65px; right: 30px"></div></div>
-
             <div id="nav_container" class="min-vw-100 bg-dark blast-nav"></div>
-
             <div id="side_nav_container" class="d-inline-block min-vh-100 blast-sidenav">
                 <script type="module">mainUI("script");</script>
             </div>
 
             <div id="blast-disp" class="min-vh-100 blast-disp">
                 <div>
-                    <nav aria-label="breadcrumb">
+                    <nav class="blast-obj-title" aria-label="breadcrumb">
                         <ol class="breadcrumb blast-breadcrumb fs-4 text-white">
                             <li class="breadcrumb-item">
                                 <a href="/html/script.html" class="text-white">Script</a>
@@ -76,7 +71,12 @@
                         <div class="card-body">
                             <div class="card-title row">
                                 <div class="col-11"></div>
-                                <div class="col-1"><a id="btnDelScript" role="button" class="btn blast-btn">Delete</a></div>
+                                <div class="col-1">
+                                    <!--
+                                        disable delete action on script
+                                        <a id="btnDelScript" role="button" class="btn blast-btn">Delete</a>
+                                    -->
+                                </div>
                             </div>
                             <div id="scriptListInfo" class="card-text"></div>
                         </div>
@@ -92,5 +92,6 @@
                 </div>
             </div>
         </div>
+        <div id="notification-container" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11"></div>
     </body>
 </html>

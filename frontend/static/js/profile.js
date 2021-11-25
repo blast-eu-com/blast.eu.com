@@ -15,11 +15,9 @@
 */
 
 import Account from './aaa.js'
-import Nav from './nav.js'
 import FrontendConfig from './frontend.js'
 
 let account = new Account()
-let nav = new Nav()
 let config = new FrontendConfig()
 
 export function updateProfile() {
@@ -32,10 +30,5 @@ export function updateProfile() {
     }
     account.update(profileData).then((Resp) => {
         console.log(Resp)
-        // account.cookies(config.session.accountEmail).then((setCookieResult) => {
-        //    console.log(setCookieResult)
-            // nav.loadNavBarProfilePicture()
-            // location.reload()
-        // })
     })
 }

@@ -15,7 +15,11 @@
 */
 
 import Node from '../../node.js'
+import Toast from '../main/notification/toast.js'
+import {dictionary} from '../main/message/en/dictionary.js'
 var node = new Node()
+var toast = new Toast()
+toast.msgPicture = '../../../img/object/node.svg'
 
 const NodeForm = class {
 
@@ -99,17 +103,44 @@ const NodeForm = class {
         $("#" + parentName).html(this.frame)
     }
 
-    addNode = () => {
+    validateForm = () => {
         this.setFormData()
-        node.add([this.formData]).then(function(R) {
-            for ( let idx in R ) {
-                if (R[idx]["result"] === "created") {
-                    let nodeMsg = `Node ` + nodeData["name"] + ` successfully created.`
-                    // windower.displayToastMsg(nodeMsg)
-                    loadNodeList()
+        let nodeName = this.formData["name"].trim(), nodeIP = this.formData["ip"].trim()
+        let actionRes = "failure"
+        toast.msgTitle = "Node submit Failure"
+
+        if ( nodeName === '' ) {
+            toast.msgText = "The node name is required. Empty value is not accepted."
+            toast.notify(actionRes)
+            return false
+        }
+
+        if ( nodeIP === '' ) {
+            toast.msgText = "The node IP is required. Empty value is not accepted."
+            toast.notify(actionRes)
+            return false
+        }
+
+        return true
+    }
+
+    addNode = () => {
+        if ( this.validateForm() ) {
+            let actionRes, nodeData = this.formData
+            node.add(nodeData).then((Resp) => {
+                if (Resp["result"] === "created") {
+                    toast.msgTitle = "Node create Success"
+                    toast.msgText = dictionary["node"]["add"].replace('%nodeName%', nodeData["name"])
+                    actionRes = "success"
+                } else if ( Object.keys(Resp).includes("failure") ) {
+                    toast.msgTitle = "Node create Failure"
+                    toast.msgText = Resp["failure"]
+                    actionRes = "failure"
                 }
-            }
-        })
+                toast.notify(actionRes)
+                setTimeout(() => { location.reload() }, 2000)
+            })
+        }
     }
 
     render = (parentName) => {

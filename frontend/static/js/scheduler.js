@@ -84,10 +84,14 @@ let Scheduler = class {
                 type: "GET",
                 headers: {"Authorization": config.session.httpToken},
                 success: function(Resp) {
-                    if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
+                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
                     if (Object.keys(Resp).includes("tokenExpired")) {
                         account.logout()
-                    } else { resolve(Resp) }
+                    } else if (Object.keys(Resp).includes("failure")) {
+                        console.log("failure")
+                    } else {
+                        resolve(Resp)
+                    }
                 }
             })
         })
@@ -101,10 +105,14 @@ let Scheduler = class {
                 data: {"ids": schedulerIds},
                 headers: {"Authorization": config.session.httpToken},
                 success: (Resp) => {
-                    if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
+                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
                     if (Object.keys(Resp).includes("tokenExpired")) {
                         account.logout()
-                    } else { resolve(Resp) }
+                    } else if (Object.keys(Resp).includes("failure")) {
+                        console.log("failure")
+                    } else {
+                        resolve(Resp)
+                    }
                 }
             })
         })
@@ -120,10 +128,14 @@ let Scheduler = class {
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: (Resp) => {
-                    if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired") ) {
+                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) {
                         account.logout()
-                    } else { resolve(Resp) }
+                    } else if (Object.keys(Resp).includes("failure")) {
+                        console.log("failure")
+                    } else {
+                        resolve(Resp)
+                    }
                 }
             })
         })

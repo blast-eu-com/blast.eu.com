@@ -41,7 +41,9 @@ const SchedulerListInfo = class {
                     }
                 })
             } else if ( idx === 'scenario_ids' ) {
-                html = html + '<tr><td><b>' + idx.charAt(0).toUpperCase() + idx.slice(1) + '</b></td><td><span class="badge blast-badge">' + val + '</span></td></tr>'
+                let html_scenario_ids = ''
+                val.forEach((scenario_id) => { html_scenario_ids = html_scenario_ids + '<a class="me-1" href="/html/scenario-details.html?id=' + scenario_id + '"><span class="badge blast-badge">' + scenario_id + '</span></a>' })
+                html = html + '<tr><td><b>' + idx.charAt(0).toUpperCase() + idx.slice(1) + '</b></td><td>' + html_scenario_ids + '</td></tr>'
             } else {
                 html = html + '<tr><td><b>' + idx.charAt(0).toUpperCase() + idx.slice(1) + '</b></td><td>' + val + '</td></tr>'
             }

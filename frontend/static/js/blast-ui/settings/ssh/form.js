@@ -36,7 +36,11 @@ const SshForm = class {
         this.inputSshPassword = `
             <label for="sshPassword" class="form-label">ssh password</label>
             <input id="sshPassword" name="sshPassword" type="password" class="form-control" />
-            <div id="sshPasswordHelp" class="form-text">Define the SSH password of the SSH username.</div>
+            <!-- <div id="sshPasswordHelp" class="form-text">Define the SSH password of the SSH username.</div> -->
+            <div id="sshPasswordHelp">
+                <input class="form-check-input" type="checkbox" value="" id="sshPasswordSet" disabled>
+                <label class="form-check-label" for="sshPasswordSet">SSH Password set</label>
+            </div>
         `
         this.inputSshCertificate = `
             <label for="sshCertificate" class="form-label">ssh certificate</label>
@@ -78,6 +82,7 @@ const SshForm = class {
         $("#sshUsername").val(ssh["username"])
         $("#sshCertificate").val(ssh["certificate"])
         $("#sshLocation").val(ssh["location"])
+        if (ssh["is_password_set"]) { $("#sshPasswordSet").prop("checked", true) }
     }
 
     render = (parentName) => {

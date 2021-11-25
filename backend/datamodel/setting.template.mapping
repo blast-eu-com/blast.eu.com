@@ -9,6 +9,7 @@
                     "properties": {
                         "username" : { "type": "keyword" },
                         "password" : { "type": "keyword" },
+                        "is_password_set": { "type": "boolean" },
                         "certificate": { "type": "keyword" },
                         "inventory": {
                             "properties": {
@@ -21,6 +22,7 @@
                     "properties": {
                         "username" : { "type" : "keyword" },
                         "password" : { "type" : "keyword" },
+                        "is_password_set": { "type": "boolean" },
                         "certificate" : { "type" : "keyword" },
                         "location": { "type": "keyword" }
                     }

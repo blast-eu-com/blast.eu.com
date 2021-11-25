@@ -246,8 +246,11 @@ const ScriptFilterAndSelect = class {
 
     runScriptsId = async () => {
         let scriptsId = []
-        let scriptsData = await script.listByNames(this.runScripts())
-        for ( let i=0; i<scriptsData["hits"]["hits"].length; i++) { scriptsId.push(scriptsData["hits"]["hits"][i]["_id"]) }
+        let scriptsList = this.runScripts()
+        for ( let i=0; i < scriptsList.length; i++ ) {
+            let scriptData = await script.listByName(scriptsList[i])
+            scriptsId.push(scriptData["hits"]["hits"][0]["_id"])
+        }
         return scriptsId
     }
 

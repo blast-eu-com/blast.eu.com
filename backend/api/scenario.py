@@ -11,6 +11,8 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 """
+
+import re
 import json
 import threading
 import base64
@@ -31,29 +33,41 @@ class Scenario:
         self.STATISTIC_DATA = self.STATISTIC.STATISTIC_DATA
         self.STATISTIC_DATA["object_type"] = 'scenario'
 
-    def __add__(self, account_email: str, realm: str, scenarios: list):
+    def add(self, account_email: str, realm: str, scenario: dict):
 
         try:
-            resp_scenario_add = []
-            self.STATISTIC_DATA["object_action"] = 'create'
-            self.STATISTIC_DATA["account_email"] = account_email
-            self.STATISTIC_DATA["realm"] = realm
-            print(scenarios)
-            for scenario in scenarios:
+            if scenario["name"] == "":
+                raise Exception("Scenario name is required. Empty value is not accepted.")
+
+            scenario_name_pattern = re.compile("[a-zA-Z0-9\-_]+")
+            if scenario_name_pattern.fullmatch(scenario["name"]):
+                raise Exception("Cluster name is not valid. Alphanumeric characters and '_', '-', are accepted.")
+
+            if len(scenario["nodes"]) == 0:
+                raise Exception("Scenario nodes must not be null. Select one node at least.")
+
+            if len(scenario["scripts"]) == 0:
+                raise Exception("Scenario scripts must not be null. Select one script at least.")
+
+            scenario["realm"] = realm
+            scenario["account_email"] = account_email
+            scenario_add_res = self.ES.index(index=self.DB_INDEX, body=json.dumps(scenario), refresh=True)
+            if scenario_add_res["result"] == "created":
+                self.STATISTIC_DATA["object_action"] = 'create'
+                self.STATISTIC_DATA["account_email"] = account_email
+                self.STATISTIC_DATA["realm"] = realm
                 self.STATISTIC_DATA["timestamp"] = statistic.UTC_time()
                 self.STATISTIC_DATA["object_name"] = scenario["name"]
-                self.STATISTIC.__add__(self.STATISTIC_DATA)
-                scenario["realm"] = realm
-                scenario["account_email"] = account_email
-                resp_scenario_add.append(self.ES.index(index=self.DB_INDEX, body=json.dumps(scenario), refresh=True))
-            return resp_scenario_add
+                self.STATISTIC.add(self.STATISTIC_DATA)
+
+            return scenario_add_res
 
         except Exception as e:
             print("backend Exception, file:scenario:class:scenario:func:__add__")
             print(e)
             return {"failure": str(e)}
 
-    def __delete__(self, realm: str, scenario_ids: list):
+    def delete(self, realm: str, scenario_ids: list):
 
         try:
             req = json.dumps(
@@ -96,6 +110,15 @@ class Scenario:
         :param scenario_id: Id of the object to be executed
         """
         try:
+            if scenario["name"] == "":
+                raise Exception("Scenario name is required to execute.")
+
+            if len(scenario["nodes"]) == 0:
+                raise Exception("Scenario nodes is required to execute. Select one node at least.")
+
+            if len(scenario["scripts"]) == 0:
+                raise Exception("Scenario scripts is required to execute. Select one script at least.")
+
             scenario_manager = scenarioManager.ScenarioManager(self.ES)
             scenario_id = str("oneshot-" + base64.urlsafe_b64encode(''.join([random.choice(string.ascii_letters + string.digits) for n in range(16)]).encode('utf-8')).decode("utf-8"))
             execute_scenario_kwargs = {
@@ -114,7 +137,7 @@ class Scenario:
             print(e)
             return {"failure": str(e)}
 
-    def __list__(self, realm: str):
+    def list(self, realm: str):
 
         try:
             req = json.dumps(

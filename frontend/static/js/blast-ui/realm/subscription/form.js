@@ -15,6 +15,16 @@
 */
 
 
+import FrontendConfig from '../../../frontend.js'
+import Request from "../../../request.js"
+import Toast from '../../main/notification/toast.js'
+import {dictionary} from '../../main/message/en/dictionary.js'
+var config = new FrontendConfig()
+var toast = new Toast()
+var request = new Request()
+toast.msgPicture = '../../../img/object/infrastructure.svg'
+
+
 class RealmSubscriptionForm {
 
     constructor() {
@@ -27,13 +37,12 @@ class RealmSubscriptionForm {
             </div>
         `
         this.FormText = `
-            <p>You are not a member of this realm so you cannot access to this realm details. You can subscribe to
-            this realm by clicking on the below button. Attention: your admission to the realm is not automatic, it
-            must be approved by the owner of the realm.</p>
+            <p>Read access permission denied. You can become a member of this realm by clicking on the subscribe button.
+            Attention: your admission to the realm is not automatic, the owner of the realm must approve it.</p>
         `
 
         this.FormInputText = `
-            <div>Add a comment to your request.</div>
+            <div>Add a comment to motivate your request.</div>
             <textarea id="requestMessage" rows="4" cols="64"></textarea>
         `
 
@@ -47,6 +56,33 @@ class RealmSubscriptionForm {
     set parentName(pn) { this._pn = pn }
 
     get parentName() { return this._pn }
+
+    subscribeRealm = () => {
+        let requestData = {
+            "object": "realm",
+            "action": "subscribe",
+            "message": $("#requestMessage").val(),
+            "sender": config.session.accountEmail,
+            "data": {
+                "key": "realmName",
+                "value": $("#navRealmName").html()
+            }
+        }
+        request.add(requestData).then((Resp) => {
+            if ( Resp["result"] === "created" ) {
+                toast.msgTitle = "Request create Success"
+                toast.msgText = dictionary["request"]["add"].replace('%infrastructureName%', infrastructureData["name"])
+                actionRes = "success"
+            } else if ( Object.keys(Resp).includes("failure") ) {
+                toast.msgTitle = "Request create Failure"
+                toast.msgText = Resp["failure"]
+                actionRes = "failure"
+            }
+
+            toast.notify(actionRes)
+            setTimeout(() => { location.reload() }, 2000)
+        })
+    }
 
     addFrame() {
         $("#" + this.parentName).html(this.frame)

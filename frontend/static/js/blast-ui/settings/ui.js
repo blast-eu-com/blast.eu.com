@@ -49,7 +49,6 @@ function updateSettings() {
 }
 
 function main() {
-
     ansibleForm.render("ansibleForm")
     sshForm.render("sshForm")
 }

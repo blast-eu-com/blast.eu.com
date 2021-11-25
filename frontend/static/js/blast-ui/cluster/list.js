@@ -173,22 +173,16 @@ var ClusterList = class {
     }
 
     simpleListWindowCoreData() {
-        try {
-            let pageLength = $("select#selSamplePerPage option:selected").val()
-            pageLength === undefined ? this.numRecord = 30 : this.numRecord = parseInt(pageLength)
-            cluster.list().then((clusters) => {
-                if (clusters["hits"]["total"]["value"] > 0) {
-                    this.simpleListCoreData(clusters["hits"]["hits"])
-                    this.simpleListWindowPagination()
-                } else {
-                    throw 'noClustersFound'
-                }
-            })
-        } catch (e) {
-            if (e === 'noClustersFound') {
+        let pageLength = $("select#selSamplePerPage option:selected").val()
+        pageLength === undefined ? this.numRecord = 30 : this.numRecord = parseInt(pageLength)
+        cluster.list().then((clusters) => {
+            if (clusters["hits"]["total"]["value"] > 0) {
+                this.simpleListCoreData(clusters["hits"]["hits"])
+                this.simpleListWindowPagination()
+            } else {
                 $("#" + this.parentName).html(this.msgScriptNotFound)
             }
-        }
+        })
     }
 
     render = (parentName) => {

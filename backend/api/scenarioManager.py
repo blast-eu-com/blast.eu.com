@@ -234,16 +234,15 @@ class ScenarioManager:
         try:
             scr = script.Script(self.ES)
             nod = node.Node(self.ES)
-            for script_id in self.scenario_scripts_id:
-                script_id, script_name = scr.map_id_name(self.scenario_realm, script_id)
-                script_type = scr.list_by_name(self.scenario_realm, script_name)["hits"]["hits"][0]["_source"]["type"]
+            for scenario_script_id in self.scenario_scripts_id:
+                scenario_script_name = scr.map_id_name(self.scenario_realm, scenario_script_id)
+                script_type = scr.list_by_name(self.scenario_realm, scenario_script_name)["hits"]["hits"][0]["_source"]["type"]
                 if script_type != "Ansible":
-                    for node_id in self.scenario_nodes_id:
-                        # node_id, node_name = nod.map_id_name(self.scenario_realm, node_id)
-                        if nod.is_running(self.scenario_realm, node_id):
+                    for scenario_node_id in self.scenario_nodes_id:
+                        if nod.is_running(self.scenario_realm, scenario_node_id):
                             execute_script_kwargs = {
-                                "script_id": script_id,
-                                "node_id": node_id.split(),
+                                "script_id": scenario_script_id,
+                                "node_id": scenario_node_id,
                                 "script_realm": self.scenario_realm,
                                 "scenario_id": self.scenario_id,
                                 "execution_id": self.execution_id
@@ -252,7 +251,7 @@ class ScenarioManager:
 
                 else:
                     execute_script_kwargs = {
-                        "script_id": script_id,
+                        "script_id": scenario_script_id,
                         "node_id": self.scenario_nodes_id,
                         "script_realm": self.scenario_realm,
                         "scenario_id": self.scenario_id,

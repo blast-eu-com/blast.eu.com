@@ -19,7 +19,7 @@ BLAST_BACKEND_USER="blast"
 BLAST_BACKEND_GRP="blast"
 BLAST_BACKEND_HOSTNAME="127.0.0.1"
 BLAST_BACKEND_PORT="28080"
-BLAST_BACKEND_PROTOCOL="http"
+BLAST_BACKEND_SSL="false"
 BLAST_BACKEND_GIT_URL="https://github.com/blast-eu-com/blast.eu.com"
 BLAST_BACKEND_INSTALL_PATH="/tmp/${BLAST_BACKEND_NAME}"
 BLAST_BACKEND_ROOT_PATH="/opt/${BLAST_BACKEND_NAME}"
@@ -134,7 +134,6 @@ install_blast_backend_config_uwsgi () {
   echo_step_phase "@blastServer +install server config uwsgi"
   sed -e "s|%BLAST_BACKEND_USER%|${BLAST_BACKEND_USER}|g" \
       -e "s|%BLAST_BACKEND_GRP%|${BLAST_BACKEND_GRP}|g" \
-      -e "s|%BLAST_BACKEND_PROTOCOL%|${BLAST_BACKEND_PROTOCOL}|g" \
       -e "s|%BLAST_BACKEND_HOSTNAME%|${BLAST_BACKEND_HOSTNAME}|g" \
       -e "s|%BLAST_BACKEND_PORT%|${BLAST_BACKEND_PORT}|g" \
       -e "s|%BLAST_BACKEND_LOG_PATH%|${BLAST_BACKEND_LOG_PATH}|g" \

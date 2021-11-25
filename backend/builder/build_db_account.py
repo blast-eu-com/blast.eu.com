@@ -22,70 +22,71 @@ import json
 import base64
 import random
 import string
-from env import _SERVER_DIR
-sys.path.insert(0, _SERVER_DIR)
-from api import db
+from env import _DATAMODEL_DIR, _ESC
 from passlib.hash import pbkdf2_sha512
 
 __REALM = 'default'
-__DATAMODEL_DIR = os.path.join(os.path.abspath('..'), 'datamodel')
-__DATAMODEL_REALM_FILE = os.path.join(__DATAMODEL_DIR, 'account.template.mapping')
-__ES_ADDR = db.ES_PROTOCOL + """://""" + str(db.ES_HOSTNAME) + """:""" + str(db.ES_PORT)
+__DATAMODEL_ACCOUNT_FILE = os.path.join(_DATAMODEL_DIR, 'account.template.mapping')
 __SECRET = base64.urlsafe_b64encode(''.join([random.choice(string.ascii_letters + string.digits) for n in range(256)]).encode('utf-8')).decode("utf-8")
-
-__CREATE_INDEX_TEMPLATE = """curl -s -XPUT -H \"Content-Type: Application/Json\" """ + __ES_ADDR + """/_template/blast_account -d@""" + __DATAMODEL_REALM_FILE
-__ES_PROVISION_DEFAULT = """curl -s -XPOST -H \"Content-Type: Application/Json\" """ + __ES_ADDR + """/account/_doc -d '{
-    "first_name": "admin",
-    "family_name": "",
-    "alias": "",
-    "picture": "profile-picture.png",
-    "email" : "admin@localhost.localdomain",
-    "password": \"""" + pbkdf2_sha512.hash("admin") + """\",
-    "secret": \"""" + __SECRET + """\",
-    "realm" : [{"name": \"""" + __REALM + """\", "favorite": true}]
-}'"""
-__ES_PROVISION_SCHEDULER = """curl -s -XPOST -H \"Content-Type: Application/Json\" """ + __ES_ADDR + """/account/_doc -d '{
-    "first_name": "scheduler",
-    "family_name": "",
-    "alias": "",
-    "picture": "profile-picture.png",
-    "email" : "scheduler@localhost.localdomain",
-    "password": \"""" + pbkdf2_sha512.hash("scheduler") + """\",
-    "secret": \"""" + __SECRET + """\",
-    "realm" : [{"name": \"""" + __REALM + """\", "favorite": true}]
-}'"""
+__INDEX_NAME = "blast_account"
+__INDEX_DATA = [
+    {
+        "first_name": "admin",
+        "family_name": "",
+        "alias": "",
+        "picture": "profile-picture.png",
+        "email": "admin@localhost.localdomain",
+        "password": pbkdf2_sha512.hash("admin"),
+        "secret": __SECRET,
+        "realm": [
+            {
+                "name": __REALM,
+                "active": True
+            }
+        ]
+    },
+    {
+        "first_name": "scheduler",
+        "family_name": "",
+        "alias": "",
+        "picture": "profile-picture.png",
+        "email": "scheduler@localhost.localdomain",
+        "password": pbkdf2_sha512.hash("scheduler"),
+        "secret": __SECRET,
+        "realm": [
+            {
+                "name": __REALM,
+                "active": True
+            }
+        ]
+    }
+]
+__INDEX_TEMPLATE_DATA = json.load(open(__DATAMODEL_ACCOUNT_FILE, "r"))
 
 
 def defineIndexTemplate():
 
-    try:
-        if json.load(os.popen(__CREATE_INDEX_TEMPLATE))["acknowledged"]:
-            return True
-    except KeyError:
-        return False
+    ret = _ESC.es.indices.put_index_template(name=__INDEX_NAME, body=json.dumps(__INDEX_TEMPLATE_DATA))
+    if not ret["acknowledged"]:
+        raise Exception(ret)
 
 
 def provisionDefault():
 
-    try:
-        if json.load(os.popen(__ES_PROVISION_DEFAULT))["result"] == "created":
-            return True
-    except KeyError:
-        return False
+    for document in __INDEX_DATA:
+        ret = _ESC.es.index(index=__INDEX_NAME, body=json.dumps(document))
+        if not ret["result"] == "created":
+            raise Exception(ret)
 
-def provisionScheduler():
-    try:
-        if json.load(os.popen(__ES_PROVISION_SCHEDULER))["result"] == "created":
-            return True
-    except KeyError:
-        return False
 
 def main():
 
-    if defineIndexTemplate():
-        if provisionDefault():
-            if provisionScheduler():
-                sys.exit(0)
+    try:
+        defineIndexTemplate()
+        provisionDefault()
+
+    except Exception as e:
+        print(e)
 
 
 if __name__ == "__main__":

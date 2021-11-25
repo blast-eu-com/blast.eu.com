@@ -31,7 +31,7 @@ class Scheduler:
         self.STATISTIC_DATA["object_type"] = "scheduler"
         self.DB_INDEX = 'blast_obj_scheduler'
 
-    def __add__(self, data: dict):
+    def add(self, data: dict):
 
         """ create a new scheduler """
         try:
@@ -41,7 +41,7 @@ class Scheduler:
             self.STATISTIC_DATA["account_email"] = data["account_email"]
             self.STATISTIC_DATA["realm"] = data["realm"]
             data.pop("account_email")
-            self.STATISTIC.__add__(self.STATISTIC_DATA)
+            self.STATISTIC.add(self.STATISTIC_DATA)
             return self.ES.index(index=self.DB_INDEX, body=json.dumps(data), refresh=True)
 
         except Exception as e:
@@ -88,7 +88,7 @@ class Scheduler:
             print(e)
             return {'failure': str(e)}
 
-    def __list__(self, realm: str):
+    def list(self, realm: str):
 
         """ list all the scheduler which belong to the provided realm """
         try:

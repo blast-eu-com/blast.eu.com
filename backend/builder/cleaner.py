@@ -1,3 +1,4 @@
+#!../bin/python3
 # -*- coding:utf-8 -*-
 """
    Copyright 2021 Jerome DE LUCCHI
@@ -15,21 +16,27 @@
    limitations under the License.
 """
 
-import json
+from env import _ESC
 
+_INDEX_NAME = [
+    "blast_account",
+    "blast_port_map",
+    "blast_realm",
+    "blast_request",
+    "blast_setting",
+    "blast_statistic",
+    "blast_script_lang",
+    "blast_obj_cluster",
+    "blast_obj_infrastructure",
+    "blast_obj_node",
+    "blast_node_mode",
+    "blast_node_type",
+    "blast_obj_report",
+    "blast_obj_scenario",
+    "blast_obj_scheduler",
+    "blast_obj_script"
+]
 
-class NodeMode:
-
-    def __init__(self, ESConnector):
-        self.ES = ESConnector
-        self.DB_INDEX = 'blast_node_mode'
-
-    def list(self):
-
-        """ this function returns all the node mode """
-        try:
-            req = json.dumps({"size": 1000, "query": {"match_all": {}}})
-            return self.ES.search(index=self.DB_INDEX, body=req)
-
-        except Exception as e:
-            return {"failure": e}
+for _name in _INDEX_NAME:
+    _ESC.es.indices.delete_index_template(name=_name)
+    _ESC.es.indices.delete(index=_name)

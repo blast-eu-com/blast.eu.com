@@ -14,6 +14,8 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 """
+
+import re
 import json
 from api import statistic
 
@@ -26,36 +28,47 @@ class Infra:
         self.STATISTIC_DATA = self.STATISTIC.STATISTIC_DATA
         self.STATISTIC_DATA["object_type"] = 'infrastructure'
 
-    def __add__(self, account_email: str, realm: str, infrastructures: list):
+    def add(self, account_email: str, realm: str, infrastructure: dict):
 
         """
-        This function add a new infrastructure
+            Add a new infrastructure in a given realm
         param: account_email: The account email of the requestor
         param: realm: The name of the realm where the new infra will be created
         param: infrastructure: object containing infra infos
         """
         try:
-            resp_infrastructures_add = []
-            self.STATISTIC_DATA["object_action"] = "create"
-            self.STATISTIC_DATA["account_email"] = account_email
-            self.STATISTIC_DATA["realm"] = realm
-            for infrastructure in infrastructures:
+            # make sure the infrastructure name is not empty.
+            if infrastructure["name"] == "":
+                raise Exception("Infrastructure name is required. Empty value is not accepted.")
+
+            # make sure to keep unicity of infrastructure persistent
+            if self.list_by_name(realm, infrastructure["name"])["hits"]["total"]["value"] > 0:
+                raise Exception("Infrastructure name already exists. Use another infrastructure name.")
+
+            # make sure the infrastructure name pattern is respected
+            infrastructure_name_pattern = re.compile('[a-zA-Z0-9\-_]+')
+            if not infrastructure_name_pattern.fullmatch(infrastructure["name"]):
+                raise Exception("Cluster name is not valid. Alphanumeric characters and '_', '-', are accepted.")
+
+            infrastructure["realm"] = realm
+            infrastructure["clusters"] = []
+            infra_add_res = self.ES.index(index=self.DB_INDEX, body=json.dumps(infrastructure), refresh=True)
+            if infra_add_res["result"] == "created":
+                self.STATISTIC_DATA["object_action"] = "create"
+                self.STATISTIC_DATA["account_email"] = account_email
+                self.STATISTIC_DATA["realm"] = realm
                 self.STATISTIC_DATA["object_name"] = infrastructure["name"]
                 self.STATISTIC_DATA["timestamp"] = statistic.UTC_time()
-                self.STATISTIC.__add__(self.STATISTIC_DATA)
-                infrastructure["realm"] = realm
-                infrastructure["clusters"] = []
-                print(infrastructure)
-                resp_infrastructures_add.append(self.ES.index(index=self.DB_INDEX, body=json.dumps(infrastructure), refresh=True))
-                print(resp_infrastructures_add)
-            return resp_infrastructures_add
+                self.STATISTIC.add(self.STATISTIC_DATA)
+
+            return infra_add_res
 
         except Exception as e:
-            print("backend Exception, file:infrastructure:class:infrastructure:func:__add__")
+            print("backend Exception, file:infrastructure:class:infrastructure:func:add")
             print(e)
             return {"failure": str(e)}
 
-    def add_clusters(self, account_email: str, realm: str, infra_id: str, clusters: list):
+    def add_cluster(self, account_email: str, realm: str, infra_id: str, cluster: dict):
 
         """
         This function links an existing cluster into the infrastructure
@@ -65,17 +78,18 @@ class Infra:
         param: clusters: the list of cluster info to link to the infrastrucutre
         """
         try:
-            resp_infrastructure_cluster_add = []
-            for cluster in clusters:
-                infra = self.list_by_ids(realm, infra_id.split(" "))["hits"]["hits"][0]
+            infra = self.list_by_id(realm, infra_id)["hits"]["hits"][0]
+            infra["_source"]["clusters"].append(cluster)
+            infra_add_cluster_res = self.update(infra_id, infra["_source"])
+            if infra_add_cluster_res["result"] == "updated":
                 self.STATISTIC_DATA["object_action"] = "addClusterLink"
                 self.STATISTIC_DATA["object_name"] = [infra["_source"]["name"], cluster["name"]]
                 self.STATISTIC_DATA["timestamp"] = statistic.UTC_time()
                 self.STATISTIC_DATA["account_email"] = account_email
                 self.STATISTIC_DATA["realm"] = realm
-                infra["_source"]["clusters"].append(cluster)
-                resp_infrastructure_cluster_add.append(self.update(infra_id, infra["_source"], self.STATISTIC_DATA))
-            return resp_infrastructure_cluster_add
+                self.STATISTIC.add(self.STATISTIC_DATA)
+
+            return infra_add_cluster_res
 
         except Exception as e:
             print("backend Exception, file:infrastructure:class:infrastructure:func:add_clusters")
@@ -90,7 +104,7 @@ class Infra:
             self.STATISTIC_DATA["timestamp"] = statistic.UTC_time()
             self.STATISTIC_DATA["account_email"] = data["account_email"]
             self.STATISTIC_DATA["realm"] = data["realm"]
-            self.STATISTIC.__add__(self.STATISTIC_DATA)
+            self.STATISTIC.add(self.STATISTIC_DATA)
             req = json.dumps({"query": {"match": {"realm": data["realm"]}}})
             return self.ES.count(INDEX=self.DB_INDEX, body=req)
 
@@ -99,7 +113,7 @@ class Infra:
             print(e)
             return {"failure": str(e)}
 
-    def __delete__(self, account_email: str, realm: str, infra_ids: list):
+    def delete(self, account_email: str, realm: str, infra_id: str):
 
         """
         This function delete one or more than one infrastructure ids from the same realm
@@ -108,20 +122,20 @@ class Infra:
         param: infra_ids: The list of infrastructures id to be deleted
         """
         try:
-            res_infrastructure_del = []
-            infras = self.list_by_ids(realm, infra_ids)["hits"]["hits"]
-            for infra in infras:
+            infra = self.list_by_id(realm, infra_id)["hits"]["hits"][0]
+            infra_del_res = self.ES.delete(index=self.DB_INDEX, id=infra["_id"], refresh=True)
+            if infra_del_res["result"] == "deleted":
                 self.STATISTIC_DATA["object_action"] = "delete"
                 self.STATISTIC_DATA["object_name"] = infra["_source"]["name"]
                 self.STATISTIC_DATA["timestamp"] = statistic.UTC_time()
                 self.STATISTIC_DATA["account_email"] = account_email
                 self.STATISTIC_DATA["realm"] = realm
-                self.STATISTIC.__add__(self.STATISTIC_DATA)
-                res_infrastructure_del.append(self.ES.delete(index=self.DB_INDEX, id=infra["_id"], refresh=True))
-            return res_infrastructure_del
+                self.STATISTIC.add(self.STATISTIC_DATA)
+
+            return infra_del_res
 
         except Exception as e:
-            print("backend Exception, file:infrastructure:class:infrastructure:func:__delete__")
+            print("backend Exception, file:infrastructure:class:infrastructure:func:delete")
             print(e)
             return {"failure": str(e)}
 
@@ -131,7 +145,7 @@ class Infra:
         infras = self.__list__(data["realm"])
         [self.__delete__({"id": infra["_id"], "realm": data["realm"], "account_email": data["account_email"]}) for infra in infras["hits"]["hits"]]
 
-    def delete_clusters(self, account_email: str, realm: str, infra_id: str, cluster_ids: list):
+    def delete_cluster(self, account_email: str, realm: str, infra_id: str, cluster_name: str):
 
         """
         This function unlinks an existing cluster from the infrastructure
@@ -141,38 +155,39 @@ class Infra:
         param: cluster_ids: the cluster ids to be unlink from this infrastructure
         """
         try:
-            res_infrastructure_cluster_del = []
-            infra = self.list_by_ids(realm, infra_id.split(" "))["hits"]["hits"][0]
-            self.STATISTIC_DATA["object_action"] = "removeClusterLink"
-            self.STATISTIC_DATA["timestamp"] = statistic.UTC_time()
-            self.STATISTIC_DATA["account_email"] = account_email
-            self.STATISTIC_DATA["realm"] = realm
-            for cluster_id in cluster_ids:
-                for idx in range(0, len(infra["_source"]["clusters"])):
-                    if infra["_source"]["clusters"][idx]["id"] == cluster_id:
-                        self.STATISTIC_DATA["object_name"] = [infra["_source"]["name"], infra["_source"]["clusters"][idx]["name"]]
-                        del infra["_source"]["clusters"][idx]
-                        res_infrastructure_cluster_del.append(self.update(infra["_id"], infra["_source"], self.STATISTIC_DATA))
-                        break
-            return res_infrastructure_cluster_del
+            infra = self.list_by_id(realm, infra_id)["hits"]["hits"][0]
+            for idx in range(0, len(infra["_source"]["clusters"])):
+                if infra["_source"]["clusters"][idx]["name"] == cluster_name:
+                    self.STATISTIC_DATA["object_name"] = [infra["_source"]["name"], infra["_source"]["clusters"][idx]["name"]]
+                    del infra["_source"]["clusters"][idx]
+                    break
+
+            infra_del_cluster_res = self.update(infra["_id"], infra["_source"])
+            if infra_del_cluster_res["result"] == "updated":
+                self.STATISTIC_DATA["object_action"] = "removeClusterLink"
+                self.STATISTIC_DATA["timestamp"] = statistic.UTC_time()
+                self.STATISTIC_DATA["account_email"] = account_email
+                self.STATISTIC_DATA["realm"] = realm
+                self.STATISTIC.add(self.STATISTIC_DATA)
+
+            return infra_del_cluster_res
 
         except Exception as e:
-            print("backend Exception, file:infrastructure:class:infrastructure:func:delete_clusters")
+            print("backend Exception, file:infrastructure:class:infrastructure:func:delete_cluster")
             print(e)
             return {"failure": str(e)}
 
-    def update(self, id: str, data: dict, statistic_data: dict):
+    def update(self, infra_id: str, data: dict):
 
         try:
-            self.STATISTIC.__add__(statistic_data)
-            return self.ES.update(index=self.DB_INDEX, id=id, body=json.dumps({"doc": data}), refresh=True)
+            return self.ES.update(index=self.DB_INDEX, id=infra_id, body=json.dumps({"doc": data}), refresh=True)
 
         except Exception as e:
             print("backend Exception, file:infrastructure:class:infrastructure:func:update")
             print(e)
             return {"failure": str(e)}
 
-    def __list__(self, realm: str):
+    def list(self, realm: str):
 
         """ this function returns all the infra """
         try:
@@ -197,11 +212,11 @@ class Infra:
             return self.ES.search(index=self.DB_INDEX, body=req)
 
         except Exception as e:
-            print("backend Exception, file:infrastructure:class:infrastructure:func:__list__")
+            print("backend Exception, file:infrastructure:class:infrastructure:func:list")
             print(e)
             return {"failure": str(e)}
 
-    def list_by_ids(self, realm: str, ids: list):
+    def list_by_id(self, realm: str, id: str):
 
         """ this function returns the infra by id """
         try:
@@ -217,8 +232,8 @@ class Infra:
                                     }
                                 },
                                 {
-                                    "terms": {
-                                        "_id": ids
+                                    "term": {
+                                        "_id": id
                                     }
                                 }
                             ]
@@ -236,7 +251,46 @@ class Infra:
             return self.ES.search(index=self.DB_INDEX, body=req)
 
         except Exception as e:
-            print("backend Exception, file:infrastructure:class:infrastructure:func:list_by_ids")
+            print("backend Exception, file:infrastructure:class:infrastructure:func:list_by_id")
+            print(e)
+            return {"failure": str(e)}
+
+    def list_by_name(self, realm: str, name: str):
+
+        """ this function returns the infra by name """
+        try:
+            req = json.dumps(
+                {
+                    "size": 10000,
+                    "query": {
+                        "bool": {
+                            "filter": [
+                                {
+                                    "term": {
+                                        "realm": realm
+                                    }
+                                },
+                                {
+                                    "term": {
+                                        "name": name
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "sort": [
+                        {
+                            "name": {
+                                "order": "asc"
+                            }
+                        }
+                    ]
+                }
+            )
+            return self.ES.search(index=self.DB_INDEX, body=req)
+
+        except Exception as e:
+            print("backend Exception, file:infrastructure:class:infrastructure:func:list_by_name")
             print(e)
             return {"failure": str(e)}
 

@@ -13,13 +13,12 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-import Scenario from '../../scenario.js'
+
 import ScenarioForm from './form.js'
 import ScenarioNodesTree from './nodesTree.js'
 import ScenarioLast from './last.js'
 import ScriptFilterAndSelect from '../script/filterAndSelect.js'
 
-var scenario = new Scenario()
 var scenarioForm = new ScenarioForm('scenarioForm')
 var scenarioNodesTree = new ScenarioNodesTree('scenarioNodesTree')
 var scenarioLast = new ScenarioLast('scenarioLast')
@@ -27,7 +26,7 @@ var scriptFilterAndSelect = new ScriptFilterAndSelect('managementUIScriptFrame')
 
 function main() {
 
-    scenarioForm.render(scenario, scenarioNodesTree, scriptFilterAndSelect)
+    scenarioForm.render(scenarioNodesTree, scriptFilterAndSelect)
     scenarioNodesTree.render()
     scriptFilterAndSelect.render()
     scenarioLast.render()
