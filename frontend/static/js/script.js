@@ -85,11 +85,7 @@ class Script {
                 processData: false,
                 success: (Resp) => {
                     if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) {
-                        account.logout()
-                    } else {
-                        resolve(Resp)
-                    }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })
@@ -106,11 +102,7 @@ class Script {
                 dataType: "json",
                 success: (Resp) => {
                     if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) {
-                        account.logout()
-                    } else {
-                        resolve(Resp)
-                    }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })
@@ -124,11 +116,7 @@ class Script {
                 headers: {"Authorization": config.session.httpToken},
                 success: (Resp) => {
                     if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) {
-                        account.logout()
-                    } else {
-                        resolve(Resp)
-                    }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })
@@ -142,11 +130,7 @@ class Script {
                 headers: { "Authorization": config.session.httpToken },
                 success: (Resp) => {
                     if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) {
-                        account.logout()
-                    } else {
-                        resolve(Resp)
-                    }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })
@@ -160,11 +144,7 @@ class Script {
                 headers: { "Authorization": config.session.httpToken },
                 success: (Resp) => {
                     if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) {
-                        account.logout()
-                    } else {
-                        resolve(Resp)
-                    }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })
@@ -178,11 +158,7 @@ class Script {
                 headers: { "Authorization": config.session.httpToken },
                 success: (Resp) => {
                     if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) {
-                        account.logout()
-                    } else {
-                        resolve(Resp)
-                    }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })
@@ -196,11 +172,7 @@ class Script {
                 headers: { "Authorization": config.session.httpToken },
                 success: (Resp) => {
                     if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) {
-                        account.logout()
-                    } else {
-                        resolve(Resp)
-                    }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })
@@ -223,9 +195,7 @@ class Script {
 
     listByFilter = (scriptStr, scriptType) => {
         let scriptList = []
-        // let scriptObj = this
         return new Promise((resolve, reject) => {
-            // scriptObj.list().then((Resp) => {
             this.list().then((Resp) => {
                 if ( Resp["hits"]["hits"].length > 0 ) {
                     Resp["hits"]["hits"].forEach((record) => {

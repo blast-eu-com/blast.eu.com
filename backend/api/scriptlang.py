@@ -23,10 +23,10 @@ class Scriptlang:
         self.DB_INDEX = 'blast_script_lang'
         self.ES = ESConnector
 
-    def __add__(self):
+    def add(self):
         pass
 
-    def __list__(self):
+    def list(self):
 
         """ this method returns all the registered scriptlang"""
         try:

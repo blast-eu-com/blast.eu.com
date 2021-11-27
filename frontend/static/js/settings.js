@@ -29,9 +29,7 @@ const Setting = class {
                 headers: {"Authorization": config.session.httpToken},
                 success: (Resp) => {
                     if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if ( "tokenExpired" in Resp ) { account.logout() }
-                    else if ( "failure" in Resp ) { console.log( Resp["failure"] ) }
-                    else { resolve(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })
@@ -48,9 +46,7 @@ const Setting = class {
                 dataType: "json",
                 success: (Resp) => {
                     if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if ( "tokenExpired" in Resp ) { account.logout() }
-                    else if ( "failure" in Resp ) { console.log( Resp["failure"] ) }
-                    else { resolve(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })

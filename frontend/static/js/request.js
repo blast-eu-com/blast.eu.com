@@ -61,13 +61,7 @@ class Request {
                 dataType: "json",
                 success: function(Resp) {
                     if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) {
-                        account.logout()
-                    } else if (Object.keys(Resp).includes("failure")) {
-                        console.log("failure")
-                    } else {
-                        resolve(Resp)
-                    }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })
@@ -84,13 +78,7 @@ class Request {
                 dataType: "json",
                 success: function(Resp) {
                     if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) {
-                        account.logout()
-                    } else if (Object.keys(Resp).includes("failure")) {
-                        console.log("failure")
-                    } else {
-                        resolve(Resp)
-                    }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })
@@ -108,13 +96,7 @@ class Request {
                 headers: {'Authorization': config.session.httpToken},
                 success: function(Resp) {
                     if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) {
-                        account.logout()
-                    } else if (Object.keys(Resp).includes("failure")) {
-                        console.log("failure")
-                    } else {
-                        resolve(Resp)
-                    }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })
@@ -127,15 +109,8 @@ class Request {
                 type: "GET",
                 headers: {'Authorization': config.session.httpToken},
                 success: function(Resp) {
-                    console.log(Resp)
                     if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) {
-                        account.logout()
-                    } else if (Object.keys(Resp).includes("failure")) {
-                        console.log("failure")
-                    } else {
-                        resolve(Resp)
-                    }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })

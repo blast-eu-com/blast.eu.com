@@ -28,9 +28,8 @@ export function GSearch(data) {
             data: {"string": data},
             headers: {'Authorization': config.session.httpToken},
             success: function(Resp) {
-                if ( typeof Resp === "string" ) { Resp = JSON.parse(Resp) }
-                if ( Object.keys(Resp).includes("tokenExpired")) { account.logoutAccount()
-                    } else { resolve(Resp) }
+                if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
+                if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
             }
         })
     })
@@ -44,9 +43,8 @@ export function GSearchScrollId(scrollId) {
             data: {"_scroll_id": scrollId},
             headers: {'Authorization': config.session.httpToken},
             success: function(Resp) {
-                if ( typeof Resp === "string" ) { Resp = JSON.parse(Resp) }
-                if ( Object.keys(Resp).includes("tokenExpired")) { account.logoutAccount()
-                    } else { resolve(Resp) }
+                if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
+                if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
             }
         })
     })

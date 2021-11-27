@@ -53,11 +53,7 @@ const Account = class {
                 dataType: "json",
                 success: (Resp) => {
                     if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("failure")) {
-                        console.log("failure")
-                    } else {
-                        resolve(Resp)
-                    }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })
@@ -81,13 +77,7 @@ const Account = class {
                 processData: false,
                 success: (Resp) => {
                     if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) {
-                        account.logout()
-                    } else if (Object.keys(Resp).includes("failure")) {
-                        console.log("failure")
-                    } else {
-                        resolve(Resp)
-                    }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })
@@ -109,13 +99,7 @@ const Account = class {
                 dataType: "json",
                 success: (Resp) => {
                     if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) {
-                        account.logout()
-                    } else if (Object.keys(Resp).includes("failure")) {
-                        console.log("failure")
-                    } else {
-                        resolve(Resp)
-                    }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })
@@ -131,13 +115,7 @@ const Account = class {
                 dataType: "json",
                 success: (Resp) => {
                     if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) {
-                        account.logout()
-                    } else if (Object.keys(Resp).includes("failure")) {
-                        console.log("failure")
-                    } else {
-                        resolve(Resp)
-                    }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })
@@ -151,13 +129,7 @@ const Account = class {
                 headers: {"Authorization": config.session.httpToken},
                 success: (Resp) => {
                     if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) {
-                        account.logout()
-                    } else if (Object.keys(Resp).includes("failure")) {
-                        console.log("failure")
-                    } else {
-                        resolve(Resp)
-                    }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })
@@ -171,13 +143,7 @@ const Account = class {
                 headers: {"Authorization": config.session.httpToken},
                 success: (Resp) => {
                     if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) {
-                        account.logout()
-                    } else if (Object.keys(Resp).includes("failure")) {
-                        console.log("failure")
-                    } else {
-                        resolve(Resp)
-                    }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })
@@ -191,13 +157,7 @@ const Account = class {
                 headers: {"Authorization": config.session.httpToken},
                 success: (Resp) => {
                     if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) {
-                        account.logout()
-                    } else if (Object.keys(Resp).includes("failure")) {
-                        console.log("failure")
-                    } else {
-                        resolve(Resp)
-                    }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })
@@ -214,13 +174,7 @@ const Account = class {
                 dataType: "json",
                 success: (Resp) => {
                     if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) {
-                        account.logout()
-                    } else if (Object.keys(Resp).includes("failure")) {
-                        console.log("failure")
-                    } else {
-                        resolve(Resp)
-                    }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })
@@ -255,13 +209,7 @@ const Account = class {
                 dataType: "json",
                 success: (Resp) => {
                     if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("failure")) {
-                        toast.msgTitle = 'Login Failure'
-                        toast.msgText = Resp["failure"]
-                        toast.notify()
-                    } else {
-                        resolve(Resp)
-                    }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })
@@ -295,13 +243,7 @@ const Account = class {
                 data: "email=" + email,
                 success: (Resp) => {
                     if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) {
-                        account.logout()
-                    } else if (Object.keys(Resp).includes("failure")) {
-                        console.log("failure")
-                    } else {
-                        resolve(Resp)
-                    }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })
@@ -311,11 +253,16 @@ const Account = class {
         this.setFormLoginData()
         let loginData = this.getFormLoginData()
         this.authenticate(loginData).then((accountLoginResult) => {
+            console.log(accountLoginResult)
             if ( Object.keys(accountLoginResult).includes("jwt") ) {
                 $.cookie('jwt', accountLoginResult["jwt"], {path: "/"})
                 this.cookies(loginData["email"]).then((setCookieResult) => {
                     if (setCookieResult) { location.href = "/html/infrastructure.html" }
                 })
+            } else if ( Object.keys(AccountLoginResult).includes("failure") ) {
+                toast.msgTitle = 'Login Failure'
+                toast.msgText = Resp["failure"]
+                toast.notify()
             }
         })
     }

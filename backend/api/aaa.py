@@ -715,7 +715,7 @@ class Account:
             realm_name = self.list_active_realm(account["hits"]["hits"][0]["_id"])["name"]
             realm_details = realm.list_by_name(realm_name)
 
-            for sclang in scriptlang.__list__()["hits"]["hits"]:
+            for sclang in scriptlang.list()["hits"]["hits"]:
                 scriptlangs[sclang["_source"]["name"]] = sclang["_source"]["picture"]
 
             if not realm_details["hits"]["total"]["value"] == 1:

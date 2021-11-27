@@ -54,7 +54,7 @@ class Reporter:
         else:
             raise SystemError("time.report or time.interval must be True")
 
-    def __add__(self, report: dict):
+    def add(self, report: dict):
         try:
             json_query = {
                 "size": 1000,

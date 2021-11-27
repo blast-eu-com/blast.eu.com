@@ -276,7 +276,7 @@ class ScriptManager:
                 }
             }
             script_reporter = reporter.Reporter(self.ES, report_type="script")
-            resp = script_reporter.__add__(self.script_report)
+            resp = script_reporter.add(self.script_report)
             print(resp)
             if resp["result"] == "created":
                 self.script_report_id = resp["_id"]

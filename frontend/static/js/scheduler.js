@@ -64,14 +64,8 @@ let Scheduler = class {
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: (Resp) => {
-                    if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) {
-                        account.logout()
-                    } else if (Object.keys(Resp).includes("failure")) {
-                        console.log(Resp)
-                    } else {
-                        resolve(Resp)
-                    }
+                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })
@@ -85,13 +79,7 @@ let Scheduler = class {
                 headers: {"Authorization": config.session.httpToken},
                 success: function(Resp) {
                     if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) {
-                        account.logout()
-                    } else if (Object.keys(Resp).includes("failure")) {
-                        console.log("failure")
-                    } else {
-                        resolve(Resp)
-                    }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })
@@ -106,13 +94,7 @@ let Scheduler = class {
                 headers: {"Authorization": config.session.httpToken},
                 success: (Resp) => {
                     if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) {
-                        account.logout()
-                    } else if (Object.keys(Resp).includes("failure")) {
-                        console.log("failure")
-                    } else {
-                        resolve(Resp)
-                    }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })
@@ -129,13 +111,7 @@ let Scheduler = class {
                 dataType: "json",
                 success: (Resp) => {
                     if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) {
-                        account.logout()
-                    } else if (Object.keys(Resp).includes("failure")) {
-                        console.log("failure")
-                    } else {
-                        resolve(Resp)
-                    }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
                 }
             })
         })

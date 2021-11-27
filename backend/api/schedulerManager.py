@@ -303,7 +303,7 @@ class SchedulerManager:
                     "start_at": datetime.datetime.now().timestamp()
                 }
             }
-            resp = new_s.__add__(self.scheduler_report)
+            resp = new_s.add(self.scheduler_report)
             if resp["result"] == "created":
                 self.scheduler_report_id = resp["_id"]
                 return True

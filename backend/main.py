@@ -275,7 +275,7 @@ def script_list_by_roles(realm, role):
 @app.route('/api/v1/scripts/langs', methods=["GET"])
 def script_list_langs():
     scriptlang = Scriptlang(ES)
-    return Response(json.dumps(scriptlang.__list__()))
+    return Response(json.dumps(scriptlang.list()))
 
 # * *********************************************************************************************************
 # *
@@ -512,7 +512,7 @@ def nodemode_list(realm):
 def portmap_list(realm):
     """ This function list all portmaps that belong to a given realm"""
     portmap = Portmap()
-    return Response(json.dumps(portmap.__list__(realm)))
+    return Response(json.dumps(portmap.list(realm)))
 
 
 # * *********************************************************************************************************

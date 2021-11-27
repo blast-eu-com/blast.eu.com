@@ -30,10 +30,8 @@ export function listAgg(report) {
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: (Resp) => {
-                if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
-                if (Object.keys(Resp).includes("tokenExpired")) {
-                    account.logout()
-                } else { resolve(Resp) }
+                if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
+                if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
             }
         })
     })
@@ -49,10 +47,8 @@ export function listScroll(report) {
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: (Resp) => {
-                if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
-                if (Object.keys(Resp).includes("tokenExpired")) {
-                    account.logout()
-                } else { resolve(Resp) }
+                if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
+                if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
             }
         })
     })
@@ -68,10 +64,8 @@ export function filterScroll(report) {
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: (Resp) => {
-                if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
-                if (Object.keys(Resp).includes("tokenExpired")) {
-                    account.logout()
-                } else { resolve(Resp) }
+                if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
+                if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
             }
         })
    })
@@ -84,10 +78,8 @@ export function filterScrollData(report_type, scroll_id) {
             type: "GET",
             headers: {'Authorization': config.session.httpToken},
             success: (Resp) => {
-                if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
-                if (Object.keys(Resp).includes("tokenExpired")) {
-                    account.logout()
-                } else { resolve(Resp) }
+                if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
+                if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
             }
         })
    })
