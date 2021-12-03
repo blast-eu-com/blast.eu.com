@@ -32,11 +32,11 @@ BLAST_BACKEND_OS=`cat /etc/os-release | egrep "^ID=" | cut --delimiter=\= -f2 | 
 case $BLAST_BACKEND_OS in
   rhel|fedora|centos)
     PKG_MANAGER=`which yum`
-    BLAST_REQUIRED_PACKAGES="clang git make python3-pip python3-virtualenv"
+    BLAST_REQUIRED_PACKAGES="clang git make python3-pip python3-virtualenv dos2unix"
     ;;
   debian)
     PKG_MANAGER=`which apt-get`
-    BLAST_REQUIRED_PACKAGES="clang git make python3 python3-dev python3-pip python3-venv"
+    BLAST_REQUIRED_PACKAGES="clang git make python3 python3-dev python3-pip python3-venv dos2unix"
     ;;
   *)
     echo "Unknown OS ID: $BLAST_BACKEND_OS"

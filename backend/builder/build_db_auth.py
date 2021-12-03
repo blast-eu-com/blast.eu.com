@@ -43,7 +43,7 @@ FERNET = Fernet(CRYPTO_KEY)
 PASSWORD = FERNET.encrypt(PASSWORD)
 
 def main():
-    cmd = CURRENT_PATH + "/build_elastic_auth.sh " + USER + " " + PASSWORD.decode('UTF-8')
+    cmd = os.path.join(CURRENT_PATH, "builder") + "/build_elastic_auth.sh " + USER + " " + PASSWORD.decode('UTF-8')
     r = os.popen(cmd).read()
 
 if __name__ == "__main__":

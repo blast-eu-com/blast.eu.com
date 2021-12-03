@@ -128,17 +128,18 @@ class Realm:
         try:
             realm_id = self.list_by_name(realm_name)["hits"]["hits"][0]["_id"]
             link_account_realm = self.ACCOUNT.list_by_active_realm(realm_name)
-            if not link_account_realm["hits"]["total"]["value"] > 0:
-                self.NODE.delete_by_realm({"realm": realm_name, "account_email": account_email})
-                self.CLUSTER.delete_by_realm({"realm": realm_name, "account_email": account_email})
-                self.INFRA.delete_by_realm({"realm": realm_name, "account_email": account_email})
-                self.SETTING.delete_by_realm(realm_name)
-                self.PORTMAP.delete_by_realm(realm_name)
-                self.ACCOUNT.delete_by_realm(realm_name)
-                return self.ES.delete(index=self.DB_INDEX, id=realm_id, refresh=True)
 
-            else:
+            if link_account_realm["hits"]["total"]["value"] > 0:
                 raise Exception("Realm cannot be deleted because some accounts use this realm as active realm")
+
+            self.NODE.delete_by_realm({"realm": realm_name, "account_email": account_email})
+            self.CLUSTER.delete_by_realm({"realm": realm_name, "account_email": account_email})
+            self.INFRA.delete_by_realm({"realm": realm_name, "account_email": account_email})
+            self.SETTING.delete_by_realm(realm_name)
+            self.PORTMAP.delete_by_realm(realm_name)
+            self.ACCOUNT.delete_by_realm(realm_name)
+
+            return self.ES.delete(index=self.DB_INDEX, id=realm_id, refresh=True)
 
         except Exception as e:
             print("backend Exception, file:aaa:class:realm:func:delete")

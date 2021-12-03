@@ -42,7 +42,7 @@ async function main() {
         let clusterData = await cluster.listById(clusterId)
         cluster.load(clusterData["hits"]["hits"][0])
         setPageTitle(cluster.name)
-        setButtonDeleteAction(cluster.id)
+        // setButtonDeleteAction(cluster.id)
         clusterListInfo.render('clusterListInfo', cluster)
         clusterListNodes.render('clusterListNodes', cluster)
         clusterManageNodes.render('clusterManageNodes', cluster)

@@ -32,6 +32,20 @@
     </head>
 
     <body class="d-flex flex-column min-vh-100 bg-light" margin="0" onload="main();">
+        <!-- Preload -->
+        <div id="preload" class="preload"></div>
+        <script>
+            document.onreadystatechange = function() {
+                if (document.readyState !== 'complete' ) {
+                    document.querySelector('body').style.visibility = 'hidden'
+                    document.querySelector('#preload').style.visibility = 'visible'
+                } else if ( document.readyState === 'complete' ) {
+                    document.querySelector('#preload').style.visibility = 'hidden'
+                    document.querySelector('body').style.visibility = 'visible'
+                }
+            }
+        </script
+
         <div id="container p-0 min-vh-100 min-vw-100">
             <div id="nav_container" class="min-vw-100 bg-dark blast-nav"></div>
 

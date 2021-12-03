@@ -251,7 +251,7 @@ const Account = class {
 
     login = () => {
         this.setFormLoginData()
-        let loginData = this.getFormLoginData()
+        let actionRes, loginData = this.getFormLoginData()
         this.authenticate(loginData).then((accountLoginResult) => {
             console.log(accountLoginResult)
             if ( Object.keys(accountLoginResult).includes("jwt") ) {
@@ -260,6 +260,7 @@ const Account = class {
                     if (setCookieResult) { location.href = "/html/infrastructure.html" }
                 })
             } else if ( Object.keys(AccountLoginResult).includes("failure") ) {
+                actionRes = "failure"
                 toast.msgTitle = 'Login Failure'
                 toast.msgText = Resp["failure"]
                 toast.notify()
@@ -273,8 +274,18 @@ const Account = class {
 
     register = async () => {
         this.setFormRegisterData()
-        let registerData = this.getFormRegisterData()
-        let R = await this.add(registerData)
+        let actionRes, registerData = this.getFormRegisterData()
+        this.add(registerData).then((Resp) => {
+            if ( Resp["result"] == "created" ) {
+                toast.msgTitle = "Account create Success"
+                toast.msgText = dictionary["account"]["add"].replace('%accountName%', registerData["email"])
+                actionRes = "success"
+            } else {
+                toast.msgTitle = "Account create Failure"
+                toast.msgText = Resp["failure"]
+                actionRes = "failure"
+            }
+        })
     }
 }
 

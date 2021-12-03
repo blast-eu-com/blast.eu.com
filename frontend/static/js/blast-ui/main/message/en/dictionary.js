@@ -15,6 +15,9 @@
 */
 
 export var dictionary = {
+    "account": {
+        "add": "The account %accountName% is added successfully."
+    },
     "cluster": {
         "add": "The cluster %clusterName% is added successfully.",
         "delete": "The cluster %clusterName% is deleted successfully.",
