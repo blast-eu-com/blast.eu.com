@@ -124,7 +124,7 @@ install_blast_backend_config_pip () {
 
 install_blast_backend_config_system_tree () {
   echo_step_phase "@blastServer +install server system tree"
-  mkdir "$BLAST_BACKEND_CONFIG_PATH" "$BLAST_BACKEND_TMP_PATH" "${BLAST_BACKEND_PATH}/ansible" "${BLAST_BACKEND_PATH}/script" \
+  mkdir "${BLAST_BACKEND_PATH}/ansible" "${BLAST_BACKEND_PATH}/script" \
   "${BLAST_BACKEND_PATH}/session"
   cp -pr "${BLAST_BACKEND_INSTALL_PATH}/backend" "$BLAST_BACKEND_ROOT_PATH"
   cp -p "${BLAST_BACKEND_INSTALL_PATH}/installer/backend/backend.yml.template" "${BLAST_BACKEND_CONFIG_PATH}/backend.yml"
