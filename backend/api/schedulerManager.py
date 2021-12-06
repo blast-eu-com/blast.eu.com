@@ -269,14 +269,8 @@ class SchedulerManager:
             self.scheduler_scenario_ids = kwargs["scheduler_source"]["scenario_ids"]
             self.execution_id = str(base64.urlsafe_b64encode(''.join([random.choice(string.ascii_letters + string.digits) for n in range(16)]).encode('utf-8')).decode("utf-8"))
 
-            if self.__open_scheduler_report():
-                if self.scheduler_exec_scenario_in_parallel_mode:
-                    self.execute_scenario_in_parallel()
-                else:
-                    self.execute_scenario_in_sequential()
-
-            else:
-                raise Exception("file:schedulerManager:class:schedulerManager:func:execute_schedule, ERROR:open scheduler report failure")
+            self.__open_scheduler_report()
+            self.execute_scenario_in_parallel() if self.scheduler_exec_scenario_in_parallel_mode else self.execute_scenario_in_sequential()
 
             return True if self.__close_scheduler_report() else False
 
@@ -304,11 +298,11 @@ class SchedulerManager:
                 }
             }
             resp = new_s.add(self.scheduler_report)
-            if resp["result"] == "created":
-                self.scheduler_report_id = resp["_id"]
-                return True
-            else:
-                return False
+
+            if not resp["result"] == "created":
+                raise Exception("__open_scheduler_report error: report result not created.")
+
+            self.scheduler_report_id = resp["_id"]
 
         except Exception as e:
             print(e)

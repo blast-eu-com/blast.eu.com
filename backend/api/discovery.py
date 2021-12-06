@@ -23,12 +23,11 @@ from api.db import ESConnector
 class SSH:
 
     def __init__(self, *args, **kwargs):
-        print("class SSH function INIT:", args, kwargs)
+        print("class SSH function INIT")
         self.hostname = args[0]
         self.ssh_username = kwargs["username"] if kwargs["username"] != '' else None
         self.ssh_password = kwargs["password"] if kwargs["password"] != '' else None
         self.ssh_certificate = kwargs["certificate"] if kwargs["certificate"] != '' else None
-        print(self.hostname, self.ssh_username, self.ssh_password, self.ssh_certificate)
         self.ssh_client = paramiko.client.SSHClient()
         self.sftp_client = None
         self.ssh_client.set_missing_host_key_policy(paramiko.client.AutoAddPolicy())
@@ -93,7 +92,6 @@ def get_active_network_connection_ipv4(ssh_client):
             "connection_status": line.split()[5]
         } for line in list(filter(None, stdout.read().decode("UTF-8").split("\n"))) if len(line.split()) > 5
     ]
-    print(active_internet_connection)
     return active_internet_connection
 
 
@@ -112,7 +110,6 @@ def get_active_network_connection_ipv6(ssh_client):
             "connection_status": line.split()[5]
         } for line in list(filter(None, stdout.read().decode("UTF-8").split("\n"))) if len(line.split()) > 5
     ]
-    print(active_internet_connection)
     return active_internet_connection
 
 
@@ -263,6 +260,5 @@ class Discovery:
     def end(self):
         """ this function ends a sequence of discovery actions """
         print(" >>> Enter file:discovery:class:Discovery:function:end")
-        print(self.server_ips, self.server_peers, self.server_roles)
         self.SSH.close_ssh_connection()
 

@@ -69,7 +69,7 @@ const ScenarioLast = class {
                     <td>` + report["_source"]["scenario_id"] + `</td>
                     <td>` + report["_source"]["start_at"] + `</td>`
 
-            if ( report["_source"]["status"] !== "Ended" ) {
+            if ( report["_source"]["status"] !== "ended" ) {
                 let current = new Date().getTime()
                 let start_at = new Date(report["_source"]["start_at"]).getTime()
                 let elapsedTime = (current - (start_at - new Date().getTimezoneOffset() * 60000)) / 1000

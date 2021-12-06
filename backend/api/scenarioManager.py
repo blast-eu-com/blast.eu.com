@@ -175,6 +175,7 @@ class ScenarioManager:
             self.scenario_report["end_at"] = datetime.datetime.isoformat(datetime.datetime.utcnow())
             self.scenario_report["duration"]["end_at"] = datetime.datetime.now().timestamp()
             self.scenario_report["duration"]["time"] = self.scenario_report["duration"]["end_at"] - self.scenario_report["duration"]["start_at"]
+            print(self.scenario_report_id, self.scenario_report)
             scenario_reporter = reporter.Reporter(self.ES, report_type="scenario")
             resp = scenario_reporter.update(self.scenario_report_id, self.scenario_report)
             return True if resp["result"] == "updated" else False
@@ -311,12 +312,8 @@ class ScenarioManager:
             self.scenario_nodes_id = self.scenario_source["nodes"]
             self.scenario_scripts_id = self.scenario_source["scripts"]
 
-            if self.__open_scenario_report(self.scenario_id, self.scenario_source):
-                if self.scenario_exec_script_in_parallel_mode:
-                    self.execute_scripts_in_parallel()
-                else:
-                    self.execute_scripts_in_sequential()
-
+            self.__open_scenario_report(self.scenario_id, self.scenario_source)
+            self.execute_scripts_in_parallel() if self.scenario_exec_script_in_parallel_mode else self.execute_scripts_in_sequential()
             return True if self.__close_scenario_report() else False
 
         except Exception as e:
@@ -355,13 +352,14 @@ class ScenarioManager:
                     "start_at": datetime.datetime.now().timestamp()
                 }
             }
+
             scenario_reporter = reporter.Reporter(self.ES, report_type="scenario")
-            resp = scenario_reporter.__add__(self.scenario_report)
-            if resp["result"] == "created":
-                self.scenario_report_id = resp["_id"]
-                return True
-            else:
-                return False
+            resp = scenario_reporter.add(self.scenario_report)
+
+            if not resp["result"] == "created":
+                raise Exception("__open_scenario_report error: Report result not created.")
+
+            self.scenario_report_id = resp["_id"]
 
         except Exception as e:
             print("backend Exception, file:scenarioManager:class:scenarioManager:func:__open_scenario_report")
