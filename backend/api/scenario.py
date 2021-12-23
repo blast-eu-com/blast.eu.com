@@ -52,13 +52,15 @@ class Scenario:
             scenario["realm"] = realm
             scenario["account_email"] = account_email
             scenario_add_res = self.ES.index(index=self.DB_INDEX, body=json.dumps(scenario), refresh=True)
-            if scenario_add_res["result"] == "created":
-                self.STATISTIC_DATA["object_action"] = 'create'
-                self.STATISTIC_DATA["account_email"] = account_email
-                self.STATISTIC_DATA["realm"] = realm
-                self.STATISTIC_DATA["timestamp"] = statistic.UTC_time()
-                self.STATISTIC_DATA["object_name"] = scenario["name"]
-                self.STATISTIC.add(self.STATISTIC_DATA)
+            if scenario_add_res["result"] != "created":
+                raise Exception("Internal Error: Scenario create failure.")
+
+            self.STATISTIC_DATA["object_action"] = 'create'
+            self.STATISTIC_DATA["account_email"] = account_email
+            self.STATISTIC_DATA["realm"] = realm
+            self.STATISTIC_DATA["timestamp"] = statistic.UTC_time()
+            self.STATISTIC_DATA["object_name"] = scenario["name"]
+            self.STATISTIC.add(self.STATISTIC_DATA)
 
             return scenario_add_res
 
@@ -164,6 +166,90 @@ class Scenario:
             print(e)
             return {"failure": str(e)}
 
+    def list_by_script_id(self, realm: str, script_id: str):
+        """ Returns all the scenario saved with the given script id """
+        try:
+            req = json.dumps(
+                {
+                    "size": 10000,
+                    "query": {
+                        "bool": {
+                            "filter": [
+                                {
+                                    "term": {
+                                        "realm": realm
+                                    },
+                                    "scripts": {
+                                        "term": script_id
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            )
+            return self.ES.search(index=self.DB_INDEX, body=req)
+
+        except Exception as e:
+            print("backend Exception, file:scenario:class:scenario:func:list_by_script_id")
+            print(e)
+            return {"failure": str(e)}
+
+    def list_any_by_script_id(self, script_id: str):
+        """ Returns all the scenario saved with the given script id """
+        try:
+            req = json.dumps(
+                {
+                    "size": 10000,
+                    "query": {
+                        "bool": {
+                            "filter": {
+                                "scripts": {
+                                    "term": script_id
+                                }
+                            }
+                        }
+                    }
+                }
+            )
+            return self.ES.search(index=self.DB_INDEX, body=req)
+
+        except Exception as e:
+            print("backend Exception, file:scenario:class:scenario:func:list_any_by_script_id")
+            print(e)
+            return {"failure": str(e)}
+
+    def list_by_node_id(self, realm: str, node_id: str):
+        """ Returns all the scenario saved with the given node id """
+        try:
+            req = json.dumps(
+                {
+                    "size": 10000,
+                    "query": {
+                        "bool": {
+                            "filter": [
+                                {
+                                    "term": {
+                                        "nodes": node_id
+                                    }
+                                },
+                                {
+                                    "term": {
+                                        "realm": realm
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            )
+            return self.ES.search(index=self.DB_INDEX, body=req)
+
+        except Exception as e:
+            print("backend Exception, file:scenario:class:scenario:func:list_by_node_id")
+            print(e)
+            return {"failure": str(e)}
+
     def list_by_ids(self, realm: str, scenario_ids: list):
 
         try:
@@ -190,7 +276,7 @@ class Scenario:
             return self.ES.search(index=self.DB_INDEX, body=req)
 
         except Exception as e:
-            print("backend Exception, file:scenario:class:scenario:func: list_by_ids")
+            print("backend Exception, file:scenario:class:scenario:func:list_by_ids")
             print(e)
             return {"failure": str(e)}
 

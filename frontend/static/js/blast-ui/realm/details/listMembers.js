@@ -29,6 +29,7 @@ const RealmListMembers = class {
         let html = '<table class="table">'
         account.listByRealm(realm.name).then((accounts) => {
             accounts["hits"]["hits"].forEach((record) => {
+                console.log(record["_source"], realm.accountEmail)
                 if ( record["_source"]["email"] === realm.accountEmail ) { var realmMemberType = 'Owner'}
                 else { realmMemberType = 'Member' }
                 html = html + `

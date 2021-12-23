@@ -234,7 +234,7 @@ def script_add(realm):
         "script_type": request.form["script_type"]
     }
 
-    return Response(json.dumps(script.add(realm, data)))
+    return Response(json.dumps(script.add(account_email, realm, data)))
 
 @app.route('/api/v1/realms/<realm>/scripts', methods=['DELETE'])
 @active_realm_member
@@ -242,7 +242,8 @@ def script_delete(realm):
     """ this function delete one script identify by given id from the given realm """
     script = Script(ES)
     script_id = request.get_json()["script_id"]
-    return Response(json.dumps(script.delete(realm, script_id)))
+    account_email = json.loads(request.cookies.get('account'))["email"]
+    return Response(json.dumps(script.delete(account_email, realm, script_id)))
 
 @app.route('/api/v1/realms/<realm>/scripts', methods=['GET'])
 @active_realm_member
@@ -747,9 +748,8 @@ def scheduler_add(realm):
     """ this function add a new schedule management scenario into the scheduler doc """
     scheduler = Scheduler(ES)
     data = request.get_json()
-    data["realm"] = realm
-    data["account_email"] = json.loads(request.cookies.get('account'))["email"]
-    return Response(json.dumps(scheduler.add(data)))
+    account_email = json.loads(request.cookies.get('account'))["email"]
+    return Response(json.dumps(scheduler.add(account_email, realm, data)))
 
 @app.route('/api/v1/realms/<realm>/schedulers', methods=["GET"])
 @active_realm_member

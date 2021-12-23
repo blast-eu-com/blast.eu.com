@@ -15,6 +15,8 @@
    limitations under the License.
 """
 import json
+from api import statistic
+from api import scenario
 from api.setting import Setting, decrypt_password
 
 
@@ -23,71 +25,94 @@ class Script:
     def __init__(self, ESConnector):
         self.ES = ESConnector
         self.DB_INDEX = 'blast_obj_script'
+        self.SCENARIO = scenario.Scenario()
         self.SETTING = Setting(self.ES)
+        self.STATISTIC = statistic.Statistic(self.ES)
+        self.STATISTIC_DATA = self.STATISTIC.STATISTIC_DATA
+        self.STATISTIC_DATA["object_type"] = 'script'
         self.script_location_dir = None
         self.script_session_dir = None
 
-    def add(self, realm: str, data: dict) -> dict:
+    def add(self, account_email: str, realm: str, script: dict):
         """
             Add a new script in a realm
         """
         try:
-            file_content = data["script_file_data"].read().decode("utf-8")
-            file_name = data["script_file_name"]
+            file_content = script["script_file_data"].read().decode("utf-8")
+            file_name = script["script_file_name"]
 
             # make sure we dont register duplicate
-            if self.is_script(realm, data["script_name"]):
+            if self.is_script(realm, script["script_name"]):
                 raise Exception("Script already exists.")
 
             req = {
-                "args": data["script_args"],
-                "name": data["script_name"],
-                "description": data["script_description"],
+                "args": script["script_args"],
+                "name": script["script_name"],
+                "description": script["script_description"],
                 "realm": realm,
                 "filename": file_name,
-                "type": data["script_type"],
+                "type": script["script_type"],
                 "content": file_content,
-                "shareable": data["script_shareable"],
-                "shareable_realms": data["script_shareable_realms"]
+                "shareable": script["script_shareable"],
+                "shareable_realms": script["script_shareable_realms"]
             }
 
-            return self.ES.index(index=self.DB_INDEX, body=json.dumps(req), refresh=True)
+            script_add_res = self.ES.index(index=self.DB_INDEX, body=json.dumps(req), refresh=True)
+            if script_add_res["result"] != "created":
+                raise Exception("Internal Error: Script create failure.")
+
+            self.STATISTIC_DATA["object_action"] = 'create'
+            self.STATISTIC_DATA["timestamp"] = statistic.UTC_time()
+            self.STATISTIC_DATA["realm"] = realm
+            self.STATISTIC_DATA["account_email"] = account_email
+            self.STATISTIC_DATA["object_name"] = script["script_name"]
+            self.STATISTIC.add(self.STATISTIC_DATA)
+
+            return script_add_res
 
         except OSError as e:
-            return {"failure": e}
+            print("backend Exception, file:script:class:script:func:add")
+            print(e)
+            return {"failure": str(e)}
 
         except Exception as e:
-            return {"failure": e}
+            print("backend Exception, file:script:class:script:func:add")
+            print(e)
+            return {"failure": str(e)}
 
-    def delete(self, realm: str, id: str):
-        """
-            Delete a script by id of a realm
-        """
+    def delete(self, account_email: str, realm: str, script_id: str):
+        """ Delete a script by id of a realm """
+
         try:
-            req = json.dumps(
-                {
-                    "query": {
-                        "bool": {
-                            "filter": [
-                                {
-                                    "term": {
-                                        "realm": realm
-                                    }
-                                },
-                                {
-                                    "term": {
-                                        "_id": id
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            )
-            return self.ES.delete_by_query(index=self.DB_INDEX, body=req, refresh=True)
+
+            script = self.list_by_id(realm, script_id)
+
+            if script["hits"]["total"]["value"] != 1:
+                raise Exception("Invalid script id: " + script_id)
+
+            # dont delete a script linked to an existing scenario
+            if self.SCENARIO.list_by_script_id(realm, script_id)["hits"]["total"]["value"] > 0:
+                raise Exception("The script: " + script["hits"]["hits"][0]["_source"]["name"] + " is linked to one or more scenarios.")
+
+            # dont delete a script linked to an existing scenario from another realm. because script can be shared
+            if self.SCENARIO.list_any_by_script_id(script_id)["hits"]["total"]["value"] > 0:
+                raise Exception("The script: " + script["hits"]["hits"][0]["_source"]["name"] + " is linked to one or more scenarios in external realm.")
+
+            script_del_res = self.ES.delete(index=self.DB_INDEX, id=script_id, refresh=True)
+            if script_del_res["result"] != "deleted":
+                raise Exception("Internal Error: Script delete failure.")
+
+            self.STATISTIC_DATA["object_action"] = 'delete'
+            self.STATISTIC_DATA["timestamp"] = statistic.UTC_time()
+            self.STATISTIC_DATA["account_email"] = account_email
+            self.STATISTIC_DATA["realm"] = realm
+            self.STATISTIC_DATA["object_name"] = script["hits"]["hits"][0]["_source"]["name"]
+            self.STATISTIC.add(self.STATISTIC_DATA)
+
+            return script_del_res
 
         except Exception as e:
-            print("backend Exception, file:script:class:script:func:list")
+            print("backend Exception, file:script:class:script:func:delete")
             print(e)
             return {"failure": str(e)}
 

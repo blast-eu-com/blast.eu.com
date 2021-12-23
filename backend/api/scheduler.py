@@ -31,18 +31,21 @@ class Scheduler:
         self.STATISTIC_DATA["object_type"] = "scheduler"
         self.DB_INDEX = 'blast_obj_scheduler'
 
-    def add(self, data: dict):
-
+    def add(self, account_email: str, realm: str, data: dict):
         """ create a new scheduler """
+
         try:
-            self.STATISTIC_DATA["object_action"] = 'create'
-            self.STATISTIC_DATA["object_name"] = data["name"]
-            self.STATISTIC_DATA["timestamp"] = statistic.UTC_time()
-            self.STATISTIC_DATA["account_email"] = data["account_email"]
-            self.STATISTIC_DATA["realm"] = data["realm"]
-            data.pop("account_email")
-            self.STATISTIC.add(self.STATISTIC_DATA)
-            return self.ES.index(index=self.DB_INDEX, body=json.dumps(data), refresh=True)
+            data["realm"] = realm
+            scheduler_add_res = self.ES.index(index=self.DB_INDEX, body=json.dumps(data), refresh=True)
+            if scheduler_add_res["result"] == "created":
+                self.STATISTIC_DATA["object_action"] = 'create'
+                self.STATISTIC_DATA["object_name"] = data["name"]
+                self.STATISTIC_DATA["timestamp"] = statistic.UTC_time()
+                self.STATISTIC_DATA["account_email"] = account_email
+                self.STATISTIC_DATA["realm"] = realm
+                self.STATISTIC.add(self.STATISTIC_DATA)
+
+            return scheduler_add_res
 
         except Exception as e:
             print("backend Error: file:scheduler:class:scheduler:function:add")
@@ -134,6 +137,37 @@ class Scheduler:
         except Exception as e:
             print(e)
             return {"failure": str(e)}
+
+    def list_by_scenario(self, realm: str, scenario_id: str):
+
+        try:
+            req = json.dumps(
+                {
+                    "query": {
+                        "bool": {
+                            "filter": [
+                                {
+                                    "realm": {
+                                        "term": realm
+                                    }
+                                },
+                                {
+                                    "scenario_ids": {
+                                        "term": scenario_id
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            )
+
+            return self.ES.search(index=self.DB_INDEX, body=req)
+
+        except Exception as e:
+            print(e)
+            return {"failure": str(e)}
+
 
     def list_by_ids(self, realm: str, scheduler_ids: list):
 

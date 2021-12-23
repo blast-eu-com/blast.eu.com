@@ -78,12 +78,16 @@ class Infra:
         param: clusters: the list of cluster info to link to the infrastrucutre
         """
         try:
-            infra = self.list_by_id(realm, infra_id)["hits"]["hits"][0]
-            infra["_source"]["clusters"].append(cluster)
-            infra_add_cluster_res = self.update(infra_id, infra["_source"])
+            infra = self.list_by_id(realm, infra_id)
+
+            if infra["hits"]["total"]["value"] != 1:
+                raise Exception("Invalid infrastructure id: " + infra_id)
+
+            infra["hits"]["hits"][0]["_source"]["clusters"].append(cluster)
+            infra_add_cluster_res = self.update(infra_id, infra["hits"]["hits"][0]["_source"])
             if infra_add_cluster_res["result"] == "updated":
                 self.STATISTIC_DATA["object_action"] = "addClusterLink"
-                self.STATISTIC_DATA["object_name"] = [infra["_source"]["name"], cluster["name"]]
+                self.STATISTIC_DATA["object_name"] = [infra["hits"]["hits"][0]["_source"]["name"], cluster["name"]]
                 self.STATISTIC_DATA["timestamp"] = statistic.UTC_time()
                 self.STATISTIC_DATA["account_email"] = account_email
                 self.STATISTIC_DATA["realm"] = realm
@@ -122,11 +126,15 @@ class Infra:
         param: infra_ids: The list of infrastructures id to be deleted
         """
         try:
-            infra = self.list_by_id(realm, infra_id)["hits"]["hits"][0]
-            infra_del_res = self.ES.delete(index=self.DB_INDEX, id=infra["_id"], refresh=True)
+            infra = self.list_by_id(realm, infra_id)
+
+            if infra["hits"]["total"]["value"] != 1:
+                raise Exception("Invalid infrastructure id: " + infra_id)
+
+            infra_del_res = self.ES.delete(index=self.DB_INDEX, id=infra_id, refresh=True)
             if infra_del_res["result"] == "deleted":
                 self.STATISTIC_DATA["object_action"] = "delete"
-                self.STATISTIC_DATA["object_name"] = infra["_source"]["name"]
+                self.STATISTIC_DATA["object_name"] = infra["hits"]["hits"][0]["_source"]["name"]
                 self.STATISTIC_DATA["timestamp"] = statistic.UTC_time()
                 self.STATISTIC_DATA["account_email"] = account_email
                 self.STATISTIC_DATA["realm"] = realm
@@ -142,8 +150,8 @@ class Infra:
     def delete_by_realm(self, data: dict):
 
         """ this function delete all the infrastructure that belong the realm """
-        infras = self.__list__(data["realm"])
-        [self.__delete__({"id": infra["_id"], "realm": data["realm"], "account_email": data["account_email"]}) for infra in infras["hits"]["hits"]]
+        infras = self.list(data["realm"])
+        [self.delete(data["account_email"], data["realm"], infra["_id"]) for infra in infras["hits"]["hits"]]
 
     def delete_cluster(self, account_email: str, realm: str, infra_id: str, cluster_name: str):
 
@@ -155,14 +163,18 @@ class Infra:
         param: cluster_ids: the cluster ids to be unlink from this infrastructure
         """
         try:
-            infra = self.list_by_id(realm, infra_id)["hits"]["hits"][0]
-            for idx in range(0, len(infra["_source"]["clusters"])):
-                if infra["_source"]["clusters"][idx]["name"] == cluster_name:
-                    self.STATISTIC_DATA["object_name"] = [infra["_source"]["name"], infra["_source"]["clusters"][idx]["name"]]
-                    del infra["_source"]["clusters"][idx]
+            infra = self.list_by_id(realm, infra_id)
+
+            if infra["hits"]["total"]["value"] != 1:
+                raise Exception("Invalid infrastructure id: " + infra_id)
+
+            for idx in range(0, len(infra["hits"]["hits"][0]["_source"]["clusters"])):
+                if infra["hits"]["hits"][0]["_source"]["clusters"][idx]["name"] == cluster_name:
+                    self.STATISTIC_DATA["object_name"] = [infra["hits"]["hits"][0]["_source"]["name"], infra["hits"]["hits"][0]["_source"]["clusters"][idx]["name"]]
+                    del infra["hits"]["hits"][0]["_source"]["clusters"][idx]
                     break
 
-            infra_del_cluster_res = self.update(infra["_id"], infra["_source"])
+            infra_del_cluster_res = self.update(infra["hits"]["hits"][0]["_id"], infra["hits"]["hits"][0]["_source"])
             if infra_del_cluster_res["result"] == "updated":
                 self.STATISTIC_DATA["object_action"] = "removeClusterLink"
                 self.STATISTIC_DATA["timestamp"] = statistic.UTC_time()
@@ -291,6 +303,46 @@ class Infra:
 
         except Exception as e:
             print("backend Exception, file:infrastructure:class:infrastructure:func:list_by_name")
+            print(e)
+            return {"failure": str(e)}
+
+    def list_by_cluster_id(self, realm: str, cluster_id: list):
+        """ returns the list of infrastructure for a given cluster id """
+        try:
+            req = json.dumps(
+                {
+                    "size": 10000,
+                    "query": {
+                        "bool": {
+                            "filter": [
+                                {
+                                    "nested": {
+                                        "path": "clusters",
+                                        "query": {
+                                            "bool": {
+                                                "must": {
+                                                    "term": {
+                                                        "clusters.id": cluster_id
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "term": {
+                                        "realm": realm
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            )
+            return self.ES.search(index=self.DB_INDEX, body=req)
+
+        except Exception as e:
+            print("backend Exception, file:infrastructure:class:infrastructure:func:list_by_cluster_id")
             print(e)
             return {"failure": str(e)}
 

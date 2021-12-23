@@ -24,6 +24,7 @@ import random
 import base64
 import datetime
 from passlib.hash import pbkdf2_sha512
+from api import statistic
 from api import node
 from api import cluster
 from api import infra
@@ -66,6 +67,9 @@ class Realm:
     def __init__(self, ESConnector):
         self.ES = ESConnector
         self.DB_INDEX = 'blast_realm'
+        self.STATISTIC = statistic.Statistic(self.ES)
+        self.STATISTIC_DATA = self.STATISTIC.STATISTIC_DATA
+        self.STATISTIC_DATA["object_type"] = 'realm'
         self.ACCOUNT = Account(self.ES)
         self.CLUSTER = cluster.Cluster(self.ES)
         self.INFRA = infra.Infra(self.ES)
@@ -95,15 +99,15 @@ class Realm:
                 raise Exception("Realm name is already used.")
 
             realm["account_email"] = account_email
-            new_realm = self.ES.index(index=self.DB_INDEX, body=json.dumps(realm), refresh=True)
+            realm_add_res = self.ES.index(index=self.DB_INDEX, body=json.dumps(realm), refresh=True)
 
             # create the setting object if the realm is successfully created
             # get the account details to add the new realm in it
-            if not new_realm["result"] == "created":
-                raise Exception("Realm creation internal error.")
+            if not realm_add_res["result"] == "created":
+                raise Exception("Internal Error: Realm create failure.")
 
             if not self.SETTING.add(realm["name"]):
-                raise Exception("Realm settings add failure.")
+                raise Exception("Intermal Error: Realm settings create failure.")
 
             acc = self.ACCOUNT.list_by_email(account_email)["hits"]["hits"][0]
             acc["_source"]["realm"].append({"name": realm["name"], "active": False})
@@ -112,10 +116,10 @@ class Realm:
             # create the portmap table for the new realm if the account is successfully updated
             # return the realm creation output
             if not account_update["result"] == "updated":
-                raise Exception("Realm portmap add failure.")
+                raise Exception("Internal Error: Portmap create failure.")
 
             portmap_provision(realm["name"])
-            return new_realm
+            return realm_add_res
 
         except Exception as e:
             print("backend Exception, file:aaa:class:realm:func:add")
@@ -247,40 +251,13 @@ class Realm:
                     ]
                 }
             )
-            return self.ES.search(index=self.DB_INDEX, body=req, _source_excludes="account_email")
+            return self.ES.search(index=self.DB_INDEX, body=req)
 
         except Exception as e:
             print("backend Exception, file:aaa:class:realm:func:list_by_name")
             print(str(e))
             return {"failure": str(e)}
 
-    def list_by_name_full(self, name: str):
-        """ this function returns the realm object with the given name """
-        print(" >>> Enter file:aaa:class:realm:function:list_all_by_name")
-        try:
-            req = json.dumps(
-                {
-                    "size": 10000,
-                    "query": {
-                        "term": {
-                            "name": name
-                        }
-                    },
-                    "sort": [
-                        {
-                            "name": {
-                                "order": "asc"
-                            }
-                        }
-                    ]
-                }
-            )
-            return self.ES.search(index=self.DB_INDEX, body=req)
-
-        except Exception as e:
-            print("backend Exception, file:aaa:class:realm:func:list_all_by_name")
-            print(str(e))
-            return {"failure": str(e)}
 
 class Account:
 

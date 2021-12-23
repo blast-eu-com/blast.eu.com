@@ -19,6 +19,8 @@ import re
 import json
 import socket
 from api import statistic
+from api import cluster
+from api import scenario
 from api.setting import Setting
 from api.discovery import discover
 
@@ -28,6 +30,8 @@ class Node:
         self.ES = ESConnector
         self.SETTING = Setting(self.ES)
         self.DB_INDEX = 'blast_obj_node'
+        self.CLUSTER = cluster.Cluster()
+        self.SCENARIO = scenario.Scenario()
         self.STATISTIC = statistic.Statistic(self.ES)
         self.STATISTIC_DATA = self.STATISTIC.STATISTIC_DATA
         self.STATISTIC_DATA["object_type"] = 'node'
@@ -37,7 +41,6 @@ class Node:
             Add a new node in a given realm
         """
         print(" >>> Enter file:node:class:Node:function:add")
-        print(node)
         try:
             # make sure node name and node ip are not empty.
             if node["name"] == "" and node["ip"] == "":
@@ -94,14 +97,26 @@ class Node:
         """ this function delete an existing node by id """
         print(" >>> Enter file:node:class:Node:function:delete")
         try:
-            node = self.list_by_id(realm, node_id)["hits"]["hits"]
-            node_del_res = self.ES.delete(index=self.DB_INDEX, id=node["_id"], refresh=True)
+            node = self.list_by_id(realm, node_id)
+
+            if node["hits"]["total"]["value"] != 1:
+                raise Exception("Invalid node id: " + node_id)
+
+            # dont delete a node linked to a cluster
+            if self.CLUSTER.list_by_node_id(realm, node_id)["hits"]["total"]["value"] > 0:
+                raise Exception("The node: " + node["hits"]["hits"][0]["_source"]["name"] + " is linked to one or more clusters")
+
+            # dont delete a node linked to a scenario
+            if self.SCENARIO.list_by_node_id(realm, node_id)["hits"]["total"]["value"] > 0:
+                raise Exception("The node: " + node["hits"]["hits"][0]["_source"]["name"] + "is linked to one or more scenarios")
+
+            node_del_res = self.ES.delete(index=self.DB_INDEX, id=node_id, refresh=True)
             if node_del_res["result"] == "deleted":
                 self.STATISTIC_DATA["object_action"] = 'delete'
                 self.STATISTIC_DATA["timestamp"] = statistic.UTC_time()
                 self.STATISTIC_DATA["account_email"] = account_email
                 self.STATISTIC_DATA["realm"] = realm
-                self.STATISTIC_DATA["object_name"] = node["_source"]["name"]
+                self.STATISTIC_DATA["object_name"] = node["hits"]["hits"][0]["_source"]["name"]
                 self.STATISTIC.add(self.STATISTIC_DATA)
 
             return node_del_res
@@ -115,7 +130,7 @@ class Node:
         """ this function delete all the node that belong the same realm """
         print(" >>> Enter file:node:class:Node:function:delete_by_realm")
         nodes = self.list(data["realm"])
-        [self.delete({"id": node["_id"], "realm": data["realm"], "account_email": data["account_email"]}) for node in nodes["hits"]["hits"]]
+        [self.delete(data["account_email"], data["realm"], node["_id"]) for node in nodes["hits"]["hits"]]
 
     def update(self, node_id: str, data: dict):
         print(" >>> Enter file:node:class:Node:function:update")

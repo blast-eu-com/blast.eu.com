@@ -46,11 +46,13 @@ async function main() {
         let realmId = urlParams.get("realm_id")
         let realmName = urlParams.get("realm_name")
         let realmData = await realm.listByName(realmName)
+        console.log(realmData)
         if (!Object.keys(realmData).includes("failure")){
             // failure to access the content of a realm maybe due to a permission denied
             // if a user try to access the content of a realm or if a user tries to access non active realm
             // read the failure message to identify the type of failure.
             realm.load(realmData["hits"]["hits"][0])
+            console.log(realm)
             setPageTitle(realm)
             realmListInfo.render('realmListInfo', realm)
             realmListMembers.render('realmListMembers', realm)
