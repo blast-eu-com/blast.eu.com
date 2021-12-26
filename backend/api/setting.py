@@ -42,8 +42,8 @@ def provision_realm_settings(realm):
 
 class Portmap:
 
-    def __init__(self, ESConnector):
-        self.ES = ESConnector
+    def __init__(self, connector):
+        self.ES = connector
         self.DB_INDEX = 'blast_port_map'
 
     def __delete__(self, id: str):
@@ -89,8 +89,8 @@ class Portmap:
 
 class Setting:
 
-    def __init__(self, ESConnector):
-        self.ES = ESConnector
+    def __init__(self, connector):
+        self.ES = connector
         self.DB_INDEX = 'blast_setting'
 
     def add(self, realm: str):

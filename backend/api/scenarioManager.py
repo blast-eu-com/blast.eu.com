@@ -26,9 +26,9 @@ from api import script
 
 class ScenarioManager:
 
-    def __init__(self, ESConnector):
+    def __init__(self, connector):
         try:
-            self.ES = ESConnector
+            self.ES = connector
             self._backend_config_file = "/etc/blast.eu.com/backend.yml"
             with open(self._backend_config_file, 'r') as file:
                 config = yaml.load(file, Loader=yaml.FullLoader)

@@ -42,7 +42,7 @@ async function main() {
         let infraData = await infrastructure.listById(infraId)
         infrastructure.load(infraData["hits"]["hits"][0])
         setPageTitle(infrastructure.name)
-        // setButtonDeleteAction(infrastructure.id)
+        setButtonDeleteAction(infrastructure.id)
         infrastructureListInfo.render('infrastructureListInfo', infrastructure)
         infrastructureListClusters.render('infrastructureListClusters', infrastructure)
         infrastructureManageClusters.render('infrastructureManageClusters', infrastructure)

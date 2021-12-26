@@ -22,10 +22,10 @@ from api.setting import Setting, decrypt_password
 
 class Script:
 
-    def __init__(self, ESConnector):
-        self.ES = ESConnector
+    def __init__(self, connector):
+        self.ES = connector
         self.DB_INDEX = 'blast_obj_script'
-        self.SCENARIO = scenario.Scenario()
+        self.SCENARIO = scenario.Scenario(self.ES)
         self.SETTING = Setting(self.ES)
         self.STATISTIC = statistic.Statistic(self.ES)
         self.STATISTIC_DATA = self.STATISTIC.STATISTIC_DATA

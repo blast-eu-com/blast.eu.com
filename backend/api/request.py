@@ -22,8 +22,8 @@ from api import aaa
 
 class Request:
 
-    def __init__(self, ESConnector):
-        self.ES = ESConnector
+    def __init__(self, connector):
+        self.ES = connector
         self.DB_INDEX = 'blast_request'
 
     def add(self, account_email: str, request_data: dict):

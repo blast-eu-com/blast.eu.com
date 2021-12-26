@@ -41,7 +41,7 @@ async function main() {
         let scriptData = await script.listById(script_id)
         script.load(scriptData["hits"]["hits"][0])
         setPageTitle(script.name)
-        // setButtonDelAction(script)
+        setButtonDelAction(script)
         scriptListInfo.render('scriptListInfo', script)
         scriptContent.render('scriptContent', script)
     }

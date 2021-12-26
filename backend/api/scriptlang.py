@@ -19,9 +19,10 @@ import json
 
 class Scriptlang:
 
-    def __init__(self, ESConnector):
+    def __init__(self, connector):
+        print(" -- Object ScriptLang init -- ")
         self.DB_INDEX = 'blast_script_lang'
-        self.ES = ESConnector
+        self.ES = connector
 
     def add(self):
         pass

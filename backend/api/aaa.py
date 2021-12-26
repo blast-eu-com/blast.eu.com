@@ -64,13 +64,12 @@ def portmap_provision(realm):
 
 
 class Realm:
-    def __init__(self, ESConnector):
-        self.ES = ESConnector
+    def __init__(self, connector):
+        self.ES = connector
         self.DB_INDEX = 'blast_realm'
         self.STATISTIC = statistic.Statistic(self.ES)
         self.STATISTIC_DATA = self.STATISTIC.STATISTIC_DATA
         self.STATISTIC_DATA["object_type"] = 'realm'
-        self.ACCOUNT = Account(self.ES)
         self.CLUSTER = cluster.Cluster(self.ES)
         self.INFRA = infra.Infra(self.ES)
         self.NODE = node.Node(self.ES)
@@ -109,7 +108,8 @@ class Realm:
             if not self.SETTING.add(realm["name"]):
                 raise Exception("Intermal Error: Realm settings create failure.")
 
-            acc = self.ACCOUNT.list_by_email(account_email)["hits"]["hits"][0]
+            account = Account(self.ES)
+            acc = account.list_by_email(account_email)["hits"]["hits"][0]
             acc["_source"]["realm"].append({"name": realm["name"], "active": False})
             account_update = self.ACCOUNT.update(acc["_id"], acc["_source"])
 
@@ -130,8 +130,9 @@ class Realm:
         """ this function delete an existing account object from the database """
         print(" >>> Enter file:aaa:class:realm:function:delete")
         try:
+            account = Account(self.ES)
             realm_id = self.list_by_name(realm_name)["hits"]["hits"][0]["_id"]
-            link_account_realm = self.ACCOUNT.list_by_active_realm(realm_name)
+            link_account_realm = account.list_by_active_realm(realm_name)
 
             if link_account_realm["hits"]["total"]["value"] > 0:
                 raise Exception("Realm cannot be deleted because some accounts use this realm as active realm")
@@ -141,7 +142,7 @@ class Realm:
             self.INFRA.delete_by_realm({"realm": realm_name, "account_email": account_email})
             self.SETTING.delete_by_realm(realm_name)
             self.PORTMAP.delete_by_realm(realm_name)
-            self.ACCOUNT.delete_by_realm(realm_name)
+            account.delete_by_realm(realm_name)
 
             return self.ES.delete(index=self.DB_INDEX, id=realm_id, refresh=True)
 
@@ -261,8 +262,8 @@ class Realm:
 
 class Account:
 
-    def __init__(self, ESConnector):
-        self.ES = ESConnector
+    def __init__(self, connector):
+        self.ES = connector
         self.DB_INDEX = 'blast_account'
         self.SETTING = Setting(self.ES)
 
@@ -688,7 +689,6 @@ class Account:
             scriptlangs = {}
             scriptlang = Scriptlang(self.ES)
             realm = Realm(self.ES)
-
             account = self.list_by_email(account_email)
             realm_name = self.list_active_realm(account["hits"]["hits"][0]["_id"])["name"]
             realm_details = realm.list_by_name(realm_name)

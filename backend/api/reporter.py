@@ -20,8 +20,8 @@ import json
 
 class Reporter:
 
-    def __init__(self, ESConnector, report_type=None):
-        self.ES = ESConnector
+    def __init__(self, connector, report_type=None):
+        self.ES = connector
         self.DB_INDEX = "blast_obj_report"
         self.report_type = report_type
         self.filter_time_gte = """1970-01-01T00:00:00.000Z"""

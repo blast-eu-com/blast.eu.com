@@ -26,12 +26,12 @@ from api.discovery import discover
 
 
 class Node:
-    def __init__(self, ESConnector):
-        self.ES = ESConnector
+    def __init__(self, connector):
+        self.ES = connector
         self.SETTING = Setting(self.ES)
         self.DB_INDEX = 'blast_obj_node'
-        self.CLUSTER = cluster.Cluster()
-        self.SCENARIO = scenario.Scenario()
+        self.CLUSTER = cluster.Cluster(self.ES)
+        self.SCENARIO = scenario.Scenario(self.ES)
         self.STATISTIC = statistic.Statistic(self.ES)
         self.STATISTIC_DATA = self.STATISTIC.STATISTIC_DATA
         self.STATISTIC_DATA["object_type"] = 'node'

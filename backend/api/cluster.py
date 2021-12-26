@@ -22,10 +22,10 @@ from api import infra
 
 
 class Cluster:
-    def __init__(self, ESConnector):
-        self.ES = ESConnector
+    def __init__(self, connector):
+        self.ES = connector
         self.STATISTIC = statistic.Statistic(self.ES)
-        self.INFRA = infra.Infra()
+        self.INFRA = infra.Infra(self.ES)
         self.STATISTIC_DATA = self.STATISTIC.STATISTIC_DATA
         self.STATISTIC_DATA["object_type"] = "cluster"
         self.DB_INDEX = 'blast_obj_cluster'

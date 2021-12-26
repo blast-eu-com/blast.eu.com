@@ -25,8 +25,8 @@ def UTC_time():
 
 class Statistic:
 
-    def __init__(self, ESConnector):
-        self.ES = ESConnector
+    def __init__(self, connector):
+        self.ES = connector
         self.DB_INDEX = 'blast_statistic'
         self.STATISTIC_DATA = {
             "object_type": "", "object_action": "", "object_name": "", "timestamp": "", "account_email": "", "realm": ""
