@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-import Account from './aaa.js'
+import Account from './account.js'
 import FrontendConfig from './frontend.js'
 
 let account = new Account()

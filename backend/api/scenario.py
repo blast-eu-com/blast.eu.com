@@ -40,7 +40,7 @@ class Scenario:
                 raise Exception("Scenario name is required. Empty value is not accepted.")
 
             scenario_name_pattern = re.compile("[a-zA-Z0-9\-_]+")
-            if scenario_name_pattern.fullmatch(scenario["name"]):
+            if not scenario_name_pattern.fullmatch(scenario["name"]):
                 raise Exception("Cluster name is not valid. Alphanumeric characters and '_', '-', are accepted.")
 
             if len(scenario["nodes"]) == 0:

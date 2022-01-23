@@ -17,7 +17,7 @@
 
 import json
 import datetime
-from api import aaa
+from .aaa import Account, Realm
 
 
 class Request:
@@ -27,72 +27,99 @@ class Request:
         self.DB_INDEX = 'blast_request'
 
     def add(self, account_email: str, request_data: dict):
-        print(" >>> Enter file:request:class:Node:function:add")
-        print(request_data)
+        """ This function add a new request. """
+        print(" >>> Enter file:request:class:request:function:add")
         try:
-            account = aaa.Account(self.ES)
-            print(account.list_by_email(account_email))
-            if account.list_by_email(account_email)["hits"]["hits"][0]["_source"]["email"] == request_data["sender"]:
-                if request_data["object"] == "realm":
-                    rlm = aaa.Realm(self.ES)
-                    print(rlm.list_by_name_full(request_data["data"]["value"]))
-                    if request_data["action"] == "subscribe":
-                        request_data["action"] = {"name": "subscribe"}
-                        request_data["status"] = "new"
-                        request_data["receiver"] = rlm.list_by_name_full(request_data["data"]["value"])["hits"]["hits"][0]["_source"]["account_email"]
-                        request_data["timestamp"] = datetime.datetime.utcnow().isoformat()
-                print(request_data)
-                return self.ES.index(index=self.DB_INDEX, body=json.dumps(request_data), refresh=True)
+            account = Account(self.ES)
+            if account.list_by_email(account_email)["hits"]["hits"][0]["_source"]["email"] != request_data["sender"]:
+                raise Exception("Request sender identity check issue.")
+
+            if request_data["object"] == "realm":
+                rlm = Realm(self.ES)
+                if request_data["action"] == "subscribe":
+                    request_data["action"] = {"name": "subscribe"}
+                    request_data["state"] = "new"
+                    request_data["receiver"] = rlm.list_owner_delegate_member_by_name(request_data["data"]["value"])
+                    request_data["timestamp"] = datetime.datetime.utcnow().isoformat()
+            return self.ES.index(index=self.DB_INDEX, body=json.dumps(request_data), refresh=True)
 
         except Exception as e:
             print("backend Exception, file:request:class:request:func:add")
             print(str(e))
             return {"failure": str(e)}
 
-    def action(self, account_email: str, request_id: str, user_action: str):
-        print(" >>> Enter file:request:class:Node:function:action")
+    def accept(self, request_data: dict):
+        print(" >>> Enter file:request:class:request:function:accept")
         try:
-            account = aaa.Account(self.ES)
+            if request_data["_source"]["object"] == "realm":
+                realm = Realm(self.ES)
+
+                if request_data["_source"]["action"]["name"] == "subscribe":
+                    realm_data = {
+                        "name": request_data["_source"]["data"]["value"],
+                        "member": request_data["_source"]["sender"],
+                        "active": False,
+                        "role": "regular"
+                    }
+
+                    if realm.add(realm_data)["result"] != "created":
+                        raise Exception("Request approve action failure.")
+
+                    request_data["_source"]["action"]["state"] = "accepted"
+                    request_data["_source"]["action"]["timestamp"] = datetime.datetime.utcnow().isoformat()
+                    request_data["_source"]["status"] = "complete"
+
+                else:
+                    raise Exception("Request action is not recognized.")
+
+            return request_data
+
+        except Exception as e:
+            print("backend Exception, file:request:class:request:func:accept")
+            print(str(e))
+            return {"failure": str(e)}
+
+    @staticmethod
+    def reject(request_data: dict):
+
+        request_data["_source"]["action"]["state"] = "rejected"
+        request_data["_source"]["action"]["timestamp"] = "01-01-1970T00:00:00"
+        request_data["_source"]["status"] = "complete"
+        return request_data
+
+    @staticmethod
+    def cancel(request_data: dict):
+
+        request_data["_source"]["action"]["state"] = "cancelled"
+        request_data["_source"]["action"]["timestamp"] = "0000-00-00T00:00:00"
+        request_data["_source"]["status"] = "complete"
+        return request_data
+
+    def action(self, account_email: str, request_id: str, user_action: str):
+        print(" >>> Enter file:request:class:request:function:action")
+        try:
+            account = Account(self.ES)
+            request_action_sender = account.list_by_email(account_email)["hits"]["hits"][0]["_source"]["email"]
             request_data = self.list_by_id(account_email, request_id)["hits"]["hits"][0]
-            # start working on receiver request
-            # a receiver can:
-            # - accept a request from a sender
-            # - reject a request from a sender
-            if account.list_by_email(account_email)["hits"]["hits"][0]["_source"]["email"] == request_data["_source"]["receiver"]:
+            print(account_email, request_id, request_data)
 
-                # start with action accept. The request receiver accept the sender request
-                if user_action == "accept":
+            if user_action == "accept":
+                if not request_action_sender in request_data["_source"]["receiver"]:
+                    raise Exception("Request receiver identity check issue.")
 
-                    # working with realm request then instanciate a new realm object
-                    if request_data["_source"]["object"] == "realm":
-                        realm_name = request_data["_source"]["data"]["value"]
+                request_data = self.accept(request_data)
 
-                        if request_data["_source"]["action"]["name"] == "subscribe":
-                            account.grant_account_to_realm(request_data["_source"]["sender"], realm_name)
-                            request_data["_source"]["action"]["status"] = "accepted"
-                            request_data["_source"]["action"]["timestamp"] = datetime.datetime.utcnow().isoformat()
-                            request_data["_source"]["status"] = "complete"
+            elif user_action == "reject":
+                if not request_action_sender in request_data["_source"]["receiver"]:
+                    raise Exception("Request receiver identity check issue.")
 
-                        elif request_data["_source"]["action"]["name"] == "revoke":
-                            account.revoke_account_from_realm(request_data["_source"]["sender"], realm_name)
-                            request_data["_source"]["action"]["status"] = "revoked"
-                            request_data["_source"]["action"]["timestamp"] = datetime.datetime.utcnow().isoformat()
-                            request_data["_source"]["status"] = "complete"
+                request_data = self.reject(request_data)
 
-                elif user_action == "reject":
-                    request_data["_source"]["action"]["status"] = "rejected"
-                    request_data["_source"]["action"]["timestamp"] = "01-01-1970T00:00:00"
-                    request_data["_source"]["status"] = "complete"
+            elif user_action == "cancel":
+                if not request_action_sender in request_data["_source"]["sender"]:
+                    raise Exception("Request sender identity check issue.")
 
-            # continue working on sender request
-            # a sender can be:
-            # - cancel by the sender before being treated by the receiver
-            elif account.list_by_email(account_email)["hits"]["hits"][0]["_source"]["email"] == request_data["_source"]["sender"]:
-
-                if user_action == "cancel":
-                    request_data["_source"]["action"]["status"] = "cancelled"
-                    request_data["_source"]["action"]["timestamp"] = "0000-00-00T00:00:00"
-                    request_data["_source"]["status"] = "complete"
+                request_data = self.cancel(request_data)
 
             return self.update(request_data["_id"], request_data["_source"])
 

@@ -38,6 +38,12 @@ export var dictionary = {
         "add": "The realm %realmName% is added successfully",
         "delete": "The realm %realmName% is deleted successfully"
     },
+    "request": {
+        "add": "The request %requestName% is posted successfully",
+        "accept": "The request %requestName% is accepted successfully",
+        "reject": "The request %requestName% is rejected successfully",
+        "cancel": "The request %requestName% is cancelled successfully"
+    },
     "scenario": {
         "add": "The scenario %scenarioName% is added successfully",
         "delete": "The scenario %scenarioName% is deleted successfully"
@@ -49,6 +55,9 @@ export var dictionary = {
     "script": {
         "add": "The script %scriptName% is added successfully",
         "delete": "The script %scriptName% is deleted successfully"
+    },
+    "settings": {
+        "update": "The settings are is updated successfully"
     }
 
 }

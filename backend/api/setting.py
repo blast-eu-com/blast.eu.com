@@ -126,10 +126,15 @@ class Setting:
         """ this function returns all the settings attached to the realm id passed as arg """
         print(" >>> Enter file:setting:class:Setting:function:__list__")
         try:
-            req = json.dumps({"query": {"bool": {
-                "must": {"match_all": {}},
-                "filter": {"match": {"realm": realm}}
-            }}})
+            req = json.dumps(
+                {
+                    "query": {
+                        "term": {
+                            "realm": realm
+                        }
+                    }
+                }
+            )
             return self.ES.search(index=self.DB_INDEX, body=req,
                                   _source_excludes="ansible.password, ssh.password, git.password")
 

@@ -15,6 +15,12 @@
 */
 
 @font-face { font-family: "nasa"; src: url('fonts/nasa.ttf') format('TrueType') }
+@font-face { font-family: "roboto"; src: url('fonts/Roboto-Light.ttf') format('TrueType') }
+
+body {
+    font-family: "roboto";
+    color: #3c4043;
+}
 
 a {
     color: #212529;
@@ -24,6 +30,10 @@ a {
 a:hover {
     text-decoration: none;
     color: #212529;
+}
+
+li {
+    list-style-type: none;
 }
 
 a#cluster-img:hover {

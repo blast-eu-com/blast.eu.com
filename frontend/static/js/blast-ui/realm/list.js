@@ -25,14 +25,15 @@ const RealmList = class {
     addList = (realm) => {
         let html = `<table class="table">`
         let activeRealm = ''
-        realm.list().then((realms) => {
-            realms["hits"]["hits"].forEach((record) => {
-                if ( record["_source"]["name"] === config.session.realm ) { activeRealm = 'Active' } else { activeRealm = ''}
+        realm.listByUniqName().then((realms) => {
+            realms["aggregations"]["aggregate_by_name"]["buckets"].forEach((record) => {
+                if ( record["key"] === config.session.realm ) { activeRealm = 'Active' } else { activeRealm = ''}
                 html = html + `
                     <tr>
                     <td width="40px"><img src="/img/bootstrap-icons/circle.svg" height="24" width="24" /></td>
-                    <td><a href="/html/realm-details.html?realm_id=` + record["_id"] + `&realm_name=` + record["_source"]["name"] + `">` + record["_source"]["name"] + `</a>
-                    </td><td>` + record["_source"]["description"] + `</td><td>` + activeRealm + `</td></tr>`
+                    <td><a href="/html/realm-details.html?realm_name=` + record["key"] + `">` + record["key"] + `</a></td>
+                    <td>` + activeRealm + `</td>
+                    </tr>`
                     $("#" + this.parentName).html(html)
             })
         })

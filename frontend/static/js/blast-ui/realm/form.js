@@ -56,7 +56,9 @@ const RealmForm = class {
     setFormData = () => {
         this.formData = {
             "name": $("#realmName").val(),
-            "description": $("#realmDesc").val()
+            "description": $("#realmDesc").val(),
+            "active": false,
+            "role": "owner"
         }
     }
 

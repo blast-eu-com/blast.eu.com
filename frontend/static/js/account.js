@@ -1,5 +1,5 @@
 /*
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -135,20 +135,6 @@ const Account = class {
         })
     }
 
-    listByRealm = (realm) => {
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                url: config.proxyAPI + '/realms/' + realm + '/accounts',
-                type: "GET",
-                headers: {"Authorization": config.session.httpToken},
-                success: (Resp) => {
-                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
-                }
-            })
-        })
-    }
-
     listById = (accountId) => {
         return new Promise((resolve, reject) => {
             $.ajax({
@@ -163,25 +149,14 @@ const Account = class {
         })
     }
 
-    activateRealm = (realm) => {
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                url: config.proxyAPI + '/aaa/accounts/realms',
-                type: "PUT",
-                data: JSON.stringify({"realm": realm}),
-                headers: {"Authorization": config.session.httpToken},
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: (Resp) => {
-                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
-                }
-            })
-        })
-    }
-
     getFormRegisterData = () => {
-        return { "email": this.registerEmail, "password": this.registerPassword, "realm": this.realm }
+        return {
+            "email": this.registerEmail,
+            "password": this.registerPassword,
+            "realm_name": this.realm,
+            "realm_active": true,
+            "realm_role": "owner"
+        }
     }
 
     getFormLoginData = () => {
@@ -218,16 +193,17 @@ const Account = class {
     cookies = (email) => {
         return new Promise((resolve, reject) => {
             this.profile(email).then((profile) => {
-                console.log(profile)
                 $.cookie.json = true
                 $.cookie.raw = true
                 $.removeCookie('account', {path: "/"})
-                $.cookie('account', profile["account"], {path: "/"})
                 $.removeCookie('realm', {path: "/"})
-                $.cookie('realm', profile["realm"], {path: "/"})
+                $.removeCookie('realms', {path: "/"})
                 $.removeCookie('setting', {path: "/"})
-                $.cookie('setting', profile["setting"], {path: "/"})
                 $.removeCookie('scriptlangs', {path: "/"})
+                $.cookie('account', profile["account"], {path: "/"})
+                $.cookie('realm', profile["realm"], {path: "/"})
+                $.cookie('realms', profile["realms"], {path: "/"})
+                $.cookie('setting', profile["setting"], {path: "/"})
                 $.cookie('scriptlangs', profile["scriptlangs"], {path: "/"})
                 resolve(true)
             })
@@ -253,7 +229,6 @@ const Account = class {
         this.setFormLoginData()
         let actionRes, loginData = this.getFormLoginData()
         this.authenticate(loginData).then((accountLoginResult) => {
-            console.log(accountLoginResult)
             if ( Object.keys(accountLoginResult).includes("jwt") ) {
                 $.cookie('jwt', accountLoginResult["jwt"], {path: "/"})
                 this.cookies(loginData["email"]).then((setCookieResult) => {

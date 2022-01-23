@@ -14,13 +14,22 @@
    limitations under the License.
 */
 
-import AnsibleForm from "./ansible/form.js"
-import SshForm from "./ssh/form.js"
+import FrontendConfig from '../../frontend.js'
+import AnsibleForm from './ansible/form.js'
+import SshForm from './ssh/form.js'
 import Setting from '../../settings.js'
+import Account from '../../account.js'
+import Toast from '../main/notification/toast.js'
+import {dictionary} from '../main/message/en/dictionary.js'
 
+var config = new FrontendConfig()
 var ansibleForm = new AnsibleForm()
 var sshForm = new SshForm()
 var setting = new Setting()
+var account = new Account()
+var toast = new Toast()
+
+toast.msgPicture = '../../../img/bootstrap-icons/sliders.svg'
 
 function updateSettings() {
 
@@ -42,9 +51,20 @@ function updateSettings() {
     }
 
     setting.save(formData).then(function(Resp) {
+        let actionRes
         if (Resp["result"] === "updated") {
+            account.cookies(config.session.accountEmail)
             location.reload()
+            toast.msgTitle = "Settings update Success"
+            toast.msgText = dictionary["settings"]["update"]
+            actionRes = "success"
+        } else if (Object.keys(Resp).includes("failure")) {
+            toast.msgTitle = "Settings update Failure"
+            toast.msgText = Resp["failure"]
+            actionRes = "failure"
         }
+        toast.notify(actionRes)
+        setTimeout(() => { location.reload() }, 2000 )
     })
 }
 

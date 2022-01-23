@@ -57,7 +57,7 @@ var RequestListInfo = class {
             <tr><td>action.status</td><td>` + this.request.action.status + `</td></tr>
             <tr><td>action.timestamp</td><td>` + this.request.action.timestamp + `</td></tr>
             <tr><td>timestamp</td><td>` + this.request.timestamp + `</td></tr>
-            <tr><td>status</td><td>` + this.request.status + `</td></tr>
+            <tr><td>state</td><td>` + this.request.status + `</td></tr>
             <tr><td>sender</td><td>` + this.request.sender + `</td></tr>
             <tr><td>receiver</td><td>` + this.request.receiver + `</td></tr>
             <tr><td>message</td><td>` + this.request.message + `</td></tr>
@@ -71,12 +71,12 @@ var RequestListInfo = class {
         let requestActionButton
 
         if (this.request.status !== "complete") {
-            if (this.request.receiver === config.session.accountEmail) {
+            if (this.request.receiver.includes(config.session.accountEmail)) {
                 requestActionButton = `
                     <a class="btn blast-btn" onclick="acceptRequest('` + this.request.id + `') ;">Accept</a>
                     <a class="btn blast-btn" onclick="rejectRequest('` + this.request.id + `') ;">Reject</a>
                 `
-            } else if (this.request.sender === config.session.accountEmail) {
+            } else if (this.request.sender.includes(config.session.accountEmail)) {
                 requestActionButton = `
                     <a class="btn blast-btn" onclick="cancelRequest('` + this.request.id + `') ;">Cancel</a>
                 `

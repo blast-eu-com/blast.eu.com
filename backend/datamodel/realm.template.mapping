@@ -7,7 +7,9 @@
             "properties" : {
                 "description" : { "type" : "text" },
                 "name": { "type" : "keyword" },
-                "account_email": { "type": "keyword" }
+                "member": { "type": "keyword" },
+                "active": { "type": "boolean" },
+                "role": { "type": "keyword" }
             }
         },
         "settings" : {

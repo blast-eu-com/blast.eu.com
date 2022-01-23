@@ -27,10 +27,12 @@
         <link rel="icon" href="/img/favicon.ico" />
         <link rel="stylesheet" type="text/css" href="/css/bootstrap-5.0.0-beta2-dist/css/bootstrap.min.css" />
         <link rel="stylesheet" type="text/css" href="/css/blast.eu.com.css" />
+        <link rel="stylesheet" type="text/css" href="/css/scheduler.css" />
         <!-- script starts here -->
-        <script src="/js/bootstrap-5.0.0-beta2-dist/js/bootstrap.min.js"></script>
         <script src="/js/chart-3.0.0-beta.12/chart.min.js"></script>
         <script src="/js/jquery-1.12.4/jquery-1.12.4.min.js"></script>
+        <script src="/js/popper-2.11.2/popper.min.js"></script>
+        <script src="/js/bootstrap-5.0.0-beta2-dist/js/bootstrap.min.js"></script>
         <script src="/js/jquery-cookie-1.4.1/jquery.cookie.js"></script>
         <script src="/js/blast-ui/scheduler/ui.js" type="module"></script>
         <script src="/js/blast-ui/main/navBars/ui.js" type="module"></script>
@@ -68,10 +70,10 @@
 
                     <div class="row m-3">
                         <div class="col-md-2">
-                            <div class="list-group" id="schedulerListTab" role="tablist">
+                            <div class="list-group shadow-sm" id="schedulerListTab" role="tablist">
                                 <a id="schedulerForm" class="list-group-item list-group-item-action active"
                                    data-bs-toggle="list" role="tab" href="#form"
-                                   aria-controls="Form" style="border-radius: 0;">Form</a>
+                                   aria-controls="Form">Form</a>
 
                                 <a id="schedulerManage" class="list-group-item list-group-item-action"
                                    data-bs-toggle="list" role="tab" href="#manage"
@@ -79,7 +81,7 @@
 
                                 <a id="schedulerReport" class="list-group-item list-group-item-action"
                                    data-bs-toggle="list" role="tab" href="#run"
-                                   aria-controls="Report" style="border-radius: 0;">Report</a>
+                                   aria-controls="Report">Report</a>
                             </div>
                         </div>
 
@@ -87,7 +89,7 @@
                             <div class="tab-content" id="schedulerTabContent">
                                 <div class="tab-pane fade show active" id="form" role="tabpanel"
                                      aria-labelledby="schedulerForm">
-                                    <div class="card blast-card shadow-sm border">
+                                    <div class="card blast-card shadow-sm rounded">
                                         <div class="card-body">
                                             <div class="card-title mb-4">
                                                 <div class="row">
@@ -101,7 +103,7 @@
                                 </div>
                                 <div class="tab-pane fade" id="manage" role="tabpanel"
                                      aria-labelledby="schedulerManage">
-                                    <div class="card blast-card shadow-sm border">
+                                    <div class="card blast-card shadow-sm rounded">
                                         <div class="card-body">
                                             <h4 class="card-title mb-4">Scheduled management scenario</h4>
                                             <p id="schedulerRun" class="card-text"></p>
@@ -110,7 +112,7 @@
                                 </div>
                                 <div class="tab-pane fade" id="run" role="tabpanel"
                                      aria-labelledby="schedulerReport" >
-                                    <div class="card blast-card shadow-sm border mb-3">
+                                    <div class="card blast-card shadow-sm mb-3 rounded">
                                         <div class="card-body">
                                             <div class="row card-title py-2 mx-2 border-bottom">
                                                 <div class="col-2">

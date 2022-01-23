@@ -14,15 +14,16 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 """
-import re
 import sys
+import re
 import json
 import yaml
 from functools import wraps
 from flask_cors import CORS
 from flask import Flask, request, Response
 from api.db import ESConnector
-from api.aaa import Account, Realm
+from api.aaa.account import Account
+from api.aaa.realm import Realm
 from api.script import Script
 from api.scriptlang import Scriptlang
 from api.cluster import Cluster
@@ -84,40 +85,76 @@ def active_realm_member(f):
     """
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        account = Account(ES)
+        realm = Realm(ES)
         account_email = json.loads(request.cookies.get('account'))["email"]
-        if not account.is_active_realm_member(account_email, kwargs["realm"]):
+        if not realm.is_active_realm_member(account_email, kwargs["realm"]):
             return Response(json.dumps({"failure": "permission_denied", "message": "This realm is not your active realm"}))
         return f(*args, **kwargs)
     return decorated_function
 
 
 def realm_member(f):
-    """
-        This decorator forbidden no realm member to access the data of the realm
-        targeted by the route url
-    """
+    """ This decorator forbidden no realm member to access the data of the realm
+    targeted by the route url """
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        account = Account(ES)
+        realm = Realm(ES)
         account_email = json.loads(request.cookies.get('account'))["email"]
-        if not account.is_realm_member(account_email, kwargs["realm"]):
+        if not realm.is_realm_member(account_email, kwargs["realm"]):
             return Response(json.dumps({"failure": "permission_denied", "message": "You are not member of this realm"}))
         return f(*args, **kwargs)
     return decorated_function
 
 
-def realm_owner(f):
-    """
-        This decorator forbidden no realm member to access the data of the realm
-        targeted by the route url
-    """
+def regular_realm_member(f):
+    """ This decorator forbidden no regular realm member to access the data of the realm
+    targeted by the route url """
     @wraps(f)
     def decorated_function(*args, **kwargs):
         realm = Realm(ES)
         account_email = json.loads(request.cookies.get('account'))["email"]
-        if not realm.is_realm_owner(account_email, kwargs["realm"]):
-            return Response(json.dumps({"failure": "permission_denied", "message": "You are not owner of this realm"}))
+        if not realm.is_regular_realm_member(account_email, kwargs["realm"]):
+            return Response(json.dumps({"failure": "permission_denied", "message": "You are not member of this realm"}))
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+def delegate_or_owner_realm_member(f):
+    """ This decorator forbidden no delegate realm member to access the data of the realm
+        targeted by the route url """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        realm = Realm(ES)
+        account_email = json.loads(request.cookies.get('account'))["email"]
+        if not realm.is_delegate_realm_member(account_email, kwargs["realm"]) and not realm.is_owner_realm_member(account_email, kwargs["realm"]):
+            return Response(json.dumps({"failure": "permission_denied", "message": "You are not member of this realm"}))
+        return f(*args, **kwargs)
+
+    return decorated_function
+
+
+def delegate_realm_member(f):
+    """ This decorator forbidden no delegate realm member to access the data of the realm
+    targeted by the route url """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        realm = Realm(ES)
+        account_email = json.loads(request.cookies.get('account'))["email"]
+        if not realm.is_delegate_realm_member(account_email, kwargs["realm"]):
+            return Response(json.dumps({"failure": "permission_denied", "message": "You are not member of this realm"}))
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+def owner_realm_member(f):
+    """ This decorator forbidden no owner realm member to access the data of the realm
+    targeted by the route url """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        realm = Realm(ES)
+        account_email = json.loads(request.cookies.get('account'))["email"]
+        if not realm.is_owner_realm_member(account_email, kwargs["realm"]):
+            return Response(json.dumps({"failure": "permission_denied", "message": "You are not member of this realm"}))
         return f(*args, **kwargs)
     return decorated_function
 
@@ -130,7 +167,20 @@ def realm_owner(f):
 def aaa_account_add():
     """ this function add a new account using the aaa endpoint """
     account = Account(ES)
-    return Response(json.dumps(account.add(request.get_json())))
+    realm = Realm(ES)
+    payload = request.get_json()
+    account_data = {"email": payload["email"], "password": payload["password"]}
+    realm_data = {"name": payload["realm_name"], "member": payload["email"], "active": payload["realm_active"], "role": payload["realm_role"]}
+
+    account_add_result = account.add(account_data)
+    if "failure" in account_add_result.keys():
+        return Response(json.dumps(account_add_result))
+
+    realm_add_result = realm.add(realm_data)
+    if "failure" in realm_add_result.keys():
+        return Response(json.dumps(realm_add_result))
+
+    return Response(json.dumps(account_add_result))
 
 @app.route('/api/v1/aaa/accounts', methods=["GET"])
 def aaa_account_list():
@@ -188,21 +238,6 @@ def aaa_load_profile():
     """ this function load the account which will be used as cookie """
     account = Account(ES)
     return Response(json.dumps(account.load_account_profile(request.args.get("email"))))
-
-@app.route('/api/v1/aaa/accounts/realms', methods=["PUT"])
-def aaa_account_activate_realm():
-    """ this function activate an account realm """
-    account = Account(ES)
-    realm = request.get_json()["realm"]
-    account_email = json.loads(request.cookies.get('account'))["email"]
-    return Response(json.dumps(account.activate_realm(account_email, realm)))
-
-@app.route('/api/v1/realms/<realm>/accounts', methods=["GET"])
-@realm_member
-def aaa_account_list_by_realm(realm):
-    """ this function return the account by given realm """
-    account = Account(ES)
-    return Response(json.dumps(account.list_by_realm(realm)))
 
 # * *********************************************************************************************************
 # *
@@ -537,12 +572,34 @@ def realm_add():
         There are no restrictions for creating a new realm.
     """
     rlm = Realm(ES)
-    realm = request.get_json()["realm"]
+    payload = request.get_json()["realm"]
     account_email = json.loads(request.cookies.get('account'))["email"]
-    return Response(json.dumps(rlm.add(account_email, realm)))
+    payload["member"] = account_email
+    return Response(json.dumps(rlm.add(payload)))
+
+@app.route('/api/v1/realms/uniqs', methods=["GET"])
+def realm_list_by_uniq_name():
+    """
+        This function allows any users to create their own realm.
+        There are no restrictions for creating a new realm.
+    """
+    rlm = Realm(ES)
+    return Response(json.dumps(rlm.list_by_uniq_name()))
+
+@app.route('/api/v1/realms/members/<member>', methods=["GET"])
+def realm_list_by_member(member):
+    """
+        This function allows any users to create their own realm.
+        There are no restrictions for creating a new realm.
+    """
+    rlm = Realm(ES)
+    account_email = json.loads(request.cookies.get('account'))["email"]
+    if account_email == member:
+        return Response(json.dumps(rlm.list_by_member(member)))
 
 @app.route('/api/v1/realms/<realm>', methods=["PUT"])
-@realm_owner
+@active_realm_member
+@owner_realm_member
 def realm_update(realm):
     """
         This function allows to update an existing realm.
@@ -555,7 +612,8 @@ def realm_update(realm):
     return Response(json.dumps(rlm.update(data)))
 
 @app.route('/api/v1/realms/<realm>', methods=["DELETE"])
-@realm_owner
+@active_realm_member
+@owner_realm_member
 def realm_delete(realm):
     """
         This route delete a realm.
@@ -578,6 +636,49 @@ def realm_list_by_name(realm):
     """
     rlm = Realm(ES)
     return Response(json.dumps(rlm.list_by_name(realm)))
+
+@app.route('/api/v1/realms/<realm>/members/<member>', methods=["GET"])
+@realm_member
+def realm_list_by_member_and_name(realm, member):
+    """
+        This route returns the content of a realm by providing the realm name
+        for security reason only a realm member can access the content of a realm.
+        If a no member user wants to read the content of a realm then he needs to
+        subscribe to this realm.
+    """
+    rlm = Realm(ES)
+    return Response(json.dumps(rlm.list_by_member_and_name(member, realm)))
+
+@app.route('/api/v1/realms/<realm>/active', methods=["PUT"])
+@realm_member
+def switch_realm_active(realm):
+    """
+        this function switch current active realm
+        to another realm
+    """
+    rlm = Realm(ES)
+    payload = request.get_json()["realm"]
+    new_current_active = False if payload["active"] else True
+    realm_switch_result = rlm.switch_realm_active(realm, payload["member"], new_current_active)
+    if realm_switch_result["result"] != "updated":
+        return Response(json.dumps(realm_switch_result))
+
+    return Response(json.dumps(rlm.switch_realm_active(payload["name"], payload["member"], payload["active"])))
+
+@app.route('/api/v1/realms/<realm>/role', methods=["PUT"])
+@delegate_or_owner_realm_member
+def switch_realm_role(realm):
+    """
+        this function switch current active realm
+        to another realm
+    """
+    rlm = Realm(ES)
+    payload = request.get_json()["realm"]
+    if payload["role"] == "owner":
+        owner = rlm.list_by_member_role_and_name(payload["role"], realm)["hits"]["hits"][0]["_source"]["member"]
+        owner_switch_res = rlm.switch_member_role(realm, owner, "delegate")
+        if owner_switch_res["result"] == "updated":
+            return Response(json.dumps(rlm.switch_member_role(realm, payload["member"], payload["role"])))
 
 # * *********************************************************************************************************
 # *
@@ -633,9 +734,9 @@ def request_add(realm):
         this function add a new request
     """
     req = Request(ES)
-    requestData = request.get_json()["request"]
+    payload = request.get_json()["request"]
     account_email = json.loads(request.cookies.get('account'))["email"]
-    return Response(json.dumps(req.add(account_email, requestData)))
+    return Response(json.dumps(req.add(account_email, payload)))
 
 @app.route('/api/v1/realms/<realm>/requests/actions', methods=["POST"])
 @active_realm_member

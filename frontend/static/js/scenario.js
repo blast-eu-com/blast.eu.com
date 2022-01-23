@@ -15,7 +15,7 @@
 */
 
 import Script from './script.js'
-import Account from './aaa.js'
+import Account from './account.js'
 import Node from './node.js'
 import Windower from './windower.js'
 import FrontendConfig from './frontend.js'
