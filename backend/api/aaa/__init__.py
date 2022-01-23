@@ -1,5 +1,6 @@
-/*
-   Copyright 2021 Jerome DE LUCCHI
+# -*- coding:utf-8 -*-
+"""
+   Copyright 2022 Jerome DE LUCCHI
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -12,21 +13,7 @@
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
-*/
+"""
 
-const ScriptContent = class {
-
-    constructor() { }
-
-    addContent = (script) => {
-        $("#" + this.parentName).html(`<code><pre style="border-radius: 5px;">` + script.rawData["content"] + `</pre></code>`)
-    }
-
-    render = (parentName, script) => {
-        this.parentName = parentName
-        this.addContent(script)
-    }
-
-}
-
-export default ScriptContent
+from .account import Account
+from .realm import Realm

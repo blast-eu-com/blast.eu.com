@@ -69,9 +69,10 @@ class RealmSubscriptionForm {
             }
         }
         request.add(requestData).then((Resp) => {
+            let actionRes
             if ( Resp["result"] === "created" ) {
                 toast.msgTitle = "Request create Success"
-                toast.msgText = dictionary["request"]["add"].replace('%infrastructureName%', infrastructureData["name"])
+                toast.msgText = dictionary["request"]["add"].replace('%requestName%', requestData["data"]["value"])
                 actionRes = "success"
             } else if ( Object.keys(Resp).includes("failure") ) {
                 toast.msgTitle = "Request create Failure"

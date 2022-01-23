@@ -17,7 +17,7 @@
 
 
 import AccountPassword from './form.js'
-import Account from "../../../aaa.js"
+import Account from "../../../account.js"
 
 var accountPassword = new AccountPassword()
 var account = new Account()

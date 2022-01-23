@@ -43,7 +43,7 @@ var RequestList = class {
                         <table id="activeRequestSenderTable" class="table">
                             <tr>
                                 <th>Id</th>
-                                <th>Status</th>
+                                <th>State</th>
                                 <th>Object</th>
                                 <th>Action</th>
                                 <th>Sender</th>
@@ -63,7 +63,7 @@ var RequestList = class {
                         <table id="activeRequestReceiverTable" class="table">
                             <tr>
                                 <th>Id</th>
-                                <th>Status</th>
+                                <th>State</th>
                                 <th>Object</th>
                                 <th>Action</th>
                                 <th>Sender</th>
@@ -83,7 +83,7 @@ var RequestList = class {
                         <table id="completeRequestSenderTable" class="table">
                             <tr>
                                 <th>Id</th>
-                                <th>Status</th>
+                                <th>State</th>
                                 <th>Object</th>
                                 <th>Action</th>
                                 <th>Sender</th>
@@ -103,9 +103,9 @@ var RequestList = class {
                         <table id="completeRequestReceiverTable" class="table">
                             <tr>
                                 <th>Id</th>
-                                <th>Status</th>
+                                <th>State</th>
                                 <th>Object</th>
-                                <th>Action.name</th>
+                                <th>Action</th>
                                 <th>Sender</th>
                                 <th>Receiver</th>
                                 <th>Message</th>
@@ -135,7 +135,7 @@ var RequestList = class {
 
     updateRequestTable = (role, req) => {
         var row = document.createElement("TR")
-        var requestTableCols = ["status", "object", "action", "sender", "receiver", "message"]
+        var requestTableCols = ["state", "object", "action", "sender", "receiver", "message"]
         var status
 
         let field = document.createElement("TD")
@@ -148,7 +148,7 @@ var RequestList = class {
 
         for ( let idx in requestTableCols) {
             let key = requestTableCols[idx]
-            if ( key === "status") { status = req["_source"][key] }
+            if ( key === "state") { status = req["_source"][key] }
             let field = document.createElement("TD")
             console.log(req["_source"][key], key)
             let value = ( key === "action" ) ? document.createTextNode(req["_source"][key]["name"]) : document.createTextNode(req["_source"][key])
@@ -176,9 +176,9 @@ var RequestList = class {
         request.list().then((Resp) => {
             Resp["hits"]["hits"].forEach((req) => {
                 console.log(req)
-                if (req["_source"]["sender"] === config.session.accountEmail ) {
+                if (req["_source"]["sender"].includes(config.session.accountEmail)) {
                     this.updateRequestTable("sender", req)
-                } else if ( req["_source"]["receiver"] === config.session.accountEmail ) {
+                } else if ( req["_source"]["receiver"].includes(config.session.accountEmail)) {
                     this.updateRequestTable("receiver", req)
                 }
             })

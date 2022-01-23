@@ -16,26 +16,63 @@
 
 import RequestListInfo from "./listInfo.js"
 import Request from "../../../request.js"
+import Toast from '../../main/notification/toast.js'
+import {dictionary} from '../../main/message/en/dictionary.js'
 
 var requestListInfo = new RequestListInfo()
 var request = new Request()
+var toast = new Toast()
+
+toast.msgPicture = "../../../img/object/request.svg"
 
 const acceptRequest = function(request_id) {
-    console.log(request)
-    request.execUserAction("accept", request_id).then(function(R) {
-        console.log(R)
+    let actionRes
+    request.execUserAction("accept", request_id).then(function(Resp) {
+        if ( Resp["result"] === "updated" ) {
+            toast.msgTitle = "Request accept Success"
+            toast.msgText = dictionary["request"]["accept"].replace('%requestName%', request_id)
+            actionRes = "success"
+        } else if ( Object.keys(Resp).includes("failure") ) {
+            toast.msgTitle = "Request accept Failure"
+            toast.msgText = Resp["failure"]
+            actionRes = "failure"
+        }
+        toast.notify(actionRes)
+        setTimeout(() => { location.reload() }, 2000)
     })
 }
 
 const rejectRequest = function(request_id) {
-    request.execUserAction("reject", request_id).then(function(R) {
-        console.log(R)
+    let actionRes
+    request.execUserAction("reject", request_id).then(function(Resp) {
+        if ( Resp["result"] === "updated" ) {
+            toast.msgTitle = "Request reject Success"
+            toast.msgText = dictionary["request"]["reject"].replace('%requestName%', request_id)
+            actionRes = "success"
+        } else if ( Object.keys(Resp).includes("failure") ) {
+            toast.msgTitle = "Request reject Failure"
+            toast.msgText = Resp["failure"]
+            actionRes = "failure"
+        }
+        toast.notify(actionRes)
+        setTimeout(() => { location.reload() }, 2000)
     })
 }
 
 const cancelRequest = function(request_id) {
-    request.execUserAction("cancel", request_id).then(function(R) {
-        console.log(R)
+    let actionRes
+    request.execUserAction("cancel", request_id).then(function(Resp) {
+        if ( Resp["result"] === "updated" ) {
+            toast.msgTitle = "Request cancel Success"
+            toast.msgText = dictionary["request"]["cancel"].replace('%requestName%', request_id)
+            actionRes = "success"
+        } else if ( Object.keys(Resp).includes("failure") ) {
+            toast.msgTitle = "Request cancel Failure"
+            toast.msgText = Resp["failure"]
+            actionRes = "failure"
+        }
+        toast.notify(actionRes)
+        setTimeout(() => { location.reload() }, 2000)
     })
 }
 

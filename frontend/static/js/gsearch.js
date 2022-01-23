@@ -15,7 +15,7 @@
 */
 
 import FrontendConfig from './frontend.js'
-import Account from './aaa.js'
+import Account from './account.js'
 
 var config = new FrontendConfig()
 var account = new Account()

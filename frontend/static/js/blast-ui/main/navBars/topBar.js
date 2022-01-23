@@ -16,7 +16,7 @@
 
 // we need to make sure the user have jwt cookie before to continue
 import Realm from "../../../realm.js";
-import Account from "../../../aaa.js"
+import Account from "../../../account.js"
 import FrontendConfig from "../../../frontend.js"
 
 var realm = new Realm()
@@ -74,9 +74,9 @@ let TopBar = class {
         let html = ''
         let realmName = JSON.parse($.cookie("realm"))["name"]
         $("#realmDropDownMenu").html(realmName)
-        JSON.parse($.cookie("account"))["realm"].forEach((realm) => {
-            if ( realmName !== realm["name"]) {
-                html = html + `<a class="dropdown-item blast-nav-dropdown-realm" onclick="switchRealm('` + realm["name"] + `')">` + realm["name"] + `</a>`
+        JSON.parse($.cookie("realms")).forEach((realm) => {
+            if ( realmName !== realm["_source"]["name"]) {
+                html = html + `<a class="dropdown-item blast-nav-dropdown-realm" onclick="switchRealm('` + realm["_source"]["name"] + `')">` + realm["_source"]["name"] + `</a>`
                 $("#navRealmDropDownMenu").html(html)
             }
         })
@@ -89,24 +89,19 @@ let TopBar = class {
 
     loadTopBarGSearch = () => {
         let gSearchString = JSON.parse($.cookie("gSearch"))["string"]
-        console.log(gSearchString)
         if ( gSearchString !== undefined ) {
             $("input#globalSearch").val(gSearchString)
         }
     }
 
-    load = () => {
+    render = () => {
         $("#nav_container").html(this.frame)
         this.loadRealm()
         this.loadProfilePicture()
     }
 
-    render = () => {
-        this.load()
-    }
-
     switchRealm = (realmName) => {
-        realm.switch(realmName)
+        realm.switchActive(realmName)
         this.loadRealm()
     }
 

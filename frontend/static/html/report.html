@@ -29,7 +29,7 @@
         <!-- Load Chart -->
         <script src="/js/chart-3.0.0-beta.12/chart.min.js"></script>
         <!-- Load bootstrap -->
-        <script src="/js/popper-1.16.1/popper.min.js"></script>
+        <script src="/js/popper-2.11.2/popper.min.js"></script>
         <link rel="stylesheet" type="text/css" href="/css/bootstrap-5.0.0-beta2-dist/css/bootstrap.min.css" />
         <script src="/js/bootstrap-5.0.0-beta2-dist/js/bootstrap.min.js"></script>
         <!-- Load datePicker -->
@@ -71,22 +71,21 @@
                         </ol>
                     </nav>
 
-                    <div class="card blast-card shadow-sm m-3 border">
+                    <div class="card blast-card shadow-sm m-3 rounded">
                         <div class="card-body">
                             <div class="card-title fs-4">Report Filter</div>
                             <div id="reportForm" class="m-3"></div>
                         </div>
                     </div>
 
-                    <div class="card blast-card shadow-sm m-3 border">
+                    <div class="card blast-card shadow-sm m-3 rounded">
                         <div class="card-body">
                             <div class="row mx-1 my-3">
                                 <div class="col-md-2">
                                     <div class="list-group" id="reportListTab" role="tablist">
                                         <a id="reportScheduler" class="list-group-item list-group-item-action active"
                                            data-bs-toggle="list" role="tab" href="#schedulerReportSection"
-                                           aria-controls="sched" style="border-radius: 0;"
-                                           onclick="loadReportScheduler() ;">Scheduler</a>
+                                           aria-controls="sched" onclick="loadReportScheduler() ;">Scheduler</a>
 
                                         <a id="reportScenario" class="list-group-item list-group-item-action"
                                            data-bs-toggle="list" role="tab" href="#scenarioReportSection"
@@ -94,8 +93,7 @@
 
                                         <a id="reportScript" class="list-group-item list-group-item-action"
                                            data-bs-toggle="list" role="tab" href="#scriptReportSection"
-                                           aria-controls="scr" style="border-radius: 0;"
-                                           onclick="loadReportScript() ;">Script</a>
+                                           aria-controls="scr" onclick="loadReportScript() ;">Script</a>
                                     </div>
                                 </div>
 
@@ -103,7 +101,7 @@
                                     <div class="tab-content" id="reportTabContent">
                                         <div class="tab-pane fade show active" id="schedulerReportSection" role="tabpanel"
                                              aria-labelledby="reportScheduler" style="margin-left: -15px;">
-                                            <div class="card blast-card shadow-sm border">
+                                            <div class="card blast-card shadow-sm rounded">
                                                 <div class="card-body">
                                                     <h4 class="card-title mb-4">Report Schedulers</h4>
                                                     <p id="schedulerReport" class="card-text">
@@ -115,7 +113,7 @@
                                         </div>
                                         <div class="tab-pane fade" id="scenarioReportSection" role="tabpanel"
                                              aria-labelledby="reportScenario" style="margin-left: -15px;">
-                                            <div class="card blast-card shadow-sm border">
+                                            <div class="card blast-card shadow-sm rounded">
                                                 <div class="card-body">
                                                     <h4 class="card-title mb-4">Report Scenarios</h4>
                                                     <p id="scenarioReport" class="card-text">
@@ -127,7 +125,7 @@
                                         </div>
                                         <div class="tab-pane fade" id="scriptReportSection" role="tabpanel"
                                              aria-labelledby="reportScript" style="margin-left: -15px">
-                                            <div class="card blast-card shadow-sm border mb-3">
+                                            <div class="card blast-card shadow-sm rounded mb-3">
                                                 <div class="card-body">
                                                     <h4 class="card-title mb-4">Report Scripts</h4>
                                                     <p id="scriptReport" class="card-text">

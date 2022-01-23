@@ -16,7 +16,7 @@
 */
 
 import ProfileForm from './form.js'
-import Account from '../../aaa.js'
+import Account from '../../account.js'
 
 var account = new Account()
 var profileForm = new ProfileForm()

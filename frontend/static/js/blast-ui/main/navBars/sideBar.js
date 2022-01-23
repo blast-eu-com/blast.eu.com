@@ -25,14 +25,10 @@ let SideBar = class {
                 overflow-x: hidden;
             }
             .item-active { 
-                /* background-color: rgba(0,0,0,.125); */
                 background-color: #FFE873;
-                // border-right: 1px solid black;
             }
             .nav-item:not(.item-active):hover {
-                /* background-color: #e9ecef; */
                 background-color: #FFE873;
-                // border-right: 1px solid black;
             }
             </style>
             <ul id="slide-out" class="nav blast-nav-background flex-column">

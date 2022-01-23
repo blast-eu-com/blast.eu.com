@@ -13,7 +13,7 @@
                     "type": "nested",
                     "properties": {
                         "name": { "type": "keyword" },
-                        "status": { "type": "keyword" },
+                        "state": { "type": "keyword" },
                         "timestamp": { "type": "date" }
                     }
                 },

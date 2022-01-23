@@ -15,7 +15,7 @@
 */
 
 import FrontendConfig from './frontend.js'
-import Account from './aaa.js'
+import Account from './account.js'
 
 var config = new FrontendConfig()
 var account = new Account()
@@ -35,7 +35,7 @@ class Request {
     set id(_id) { this._id = _id }
     set object(_object) { this._object = _object }
     set action(_action) { this._action = _action }
-    set status(_status) { this._status = _status }
+    set state(_state) { this._state = _state }
     set sender(_sender) { this._sender = _sender }
     set receiver(_receiver) { this._receiver = _receiver }
     set timestamp(_timestamp) { this._timestamp = _timestamp }
@@ -44,7 +44,7 @@ class Request {
     get id() { return this._id }
     get object() { return this._object }
     get action() { return this._action }
-    get status() { return this._status }
+    get state() { return this._state }
     get sender() { return this._sender }
     get receiver() { return this._receiver }
     get timestamp() { return this._timestamp }
@@ -121,7 +121,7 @@ class Request {
         this.id = request_data["_id"]
         this.object = data["object"]
         this.action = data["action"]
-        this.status = data["status"]
+        this.state = data["state"]
         this.sender = data["sender"]
         this.receiver = data["receiver"]
         this.timestamp = data["timestamp"]

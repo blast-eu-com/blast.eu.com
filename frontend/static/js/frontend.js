@@ -43,6 +43,7 @@ const FrontendConfig = class {
                 accountPicture: accountPicture,
                 realm: JSON.parse($.cookie('realm'))["name"],
                 realmId: JSON.parse($.cookie('realm'))["id"],
+                realms: JSON.parse($.cookie('realms')),
                 setting: JSON.parse($.cookie('setting')),
                 settingId: JSON.parse($.cookie('setting'))["id"],
                 httpToken: 'Bearer ' + $.cookie('jwt')

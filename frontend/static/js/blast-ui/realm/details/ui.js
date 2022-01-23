@@ -18,10 +18,12 @@
 import Realm from '../../../realm.js'
 import RealmListInfo from './listInfo.js'
 import RealmListMembers from './listMembers.js'
+import FrontendConfig from '../../../frontend.js'
 
 var realm = new Realm()
 var realmListInfo = new RealmListInfo()
 var realmListMembers = new RealmListMembers()
+var config = new FrontendConfig()
 
 const setButtonLeaveAction = function(realm) {
     $('#containerRealmActions').html(`<a id="btnLeaveRealm" class="btn btn-sm btn-primary ml-auto">Delete</a>`)
@@ -42,17 +44,14 @@ const setPageTitle = function(realm) {
 
 async function main() {
     let urlParams = new URLSearchParams(window.location.href.split('?')[1])
-    if ( urlParams.has("realm_id") ) {
-        let realmId = urlParams.get("realm_id")
+    if ( urlParams.has("realm_name") ) {
         let realmName = urlParams.get("realm_name")
         let realmData = await realm.listByName(realmName)
-        console.log(realmData)
         if (!Object.keys(realmData).includes("failure")){
             // failure to access the content of a realm maybe due to a permission denied
             // if a user try to access the content of a realm or if a user tries to access non active realm
             // read the failure message to identify the type of failure.
             realm.load(realmData["hits"]["hits"][0])
-            console.log(realm)
             setPageTitle(realm)
             realmListInfo.render('realmListInfo', realm)
             realmListMembers.render('realmListMembers', realm)
@@ -66,3 +65,4 @@ async function main() {
 }
 
 window.main = main
+window.switchMemberRole = realm.switchRole

@@ -33,4 +33,4 @@ function main() {
 
 window.main = main
 window.addRealm = realmForm.addRealm
-window.switchRealm = realmSwitch.switchRealm
+window.realmSwitchRealm = realmSwitch.switchRealm

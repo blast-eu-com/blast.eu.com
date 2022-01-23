@@ -11,14 +11,7 @@
                 "picture": { "type": "keyword" },
                 "email" : { "type" : "keyword" },
                 "password": { "type" : "keyword" },
-                "secret": { "type": "keyword" },
-                "realm" : {
-                    "type": "nested",
-                    "properties": {
-                        "name": { "type": "keyword" },
-                        "active": { "type": "boolean" }
-                    }
-                }
+                "secret": { "type": "keyword" }
             }
         },
         "settings" : {
