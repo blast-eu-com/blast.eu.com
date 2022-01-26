@@ -6,7 +6,7 @@
             "dynamic": false,
             "properties" : {
                 "object": { "type": "keyword" },
-                "status": { "type": "keyword" },
+                "state": { "type": "keyword" },
                 "sender" : { "type" : "keyword" },
                 "receiver": { "type" : "keyword" },
                 "action": {

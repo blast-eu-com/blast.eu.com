@@ -752,14 +752,26 @@ def request_actions(realm):
 
 @app.route('/api/v1/realms/<realm>/requests', methods=["GET"])
 @active_realm_member
-def request_list(realm):
+def request_list_account(realm):
     """
         this function returns all the requests where the account email
         is equal to the sender value or the receiver value
     """
     req = Request(ES)
     account_email = json.loads(request.cookies.get('account'))["email"]
-    return Response(json.dumps(req.list(account_email)))
+    return Response(json.dumps(req.list_by_account(account_email)))
+
+@app.route('/api/v1/realms/<realm>/requests/states/<state>', methods=["GET"])
+@active_realm_member
+def request_list_by_account_and_state(realm, state):
+    """
+        this function returns all the requests where the account email
+        is equal to the sender value or the receiver value and the state is
+        equal to the state passed
+    """
+    req = Request(ES)
+    account_email = json.loads(request.cookies.get('account'))["email"]
+    return Response(json.dumps(req.list_by_account_and_state(account_email, state)))
 
 @app.route('/api/v1/realms/<realm>/requests/<id>', methods=["GET"])
 @active_realm_member

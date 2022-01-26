@@ -18,9 +18,11 @@
 import Realm from "../../../realm.js";
 import Account from "../../../account.js"
 import FrontendConfig from "../../../frontend.js"
+import Request from "../../../request.js"
 
-var realm = new Realm()
 var account = new Account()
+var realm = new Realm()
+var request = new Request()
 var config = new FrontendConfig()
 
 let TopBar = class {
@@ -45,7 +47,7 @@ let TopBar = class {
                         <a class="dropdown-item bg-dark text-light" href="/html/profile.html">
                             <img src="/img/object/profile.svg" width="24" height="24" /><span style="margin-left: 24px">Profile</span></a>
                         <a class="dropdown-item bg-dark text-light" href="/html/request.html">
-                            <img src="/img/object/email.svg" width="24" height="24" /><span style="margin-left: 24px">Request</span></a>
+                            <img src="/img/bootstrap-icons-1.0.0-alpha5/box-arrow-right.svg" width="24" height="24" /><span id="menuRequest" style="margin-left: 24px">Request</span></a>
                         <div class="dropdown-divider seconday"></div>
                         <a id="userAccountLogout" class="dropdown-item bg-dark text-light" href="/html/logout.html">
                             <img src="/img/object/logout.svg" width="24" height="24" /><span style="margin-left: 24px">Logout</span></a>
@@ -82,6 +84,19 @@ let TopBar = class {
         })
     }
 
+    loadBadges = () => {
+        // load menu request badge
+        request.list_by_account_and_state("new").then((active_requests) => {
+            console.log(active_requests)
+            if (active_requests["hits"]["total"]["value"] > 0) {
+                let menuRequestBadge = `<span class="position-absolute top-50 start-100 translate-middle badge rounded-pill bg-danger">` + active_requests["hits"]["total"]["value"] + `</span>`
+                $("#menuRequest").html("Requests" + menuRequestBadge)
+            } else {
+                $("#menuRequest").html("Requests")
+            }
+        })
+    }
+
     loadProfilePicture = () => {
         let accountPicture = (Object.keys(JSON.parse($.cookie("account"))).includes("picture")) ? JSON.parse($.cookie("account"))["picture"] : ""
         window.parent.$("img#dropDownProfileMenuLink").prop("src", config.frontend.httpImgFolder + '/profile/' + accountPicture)
@@ -98,6 +113,7 @@ let TopBar = class {
         $("#nav_container").html(this.frame)
         this.loadRealm()
         this.loadProfilePicture()
+        this.loadBadges()
     }
 
     switchRealm = (realmName) => {

@@ -84,7 +84,7 @@ class Request {
         })
     }
 
-    list = function() {
+    list_by_account = function() {
         /*
             This function list all the requests for which
             the account email matches the sender value or the receiver value
@@ -92,6 +92,24 @@ class Request {
         return new Promise(function( resolve, reject) {
             $.ajax({
                 url: config.proxyAPI + '/realms/' + config.session.realm + '/requests',
+                type: "GET",
+                headers: {'Authorization': config.session.httpToken},
+                success: function(Resp) {
+                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
+                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
+                }
+            })
+        })
+    }
+
+    list_by_account_and_state = function(state) {
+        /*
+            This function list all the requests for which
+            the account email matches the sender value or the receiver value
+        */
+        return new Promise(function( resolve, reject) {
+            $.ajax({
+                url: config.proxyAPI + '/realms/' + config.session.realm + '/requests/states/' + state,
                 type: "GET",
                 headers: {'Authorization': config.session.httpToken},
                 success: function(Resp) {

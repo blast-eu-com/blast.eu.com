@@ -67,7 +67,7 @@ class Request:
 
                     request_data["_source"]["action"]["state"] = "accepted"
                     request_data["_source"]["action"]["timestamp"] = datetime.datetime.utcnow().isoformat()
-                    request_data["_source"]["status"] = "complete"
+                    request_data["_source"]["state"] = "complete"
 
                 else:
                     raise Exception("Request action is not recognized.")
@@ -83,16 +83,16 @@ class Request:
     def reject(request_data: dict):
 
         request_data["_source"]["action"]["state"] = "rejected"
-        request_data["_source"]["action"]["timestamp"] = "01-01-1970T00:00:00"
-        request_data["_source"]["status"] = "complete"
+        request_data["_source"]["action"]["timestamp"] = datetime.datetime.utcnow().isoformat()
+        request_data["_source"]["state"] = "complete"
         return request_data
 
     @staticmethod
     def cancel(request_data: dict):
 
         request_data["_source"]["action"]["state"] = "cancelled"
-        request_data["_source"]["action"]["timestamp"] = "0000-00-00T00:00:00"
-        request_data["_source"]["status"] = "complete"
+        request_data["_source"]["action"]["timestamp"] = datetime.datetime.utcnow().isoformat()
+        request_data["_source"]["state"] = "complete"
         return request_data
 
     def action(self, account_email: str, request_id: str, user_action: str):
@@ -138,7 +138,7 @@ class Request:
             print(str(e))
             return {"failure": str(e)}
 
-    def list(self, account_email):
+    def list_by_account(self, account_email):
         """
             This function returns all the requests where
             the account email is equal to the sender value or the requester value
@@ -176,6 +176,45 @@ class Request:
 
         except Exception as e:
             print("backend Exception, file:request:class:request:func:list")
+            print(str(e))
+            return {"failure": str(e)}
+
+    def list_by_account_and_state(self, account_email: str, state: str):
+        """
+            This function returns the request where the receiver and sender
+            is equal to the receiver and sender and the state is equal to the value passed
+        """
+        try:
+            req = json.dumps(
+                {
+                    "query": {
+                        "bool": {
+                            "must": {
+                                "term": {
+                                    "state": "new"
+                                }
+                            },
+                            "should": [
+                                {
+                                    "term": {
+                                        "receiver": account_email
+                                    }
+                                },
+                                {
+                                    "term": {
+                                        "sender": account_email
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            )
+
+            return self.ES.search(index=self.DB_INDEX, body=req)
+
+        except Exception as e:
+            print("backend Exception, file:request:class:request:func:list_by_account_and_state")
             print(str(e))
             return {"failure": str(e)}
 

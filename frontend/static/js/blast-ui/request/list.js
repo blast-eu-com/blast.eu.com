@@ -173,7 +173,7 @@ var RequestList = class {
     }
 
     addFrameContent = () => {
-        request.list().then((Resp) => {
+        request.list_by_account().then((Resp) => {
             Resp["hits"]["hits"].forEach((req) => {
                 console.log(req)
                 if (req["_source"]["sender"].includes(config.session.accountEmail)) {

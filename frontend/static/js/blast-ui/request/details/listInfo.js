@@ -54,10 +54,10 @@ var RequestListInfo = class {
             <tr><td>id</td><td>` + this.request.id + `</td></tr>
             <tr><td>object</td><td>` + this.request.object + `</td></tr>
             <tr><td>action.name</td><td>` + this.request.action.name + `</td></tr>
-            <tr><td>action.status</td><td>` + this.request.action.status + `</td></tr>
+            <tr><td>action.state</td><td>` + this.request.action.state + `</td></tr>
             <tr><td>action.timestamp</td><td>` + this.request.action.timestamp + `</td></tr>
             <tr><td>timestamp</td><td>` + this.request.timestamp + `</td></tr>
-            <tr><td>state</td><td>` + this.request.status + `</td></tr>
+            <tr><td>state</td><td>` + this.request.state + `</td></tr>
             <tr><td>sender</td><td>` + this.request.sender + `</td></tr>
             <tr><td>receiver</td><td>` + this.request.receiver + `</td></tr>
             <tr><td>message</td><td>` + this.request.message + `</td></tr>
