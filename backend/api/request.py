@@ -191,7 +191,7 @@ class Request:
                         "bool": {
                             "must": {
                                 "term": {
-                                    "state": "new"
+                                    "state": state
                                 }
                             },
                             "should": [
