@@ -13,20 +13,10 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
+import Account from '../../account.js'
 
-import FrontendConfig from './frontend.js'
-let config = new FrontendConfig()
+let account = new Account()
 
-const PortMap = class {
-    list = async () => {
-        let url = config.proxyAPI + '/realms/' + config.session.realm + '/portmaps'
-        let header = { 'Authorization': config.session.httpToken}
-        let response = await fetch(url, {method: "GET", headers: header})
-        if (response.ok) {
-            response = JSON.parse(await response.text())
-            if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
-        }
-    }
-}
+window.registerAccount = account.register
+window.loginAccount = account.login
 
-export default PortMap

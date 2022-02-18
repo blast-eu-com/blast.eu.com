@@ -18,11 +18,14 @@ const NodeListInfo = class {
 
     constructor() {
         this._pn
+        this._node
     }
 
     set parentName(pn) { this._pn = pn }
+    set node(nd) { this._node = nd }
 
     get parentName() { return this._pn }
+    get node() { return this._node }
 
     addListInfo = (node) => {
         let html = `<img style="margin-left: 1rem; margin-bottom: 1rem" src="/img/object/node.svg" height="56" width="56" />
@@ -33,6 +36,15 @@ const NodeListInfo = class {
                 val.sort().forEach(function(nodeIp){
                     html = html + ' <span class="badge blast-badge">' + nodeIp + '</span>'
                 })
+            } else if ( idx === "mode" ) {
+                let htmlSwitch = '<div class="form-check form-switch">'
+                if (val === 'running') {
+                    htmlSwitch = htmlSwitch + `<input class="form-check-input" type="checkbox" role="switch" id="nodeMode" onchange="updateNodeMode('` + node.id + `') ;" checked>`
+                } else {
+                    htmlSwitch = htmlSwitch + `<input class="form-check-input" type="checkbox" role="switch" id="nodeMode" onchange="updateNodeMode('` + node.id + `') ;">`
+                }
+                htmlSwitch = htmlSwitch + '<label class="form-check-label" for="nodeMode">Running</label></div>'
+                html = html + '<tr><td><b>' + idx.charAt(0).toUpperCase() + idx.slice(1) + '</b></td><td>' + htmlSwitch + '</td></tr>'
             } else if ( idx !== "roles" && idx !== "peers" ) {
                 html = html + '<tr><td><b>' + idx.charAt(0).toUpperCase() + idx.slice(1) + '</b></td><td>' + val + "</td></tr>"
             }
@@ -41,8 +53,17 @@ const NodeListInfo = class {
         return true
     }
 
+    updateNodeMode = (nodeId) => {
+        let nodeMode = $("#nodeMode").is(":checked") ? "running" : "maintenance"
+        this.node.rawData["mode"] = nodeMode
+        this.node.update(nodeId, this.node.rawData).then((updateRes) => {
+            if ( Object.keys(updateRes).includes("result") && updateRes["result"] === "updated" ) { location.reload() }
+        })
+    }
+
     render = (parentName, node) => {
         this.parentName = parentName
+        this.node = node
         this.addListInfo(node)
     }
 

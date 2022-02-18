@@ -16,12 +16,12 @@
 """
 
 import paramiko
+from io import StringIO
 from api.setting import Portmap
 from api.db import ESConnector
 
 
 class SSH:
-
     def __init__(self, *args, **kwargs):
         print("class SSH function INIT")
         self.hostname = args[0]
@@ -36,29 +36,39 @@ class SSH:
         print(" >>> Enter file:discovery:class:SSH:function:close_ssh_connections")
         self.ssh_client.close()
 
-    def open_ssh_connection(self) -> bool:
-        print(" >>> Enter file:discovery:class:SSH:function:open_ssh_connection")
+    def open_ssh_connection_with_certificate(self):
         try:
-            if self.ssh_username and self.ssh_certificate is not None:
-                """ we do prefer certificate instead of password """
-                print('class SSH::open_ssh_connection: connecting using certificate')
-                self.ssh_client.connect(hostname=self.hostname, username=self.ssh_username, pkey=self.ssh_certificate)
-                return True
-
-            elif self.ssh_username and self.ssh_password is not None:
-                """ we do use password if certificate is not set"""
-                print('class SSH::open_ssh_connection: connecting using password')
-                self.ssh_client.connect(hostname=self.hostname, username=self.ssh_username, password=self.ssh_password)
-                return True
-
-            else:
-                """ no certificate and no password raise a failure """
-                print('class SSH::open_ssh_connection: no password no certificate')
-                self.ssh_client = None
-                return False
+            print('class SSH::open_ssh_connection: connecting using certificate')
+            key = paramiko.RSAKey.from_private_key(StringIO(self.ssh_certificate))
+            self.ssh_client.connect(hostname=self.hostname, username=self.ssh_username, pkey=key)
+            return True
 
         except paramiko.ssh_exception.AuthenticationException:
             return False
+
+    def open_ssh_connection_with_password(self):
+        try:
+            print('class SSH::open_ssh_connection: connecting using password')
+            self.ssh_client.connect(hostname=self.hostname, username=self.ssh_username, password=self.ssh_password)
+            return True
+
+        except paramiko.ssh_exception.AuthenticationException:
+            return False
+
+    def open_ssh_connection(self) -> bool:
+        print(" >>> Enter file:discovery:class:SSH:function:open_ssh_connection")
+        if self.ssh_username and self.ssh_certificate is not None:
+            if self.open_ssh_connection_with_certificate():
+                return True
+
+        if self.ssh_username and self.ssh_password is not None:
+            if self.open_ssh_connection_with_password():
+                return True
+
+        """ no certificate and no password returns False """
+        print('class SSH::open_ssh_connection: no password no certificate')
+        self.ssh_client = None
+        return False
 
     def open_sftp_connection(self) -> bool:
         print(" >>> Enter file:discovery:class:SSH:function:open_sftp_connection")
@@ -165,7 +175,7 @@ def colonize():
 class Discovery:
 
     def __init__(self, hostname, realm, ssh_settings):
-        print('class Discovery function INIT:', hostname, realm, ssh_settings)
+        print('class Discovery function INIT:')
         self.hostname = hostname
         self.realm = realm
         self.server_ips = []

@@ -20,7 +20,7 @@ import hashlib
 import datetime
 import subprocess
 from api.discovery import SSH
-from api.setting import Setting, decrypt_password
+from api.setting import Setting, decrypt_string
 from api import script
 from api import reporter
 from api import node
@@ -479,7 +479,7 @@ class ScriptManager:
 
                 if ansible_password != "":
                     inventory.write(
-                        str('ansible_password=' + decrypt_password(crypto, ansible_password) + '\n'))
+                        str('ansible_password=' + decrypt_string(crypto, ansible_password) + '\n'))
                 elif ansible_certificate != "":
                     inventory.write(str(' ansible_ssh_private_key_file=' + ansible_certificate + '\n'))
                 else:

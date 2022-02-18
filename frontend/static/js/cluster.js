@@ -40,73 +40,46 @@ let Cluster = class {
     get rawData() { return this._data }
     get nodes() { return this._nodes }
 
-    add = function(cluster) {
-        /*
-         * this function add clusters into the Elasticsearch DB
-         * the function receives: formData is a list of cluster object.
-         * the function returns: a list of elasticsearch indexing result
-         */
-        return new Promise(function( resolve, reject) {
-            $.ajax({
-                url: config.proxyAPI + '/realms/' + config.session.realm + '/clusters',
-                type: "POST",
-                headers: {'Authorization': config.session.httpToken},
-                data: JSON.stringify({"cluster": cluster}),
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function(Resp) {
-                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
-                }
-            })
-        })
+    add = async (cluster) => {
+        let url = config.proxyAPI + '/realms/' + config.session.realm + '/clusters'
+        let header = { 'Authorization': config.session.httpToken, 'Content-Type': "application/json; charset=utf-8" }
+        let data = JSON.stringify({ "cluster": cluster })
+        let response = await fetch(url, {method: 'POST', headers: header, body: data})
+        if (response.ok) {
+            response = JSON.parse(await response.text())
+            if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+        }
     }
 
-    add_node = function(cluster_id, node) {
-        return new Promise(function(resolve, reject) {
-            $.ajax({
-                url: config.proxyAPI + '/realms/' + config.session.realm + '/clusters/' + cluster_id + '/nodes',
-                type: "POST",
-                headers: {'Authorization': config.session.httpToken},
-                data: JSON.stringify({"node": node}),
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function(Resp) {
-                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
-                }
-            })
-        })
+    add_node = async (cluster_id, node) => {
+        let url = config.proxyAPI + '/realms/' + config.session.realm + '/clusters/' + cluster_id + '/nodes'
+        let header = { 'Authorization': config.session.httpToken, 'Content-Type': "application/json; charset=utf-8" }
+        let data = JSON.stringify({ "node": node })
+        let response = await fetch(url, {method: 'POST', headers: header, body: data})
+        if (response.ok) {
+            response = JSON.parse(await response.text())
+            if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+        }
     }
 
-    delete = function(clusterId) {
-        /* this function returns the rampart API response *
-         * from the API URL /cluster/delete               */
-        return new Promise( function( resolve, reject) {
-            $.ajax({
-                url: config.proxyAPI + '/realms/' + config.session.realm + '/clusters/' + clusterId,
-                type: "DELETE",
-                headers: {'Authorization': config.session.httpToken},
-                success: function(Resp) {
-                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
-                }
-            })
-        })
+    delete = async (clusterId) => {
+        let url = config.proxyAPI + '/realms/' + config.session.realm + '/clusters/' + clusterId
+        let header = { 'Authorization': config.session.httpToken }
+        let response = await fetch(url, {method: 'DELETE', headers: header})
+        if (response.ok) {
+            response = JSON.parse(await response.text())
+            if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+        }
     }
 
-    delete_node = function(clusterId, nodeName) {
-        return new Promise(function(resolve, reject) {
-            $.ajax({
-                url: config.proxyAPI + '/realms/' + config.session.realm + '/clusters/' + clusterId + '/nodes/' + nodeName,
-                type: "DELETE",
-                headers: {'Authorization': config.session.httpToken},
-                success: function (Resp) {
-                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
-                }
-            })
-        })
+    delete_node = async (clusterId, nodeName) => {
+        let url = config.proxyAPI + '/realms/' + config.session.realm + '/clusters/' + clusterId + '/nodes/' + nodeName
+        let header = { 'Authorization': config.session.httpToken }
+        let response = await fetch(url, {method: 'DELETE', headers: header})
+        if (response.ok) {
+            response = JSON.parse(await response.text())
+            if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+        }
     }
  
     load = function(clusterData) {
@@ -117,36 +90,24 @@ let Cluster = class {
         this.rawData = clusterData["_source"]
     }
 
-    list = function() {
-        /* this function returns the rampart API response *
-         * from the API URL /cluster/list                 */
-        return new Promise( function( resolve, reject) {
-            $.ajax({
-                url: config.proxyAPI + '/realms/' + config.session.realm + '/clusters',
-                type: "GET",
-                headers: {'Authorization': config.session.httpToken},
-                success: function(Resp) {
-                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
-                }
-            })
-        })
+    list = async () => {
+        let url = config.proxyAPI + '/realms/' + config.session.realm + '/clusters'
+        let header = { 'Authorization': config.session.httpToken }
+        let response = await fetch(url, {method: 'GET', headers: header})
+        if (response.ok) {
+            response = JSON.parse(await response.text())
+            if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+        }
     }
 
-    listById = function(clusterId) {
-        /* this function returns the rampart API response *
-         * from the API endpoint /cluster/list_by_id      */
-         return new Promise(function(resolve, reject) {
-            $.ajax({
-                url: config.proxyAPI + '/realms/' + config.session.realm + '/clusters/' + clusterId,
-                type: "GET",
-                headers: {'Authorization': config.session.httpToken},
-                success: function(Resp) {
-                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
-                }
-            })
-         })
+    listById = async (clusterId) => {
+         let url = config.proxyAPI + '/realms/' + config.session.realm + '/clusters/' + clusterId
+         let header = { 'Authorization': config.session.httpToken }
+         let response = await fetch(url, {method: 'GET', headers: header})
+         if (response.ok) {
+            response = JSON.parse(await response.text())
+            if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+         }
     }
 }
 

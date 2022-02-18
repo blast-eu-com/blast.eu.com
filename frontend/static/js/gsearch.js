@@ -20,32 +20,24 @@ import Account from './account.js'
 var config = new FrontendConfig()
 var account = new Account()
 
-export function GSearch(data) {
-    return new Promise(function(resolve, reject) {
-        $.ajax({
-            url: config.proxyAPI + '/realms/' + config.session.realm + '/global/filter',
-            type: "GET",
-            data: {"string": data},
-            headers: {'Authorization': config.session.httpToken},
-            success: function(Resp) {
-                if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
-            }
-        })
-    })
+export async function GSearch(data) {
+    let url = config.proxyAPI + '/realms/' + config.session.realm + '/global/filter'
+    let header = {'Authorization': config.session.httpToken}
+    let data = { "string": data }
+    let response = await fetch(url, {method: "GET", headers: header, body: data})
+    if (response.ok) {
+        response = JSON.parse(await response.text())
+        if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+    }
 }
 
-export function GSearchScrollId(scrollId) {
-     return new Promise(function(resolve, reject) {
-        $.ajax({
-            url: config.proxyAPI + '/realms/' + config.session.realm + '/global/filter/scroll',
-            type: "GET",
-            data: {"_scroll_id": scrollId},
-            headers: {'Authorization': config.session.httpToken},
-            success: function(Resp) {
-                if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
-            }
-        })
-    })
+export async function GSearchScrollId(scrollId) {
+    let url = config.proxyAPI + '/realms/' + config.session.realm + '/global/filter/scroll'
+    let header = { 'Authorization': config.session.httpToken }
+    let data = { "_scroll_id": scrollId }
+    let response = await fetch(url, {method: "GET", headers: header, body: data})
+    if (response.ok) {
+        response = JSON.parse(await response.text())
+        if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+    }
 }

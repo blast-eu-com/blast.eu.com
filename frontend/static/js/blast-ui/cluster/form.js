@@ -16,22 +16,30 @@
 */
 
 import Cluster from '../../cluster.js'
+import Infrastructure from '../../infrastructure.js'
 import Toast from '../main/notification/toast.js'
 import {dictionary} from '../main/message/en/dictionary.js'
+import FrontendConfig from '../../frontend.js'
+var config = new FrontendConfig()
 var cluster = new Cluster()
 var toast = new Toast()
+var infrastructure = new Infrastructure()
 toast.msgPicture = '../../../img/object/cluster.svg'
 
 
 const ClusterForm = class {
 
     constructor() {
-        this._fd = undefined
+        this._fd
+        this._cn
+        this._cd
+        this._ci
         this.frame = `
         <form>
             <div class="row">
-                <div id="clusterNameContainer" class="col-md-6"></div>
-                <div id="clusterDescriptionContainer" class="col-md-6"></div>
+                <div id="clusterNameContainer" class="col-md-4"></div>
+                <div id="clusterDescriptionContainer" class="col-md-4"></div>
+                <div id="clusterInfrastructureContainer" class="col-md-4"></div>
             </div>
         </form>
         `
@@ -45,20 +53,44 @@ const ClusterForm = class {
             <input id="cluDesc" type="text" name="cluDesc" required class="form-control" />
             <div id="clusterDescHelp" class="form-text">Describe your new cluster in a few words.</div>
         `
+
+        this.inputClusterInfrastructure = ``
+        infrastructure.list(config.session.realm).then((infrastructures) => {
+            if (infrastructures["hits"]["total"]["value"] > 0) {
+                this.inputClusterInfrastructure = `
+                    <label for="selectCluInfra" class="form-label">Cluster Infrastructure</label>
+                    <select class="form-select" name="selectCluInfra" id="selectCluInfra">`
+                infrastructures["hits"]["hits"].forEach((infraData) => {
+                    this.inputClusterInfrastructure = this.inputClusterInfrastructure + `<option value="` + infraData["_id"] + `">` + infraData["_source"]["name"] + `</option>`
+                })
+                this.inputClusterInfrastructure = this.inputClusterInfrastructure + `</select><div class="form-text">Select the parent infrastructure for this cluster.</div>`
+            }
+        })
+
         this._parentName = undefined
 
     }
 
     set formData(data) { this._fd = data }
+    set clusterName(cn) { this._cn = cn }
+    set clusterDescription(cd) { this._cd = cd }
+    set clusterInfrastructure(ci) { this._ci = ci }
     set parentName(pn) { this._parentName = pn }
 
     get formData() { return this._fd }
+    get clusterName() { return this._cn }
+    get clusterDescription() { return this._cd }
+    get clusterInfrastructure() { return this._ci }
     get parentName() { return this._parentName }
 
     setFormData = () => {
+        this.clusterName = $('input[name=cluName]').val()
+        this.clusterDescription = $('input[name=cluDesc]').val()
+        this.clusterInfrastructure = $("#selectCluInfra").length ? $('select[name="selectCluInfra"] option:selected').val() : ''
         this.formData = {
-            "name":  $('input[name=cluName]').val(),
-            "description": $('input[name=cluDesc]').val()
+            "name": this.clusterName,
+            "description": this.clusterDescription,
+            "infrastructure": this.clusterInfrastructure
         }
     }
 
@@ -88,9 +120,11 @@ const ClusterForm = class {
         this.addFrame()
         $("#clusterNameContainer").html(this.inputClusterName)
         $("#clusterDescriptionContainer").html(this.inputClusterDescription)
+        $("#clusterInfrastructureContainer").html(this.inputClusterInfrastructure)
     }
 
     render = (parentName) => {
+        console.log($("#selectClusterInfra"))
         this.parentName = parentName
         this.addForm()
     }

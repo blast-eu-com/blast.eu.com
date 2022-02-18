@@ -40,122 +40,86 @@ const Realm = class {
     get accountEmail() { return this._accountEmail }
     get rawData() { return this._data }
 
-    add = (realm) => {
-        return new Promise(function(resolve, reject) {
-            $.ajax({
-                url: config.proxyAPI + '/realms',
-                type: "POST",
-                headers: {'Authorization': config.session.httpToken},
-                data: JSON.stringify({"realm": realm}),
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function(Resp) {
-                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
-                }
-            })
-        })
+    add = async (realm) => {
+        let url = config.proxyAPI + '/realms'
+        let header = { 'Authorization': config.session.httpToken, 'Content-Type': "application/json; charset=utf-8"}
+        let data = JSON.stringify({"realm": realm})
+        let response = await fetch(url, {method: 'POST', headers: header, body: data})
+        if (response.ok) {
+            response = JSON.parse(await response.text())
+            if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+        }
     }
 
-    active = (realm) => {
-        return new Promise(function(resolve, reject) {
-            $.ajax({
-                url: config.proxyAPI + '/realms/' + config.session.realm + '/active',
-                type: "PUT",
-                headers: {'Authorization': config.session.httpToken},
-                data: JSON.stringify({"realm": realm}),
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function(Resp) {
-                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
-                }
-            })
-        })
+    active = async (realm) => {
+        let url = config.proxyAPI + '/realms/' + config.session.realm + '/active'
+        let header = { 'Authorization': config.session.httpToken, 'Content-Type': "application/json; charset=utf-8" }
+        let data = JSON.stringify({ "realm": realm })
+        let response = await fetch(url, {method: 'PUT', headers: header, body: data})
+        if (response.ok) {
+            response = JSON.parse(await response.text())
+            if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+        }
     }
 
-    delete = function(realmName) {
-        return new Promise(function(resolve, reject) {
-            $.ajax({
-                url: config.proxyAPI + '/realms/' + realmName,
-                type: "DELETE",
-                headers: {'Authorization': config.session.httpToken},
-                success: function(Resp) {
-                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
-                }
-            })
-       })
+    delete = async (realmName) => {
+        let url = config.proxyAPI + '/realms/' + realmName
+        let header = { 'Authorization': config.session.httpToken }
+        let response = await fetch(url, {method: 'DELETE', headers: header})
+        if (response.ok) {
+            response = JSON.parse(await response.text())
+            if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+        }
     }
 
-    list = function() {
-        return new Promise(function(resolve, reject) {
-            $.ajax({
-                url: config.proxyAPI + '/realms',
-                type: "GET",
-                headers: {'Authorization': config.session.httpToken},
-                success: function(Resp) {
-                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
-                }
-            })
-        })
+    list = async () => {
+        let url = config.proxyAPI + '/realms'
+        let header = { 'Authorization': config.session.httpToken }
+        let response = await fetch(url, {method: 'GET', headers: header})
+        if (response.ok) {
+            response = JSON.parse(await response.text())
+            if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+        }
     }
 
-    listByUniqName = function() {
-        return new Promise(function(resolve, reject) {
-            $.ajax({
-                url: config.proxyAPI + '/realms/uniqs',
-                type: "GET",
-                headers: {'Authorization': config.session.httpToken},
-                success: function(Resp) {
-                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
-                }
-            })
-        })
+    listByUniqName = async () => {
+        let url = config.proxyAPI + '/realms/uniqs'
+        let header = { 'Authorization': config.session.httpToken }
+        let response = await fetch(url, {method: 'GET', headers: header})
+        if (response.ok) {
+            response = JSON.parse(await response.text())
+            if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+        }
     }
 
-    listByMember = function(member) {
-        return new Promise(function(resolve, reject) {
-            $.ajax({
-                url: config.proxyAPI + '/realms/members/' + member,
-                type: "GET",
-                headers: {'Authorization': config.session.httpToken},
-                success: function(Resp) {
-                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
-                }
-            })
-        })
+    listByMember = async (member) => {
+        let url = config.proxyAPI + '/realms/members/' + member
+        let header = { 'Authorization': config.session.httpToken }
+        let response = await fetch(url, {method: 'GET', headers: header})
+        if (response.ok) {
+            response = JSON.parse(await response.text())
+            if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+        }
     }
 
-    listByName = function(realmName) {
-        return new Promise(function(resolve, reject) {
-            $.ajax({
-                url: config.proxyAPI + '/realms/' + realmName,
-                type: "GET",
-                headers: {'Authorization': config.session.httpToken},
-                success: function(Resp) {
-                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
-                }
-            })
-        })
+    listByName = async (realmName) => {
+        let url = config.proxyAPI + '/realms/' + realmName
+        let header = { 'Authorization': config.session.httpToken }
+        let response = await fetch(url, {method: 'GET', headers: header})
+        if (response.ok) {
+            response = JSON.parse(await response.text())
+            if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+        }
     }
 
-    listByMemberAndName = function(memberName, realmName) {
-        return new Promise(function(resolve, reject) {
-            $.ajax({
-                url: config.proxyAPI + '/realms/' + realmName + '/members/' + memberName,
-                type: "GET",
-                headers: {'Authorization': config.session.httpToken},
-                success: function(Resp) {
-                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
-                }
-            })
-        })
+    listByMemberAndName = async (memberName, realmName) => {
+        let url = config.proxyAPI + '/realms/' + realmName + '/members/' + memberName
+        let header = { 'Authorization': config.session.httpToken }
+        let response = await fetch(url, {method: 'GET', headers: header})
+        if (response.ok) {
+            response = JSON.parse(await response.text())
+            if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+        }
     }
 
     load = (data) => {
@@ -166,26 +130,19 @@ const Realm = class {
         this.rawData = data["_source"]
     }
 
-    role = (realm) => {
-        return new Promise(function(resolve, reject) {
-            $.ajax({
-                url: config.proxyAPI + '/realms/' + realm["name"] + '/role',
-                type: "PUT",
-                headers: {'Authorization': config.session.httpToken},
-                data: JSON.stringify({"realm": realm}),
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function(Resp) {
-                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
-                }
-            })
-       })
+    role = async (realm) => {
+        let url = config.proxyAPI + '/realms/' + realm["name"] + '/role'
+        let header = { 'Authorization': config.session.httpToken, 'Content-Type': "application/json; charset=utf-8"}
+        let data = JSON.stringify({ "realm": realm })
+        let response = await fetch(url, {method: 'PUT', headers: header, body: data})
+        if (response.ok) {
+            response = JSON.parse(await response.text())
+            if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+        }
     }
 
     switchActive = (newRealm) => {
         let realm = {"name": newRealm, "member": config.session.accountEmail , "active": true}
-        console.log(newRealm)
         this.active(realm).then((switchRealmResult) => {
             if ( switchRealmResult["result"] == "updated" ) {
                 account.cookies(config.session.accountEmail).then((setCookieResult) => {

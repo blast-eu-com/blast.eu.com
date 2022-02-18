@@ -78,21 +78,16 @@ let Scenario = class {
     get scenarioScriptPageMax() { return this.scriptPageMax }
     get scenarioScriptFiltered() { return this.scriptFiltered }
 
-    add = (scenario) => {
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                url: config.proxyAPI + '/realms/' + config.session.realm + '/scenarios',
-                type: "POST",
-                headers: {'Authorization': config.session.httpToken},
-                data: JSON.stringify({"scenario": scenario}),
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: (Resp) => {
-                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
-                }
-            })
-        })
+    add = async (scenario) => {
+        let url = config.proxyAPI + '/realms/' + config.session.realm + '/scenarios'
+        let header = { 'Authorization': config.session.httpToken, 'Content-Type': "application/json; charset=utf-8"}
+        let data = JSON.stringify({ "scenario": scenario })
+        let response = await fetch(url, {method: 'POST', headers: header, body: data})
+        if (response.ok) {
+            response = await response.text()
+            response = JSON.parse(response)
+            if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+        }
     }
 
     load = (scenarioData) => {
@@ -108,64 +103,49 @@ let Scenario = class {
         this.rawData = scenarioData["_source"]
     }
 
-    list() {
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                url: config.proxyAPI + '/realms/' + config.session.realm + '/scenarios',
-                type: "GET",
-                headers: {"Authorization": config.session.httpToken},
-                success: (Resp) => {
-                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
-                }
-            })
-        })
+    list = async () => {
+        let url = config.proxyAPI + '/realms/' + config.session.realm + '/scenarios'
+        let header = { 'Authorization': config.session.httpToken}
+        let response = await fetch(url, {method: 'GET', headers: header})
+        if (response.ok) {
+            response = await response.text()
+            response = JSON.parse(response)
+            if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+        }
     }
 
-    listByIds(scenarioIds) {
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                url: config.proxyAPI + '/realms/' + config.session.realm + '/scenarios/ids',
-                type: "GET",
-                data: {"ids": scenarioIds},
-                headers: {"Authorization": config.session.httpToken},
-                success: (Resp) => {
-                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
-                }
-            })
-        })
+    listById = async (scenarioId) => {
+        let url = config.proxyAPI + '/realms/' + config.session.realm + '/scenarios/' + scenarioId
+        let header = { 'Authorization': config.session.httpToken }
+        let response = await fetch(url, {method: 'GET', headers: header})
+        if (response.ok) {
+            response = await response.text()
+            response = JSON.parse(response)
+            if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+        }
     }
 
-    listByScriptRunId(scriptRunId) {
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                url: config.proxyAPI + '/realm/' + config.session.realm + '/management/scriptrun/' + scriptRunId,
-                type: "GET",
-                headers: {"Authorization": config.session.httpToken},
-                success: (Resp) => {
-                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
-                }
-            })
-        })
+    listByScriptRunId = async (scriptRunId) => {
+        let url = config.proxyAPI + '/realm/' + config.session.realm + '/management/scriptrun/' + scriptRunId
+        let header = { 'Authorization': config.session.httpToken }
+        let response = await fetch(url, {method: 'GET', headers: header})
+        if (response.ok) {
+            response = await response.text()
+            response = JSON.parse(response)
+            if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+        }
     }
 
-    execute(scenario) {
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                url: config.proxyAPI + '/realms/' + config.session.realm + '/scenarios/execute',
-                type: "POST",
-                headers: {"Authorization": config.session.httpToken},
-                data: JSON.stringify(scenario),
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: (Resp) => {
-                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
-                }
-            })
-        })
+    execute = async (scenario) => {
+        let url = config.proxyAPI + '/realms/' + config.session.realm + '/scenarios/execute'
+        let header = { 'Authorization': config.session.httpToken, 'Content-Type': "application/json; charset=utf-8" }
+        let data = JSON.stringify(scenario)
+        let response = await fetch(url, {method: 'POST', headers: header, body: data})
+        if (response.ok) {
+            response = await response.text()
+            response = JSON.parse(response)
+            if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+        }
     }
 
     getFormData = () => {

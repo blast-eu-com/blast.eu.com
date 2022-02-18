@@ -21,35 +21,34 @@ const Setting = class {
 
     constructor() { }
 
-    list = () => {
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                url: config.proxyAPI + '/realms/' + config.session.realm + '/settings',
-                type: "GET",
-                headers: {"Authorization": config.session.httpToken},
-                success: (Resp) => {
-                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
-                }
-            })
-        })
+    list = async () => {
+        let url = config.proxyAPI + '/realms/' + config.session.realm + '/settings'
+        let header = { 'Authorization': config.session.httpToken }
+        let response = await fetch(url, {method: 'GET', headers: header})
+        if (response.ok) {
+            response = JSON.parse(await response.text())
+            if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+        }
     }
 
-    save = (formData) => {
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                url: config.proxyAPI + '/realms/' + config.session.realm + '/settings/' + config.session.settingId,
-                type: "PUT",
-                headers: {"Authorization": config.session.httpToken},
-                data: JSON.stringify(formData),
-                contentType: "Application/JSON; charset=utf-8",
-                dataType: "json",
-                success: (Resp) => {
-                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
-                }
-            })
-        })
+    save = async (data) => {
+        let formData = new FormData()
+        formData.append("ansible_username", data["ansible"]["username"])
+        formData.append("ansible_password", data["ansible"]["password"])
+        formData.append("ansible_certificate", data["ansible"]["certificate"])
+        formData.append("ansible_inventory_location", data["ansible"]["inventory"]["location"])
+        formData.append("ssh_username", data["ssh"]["username"])
+        formData.append("ssh_password", data["ssh"]["password"])
+        formData.append("ssh_certificate", data["ssh"]["certificate"])
+        formData.append("ssh_location", data["ssh"]["location"])
+        data = formData
+        let url = config.proxyAPI + '/realms/' + config.session.realm + '/settings/' + config.session.settingId
+        let header = { 'Authorization': config.session.httpToken}
+        let response = await fetch(url, {method: 'PUT', headers: header, body: data})
+        if (response.ok) {
+            response = JSON.parse(await response.text())
+            if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+        }
     }
 }
 

@@ -29,12 +29,12 @@ const SshForm = class {
             </form>
         `
         this.inputSshUsername = `
-            <label for="sshUsername" class="form-label">ssh username</label>
+            <label for="sshUsername" class="form-label">SSH username</label>
             <input id="sshUsername" name="sshUsername" type="text" class="form-control"/>
             <div id="sshUsernameHelp" class="form-text">Define the SSH username to run scripts.</div>
         `
         this.inputSshPassword = `
-            <label for="sshPassword" class="form-label">ssh password</label>
+            <label for="sshPassword" class="form-label">SSH password</label>
             <input id="sshPassword" name="sshPassword" type="password" class="form-control" />
             <!-- <div id="sshPasswordHelp" class="form-text">Define the SSH password of the SSH username.</div> -->
             <div id="sshPasswordHelp">
@@ -43,14 +43,18 @@ const SshForm = class {
             </div>
         `
         this.inputSshCertificate = `
-            <label for="sshCertificate" class="form-label">ssh certificate</label>
-            <input id="sshCertificate" name="sshCertificate" type="text" class="form-control" />
-            <div id="sshCertificateHelp" class="form-text">Define the SSH certificate of the SSH username.</div>
+            <label for="sshCertificate" class="form-label">SSH certificate</label>
+            <input type="file" name="sshCertificate" class="form-control" id="inputGroupSsh">
+            <!-- <div id="sshCertificateHelp" class="form-text">Upload the SSH certificate of the SSH username.</div> -->
+            <div id="sshCertificateHelp">
+                <input class="form-check-input" type="checkbox" value="" id="sshCertificateSet" disabled>
+                <label class="form-check-label" for="sshCertificateSet">SSH Certificate set</label>
+            </div>
         `
         this.inputSshLocation = `
-            <label for="sshLocation" class="form-label">ssh location</label>
+            <label for="sshLocation" class="form-label">SSH location</label>
             <input id="sshLocation" name="sshLocation" type="text" class="form-control" />
-            <div id="sshLocationHelp" class="form-text">Define the SSH location for ssh connection.</div>
+            <div id="sshLocationHelp" class="form-text">Define the SSH location for SSH connection.</div>
         `
         this._parentName = undefined
 
@@ -83,6 +87,7 @@ const SshForm = class {
         $("#sshCertificate").val(ssh["certificate"])
         $("#sshLocation").val(ssh["location"])
         if (ssh["is_password_set"]) { $("#sshPasswordSet").prop("checked", true) }
+        if (ssh["is_certificate_set"]) { $("#sshCertificateSet").prop("checked", true) }
     }
 
     render = (parentName) => {

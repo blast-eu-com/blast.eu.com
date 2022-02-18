@@ -31,15 +31,16 @@ class Scheduler:
         self.STATISTIC_DATA["object_type"] = "scheduler"
         self.DB_INDEX = 'blast_obj_scheduler'
 
-    def add(self, account_email: str, realm: str, data: dict):
+    def add(self, account_email: str, realm: str, scheduler_data: dict):
         """ create a new scheduler """
 
         try:
-            data["realm"] = realm
-            scheduler_add_res = self.ES.index(index=self.DB_INDEX, body=json.dumps(data), refresh=True)
+            scheduler_data["realm"] = realm
+            scheduler_data["state"] = 'new'
+            scheduler_add_res = self.ES.index(index=self.DB_INDEX, body=json.dumps(scheduler_data), refresh=True)
             if scheduler_add_res["result"] == "created":
                 self.STATISTIC_DATA["object_action"] = 'create'
-                self.STATISTIC_DATA["object_name"] = data["name"]
+                self.STATISTIC_DATA["object_name"] = scheduler_data["name"]
                 self.STATISTIC_DATA["timestamp"] = statistic.UTC_time()
                 self.STATISTIC_DATA["account_email"] = account_email
                 self.STATISTIC_DATA["realm"] = realm
@@ -168,8 +169,7 @@ class Scheduler:
             print(e)
             return {"failure": str(e)}
 
-
-    def list_by_ids(self, realm: str, scheduler_ids: list):
+    def list_by_id(self, realm: str, scheduler_id: str):
 
         """ list the schedule for the specific id"""
         try:
@@ -185,7 +185,7 @@ class Scheduler:
                                 },
                                 {
                                     "terms": {
-                                        "_id": scheduler_ids
+                                        "_id": scheduler_id
                                     }
                                 }
                             ]

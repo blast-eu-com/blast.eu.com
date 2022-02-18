@@ -49,6 +49,7 @@ class Cluster:
 
             cluster["realm"] = realm
             cluster["nodes"] = []
+
             cluster_add_res = self.ES.index(index=self.DB_INDEX, body=json.dumps(cluster), refresh=True)
             if cluster_add_res["result"] != "created":
                 raise Exception("Internal Error: Cluster create failure.")
@@ -59,6 +60,12 @@ class Cluster:
             self.STATISTIC_DATA["timestamp"] = statistic.UTC_time()
             self.STATISTIC_DATA["object_name"] = cluster["name"]
             self.STATISTIC.add(self.STATISTIC_DATA)
+
+            if cluster["infrastructure"] != '':
+                cluster_data = {"name": cluster["name"], "id": cluster_add_res["_id"]}
+                add_infra_cluster_res = self.INFRA.add_cluster(account_email, realm, cluster["infrastructure"], cluster_data)
+                if not add_infra_cluster_res["result"] == "updated":
+                    raise Exception("Cluster infrastructure link error: " + add_infra_cluster_res)
 
             return cluster_add_res
 

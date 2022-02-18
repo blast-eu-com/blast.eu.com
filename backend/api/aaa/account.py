@@ -16,6 +16,7 @@
 """
 
 import os
+import re
 import jwt
 import json
 import string
@@ -67,6 +68,11 @@ class Account:
         """ Add a new account from given data, email, password and realm """
         print(" >>> Enter file:aaa:class:Account:function:add_account")
         try:
+            # email pattern
+            account_email_pattern = re.compile('[a-zA-Z\-\_\.]{6,}\@[a-zA-z]+\.[a-zA-Z\.]+')
+            if not account_email_pattern.fullmatch(data["email"]):
+                raise Exception("Account identifier is not valid. Enter a valid email address format.")
+
             # make sure the identifier posted by the operator is not already taken.
             if self.list_by_email(data["email"])["hits"]["total"]["value"] > 0:
                 raise Exception("Account identifier already exists. Use another identifier to create a new account.")
@@ -248,6 +254,7 @@ class Account:
         """ This function returns the account which is set a account cookie """
         print(" >>> Enter file:aaa:class:Account:function:load_account_profile")
         try:
+            print(account_email)
             http_response = {}
             scriptlangs = {}
             scriptlang = Scriptlang(self.ES)
@@ -261,7 +268,7 @@ class Account:
             for sclang in scriptlang.list()["hits"]["hits"]:
                 scriptlangs[sclang["_source"]["name"]] = sclang["_source"]["picture"]
 
-            stg = setting.list_by_realm_no_passwd(realm_name)
+            stg = setting.list(realm_name)
             http_response["account"] = account["hits"]["hits"][0]["_source"]
             http_response["account"]["id"] = account["hits"]["hits"][0]["_id"]
             http_response["realm"] = realm_details["hits"]["hits"][0]["_source"]

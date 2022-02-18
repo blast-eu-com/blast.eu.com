@@ -66,7 +66,7 @@ var NodeList = class {
                         <div class="card-title" style="font-size: 16px">` + objectData["_source"]["name"] + `</div>
                         <span style="font-size: 12px">` + objectData["_source"]["description"] + `</span><br>
                     </div>
-                    <div class="card-footer bg-gradient text-center text-dark p-0" style="background-color: #FFE873">
+                    <div class="card-footer bg-gradient text-center text-dark p-0 border-0" style="background-color: #FFE873">
                         <span class="fw-lighter" style="font-size: 12px;">` + recId + `</span>
                     </div>
                 </a>`

@@ -50,88 +50,56 @@ class Request {
     get timestamp() { return this._timestamp }
     get message() { return this._message }
 
-    add = function(data) {
-        return new Promise(function( resolve, reject) {
-            $.ajax({
-                url: config.proxyAPI + '/realms/' + config.session.realm + '/requests',
-                type: "POST",
-                headers: {'Authorization': config.session.httpToken},
-                data: JSON.stringify({"request": data}),
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function(Resp) {
-                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
-                }
-            })
-        })
+    add = async (request_data) => {
+        let url = config.proxyAPI + '/realms/' + config.session.realm + '/requests'
+        let header = { 'Authorization': config.session.httpToken, 'Content-Type': "application/json; charset=utf-8"}
+        let data = JSON.stringify({"request": request_data})
+        let response = await fetch(url, {method: "POST", headers: header, body: data})
+        if (response.ok) {
+            response = JSON.parse(await response.text())
+            if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+        }
     }
 
-    execUserAction = function(userAction, requestId) {
-        return new Promise(function( resolve, reject) {
-            $.ajax({
-                url: config.proxyAPI + '/realms/' + config.session.realm + '/requests/actions',
-                type: "POST",
-                headers: {'Authorization': config.session.httpToken},
-                data: JSON.stringify({"requestData": {"requestId": requestId, "userAction": userAction}}),
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function(Resp) {
-                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
-                }
-            })
-        })
+    execUserAction = async (userAction, requestId) => {
+        let url = config.proxyAPI + '/realms/' + config.session.realm + '/requests/actions'
+        let header = { 'Authorization': config.session.httpToken, 'Content-Type': "application/json; charset=utf-8"}
+        let data = JSON.stringify({"requestData": {"requestId": requestId, "userAction": userAction}})
+        let response = await fetch(url, {method: "POST", headers: header, body: data})
+        if (response.ok) {
+            response = JSON.parse(await response.text())
+            if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+        }
     }
 
-    list_by_account = function() {
-        /*
-            This function list all the requests for which
-            the account email matches the sender value or the receiver value
-        */
-        return new Promise(function( resolve, reject) {
-            $.ajax({
-                url: config.proxyAPI + '/realms/' + config.session.realm + '/requests',
-                type: "GET",
-                headers: {'Authorization': config.session.httpToken},
-                success: function(Resp) {
-                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
-                }
-            })
-        })
+    list_by_account = async () => {
+        let url = config.proxyAPI + '/realms/' + config.session.realm + '/requests'
+        let header = { 'Authorization': config.session.httpToken }
+        let response = await fetch(url, {method: "GET", headers: header})
+        if (response.ok) {
+            response = JSON.parse(await response.text())
+            if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+        }
     }
 
-    list_by_account_and_state = function(state) {
-        /*
-            This function list all the requests for which
-            the account email matches the sender value or the receiver value
-        */
-        return new Promise(function( resolve, reject) {
-            $.ajax({
-                url: config.proxyAPI + '/realms/' + config.session.realm + '/requests/states/' + state,
-                type: "GET",
-                headers: {'Authorization': config.session.httpToken},
-                success: function(Resp) {
-                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
-                }
-            })
-        })
+    list_by_account_and_state = async (state) => {
+        let url = config.proxyAPI + '/realms/' + config.session.realm + '/requests/states/' + state
+        let header = { 'Authorization': config.session.httpToken }
+        let response = await fetch(url, {method: "GET", headers: header})
+        if (response.ok) {
+            response = JSON.parse(await response.text())
+            if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+        }
     }
 
-    listById = function(id) {
-        return new Promise(function(resolve, reject) {
-            $.ajax({
-                url: config.proxyAPI + '/realms/' + config.session.realm + '/requests/' + id,
-                type: "GET",
-                headers: {'Authorization': config.session.httpToken},
-                success: function(Resp) {
-                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
-                }
-            })
-        })
+    listById = async (id) => {
+        let url = config.proxyAPI + '/realms/' + config.session.realm + '/requests/' + id
+        let header = { 'Authorization': config.session.httpToken }
+        let response = await fetch(url, {method: "GET", headers: header})
+        if (response.ok) {
+            response = JSON.parse(await response.text())
+            if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+        }
     }
 
     load = function(request_data) {

@@ -37,7 +37,7 @@ function updateSettings() {
         "ansible": {
             "username": $("#ansibleUserName").val(),
             "password": $("#ansibleUserPassword").val(),
-            "certificate": $("#ansibleUserCertificate").val(),
+            "certificate": $("input[name=ansibleCertificate]").prop("files")[0],
             "inventory": {
                 "location": $("#ansibleInventoryLocation").val()
             }
@@ -45,12 +45,15 @@ function updateSettings() {
         "ssh": {
             "username": $("#sshUsername").val(),
             "password": $("#sshPassword").val(),
-            "certificate": $("#sshCertificate").val(),
+            "certificate": $("input[name=sshCertificate]").prop("files")[0],
             "location": $("#sshLocation").val()
         }
     }
 
+    console.log(formData["ansible"]["certificate"], formData["ssh"]["certificate"])
+
     setting.save(formData).then(function(Resp) {
+        console.log(Resp)
         let actionRes
         if (Resp["result"] === "updated") {
             account.cookies(config.session.accountEmail)
@@ -68,7 +71,7 @@ function updateSettings() {
     })
 }
 
-function main() {
+const main = function() {
     ansibleForm.render("ansibleForm")
     sshForm.render("sshForm")
 }

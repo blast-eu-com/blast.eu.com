@@ -178,6 +178,7 @@ var InfrastructureList = class {
         let pageLength = $("select#selSamplePerPage option:selected").val()
         pageLength === undefined ? this.numRecord = 10 : this.numRecord = parseInt(pageLength)
         infrastructure.list().then((infrastructures) => {
+            console.log(infrastructures)
             if (infrastructures["hits"]["total"]["value"] > 0) {
                 this.simpleListCoreData(infrastructures["hits"]["hits"])
                 this.simpleListWindowPagination()

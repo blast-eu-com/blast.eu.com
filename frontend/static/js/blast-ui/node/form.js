@@ -15,9 +15,13 @@
 */
 
 import Node from '../../node.js'
+import Cluster from '../../cluster.js'
+import FrontendConfig from '../../frontend.js'
 import Toast from '../main/notification/toast.js'
 import {dictionary} from '../main/message/en/dictionary.js'
 var node = new Node()
+var cluster = new Cluster()
+var config = new FrontendConfig()
 var toast = new Toast()
 toast.msgPicture = '../../../img/object/node.svg'
 
@@ -25,16 +29,19 @@ const NodeForm = class {
 
     constructor() {
 
-        this._name = undefined
-        this._ip = undefined
-        this._description = undefined
-        this._fd = undefined
+        this._nn
+        this._ni
+        this._nd
+        this._nd
+        this._ns
+        this._fd
 
         this.frame = `
             <form>
                 <div class="row mb-3">
-                    <div id="nodeNameContainer" class="col-md-6"></div>
-                    <div id="nodeIPContainer" class="col-md-6"></div>
+                    <div id="nodeNameContainer" class="col-md-4"></div>
+                    <div id="nodeIPContainer" class="col-md-4"></div>
+                    <div id="nodeClusterContainer" class="col-md-4"></div>
                 </div>
                 <div class="row mb-3">
                     <div id="nodeDescriptionContainer" class="col-md-12"></div>
@@ -69,24 +76,49 @@ const NodeForm = class {
             <input type="checkbox" id="nodeContainer" name="nodeContainer" /> Node docker
             <div id="nodeContainerHelp" class="form-text">Check if the node is a container.</div>
         `
+
+        this.inputNodeCluster = ``
+        cluster.list(config.session.realm).then((clusters) => {
+            if (clusters["hits"]["total"]["value"] > 0) {
+                this.inputNodeCluster = this.inputNodeCluster + `
+                    <label for="selectNodeCluster" class="form-label">Node cluster</label>
+                    <select class="form-select" name="selectNodeCluster" id="selectNodeCluster">
+                `
+                clusters["hits"]["hits"].forEach((cluster) => {
+                    this.inputNodeCluster = this.inputNodeCluster + `<option value="` + cluster["_id"] + `">` + cluster["_source"]["name"] + `</option>`
+                })
+                this.inputNodeCluster = this.inputNodeCluster + `</select><div class="form-text">Select the parent cluster for this node.</div>`
+            }
+        })
+
     }
 
     set formData(fd) { this._fd = fd }
-    set name(nodeName) { this._name = nodeName }
-    set ip(nodeIp) { this._ip = nodeIp }
-    set description(nodeDescription) { this._description = nodeDescription }
+    set name(nodeName) { this._nn = nodeName }
+    set ip(nodeIp) { this._ni = nodeIp }
+    set description(nodeDescription) { this._nd = nodeDescription }
+    set cluster(nodeCluster) { this._nc = nodeCluster }
+    set scan(nodeScan) { this._ns = nodeScan }
 
     get formData() { return this._fd }
-    get name() { this._name }
-    get ip() { this._ip }
-    get description() { this._description }
+    get name() { return this._nn }
+    get ip() { return this._ni }
+    get description() { return this._nd }
+    get cluster() { return this._nc }
+    get scan() { return this._ns}
 
     setFormData = () => {
+        this.name = $("#nodeName").val()
+        this.ip = $("#nodeIp").val()
+        this.description = $("#nodeDesc").val()
+        this.scan = $("#nodeScanByIp").is(":checked") ? true : false
+        this.cluster = $("#selectNodeCluster").length ? $('select[name="selectNodeCluster"] option:selected').val() : ''
         this.formData = {
-            "name": $("#nodeName").val(),
-            "ip": $("#nodeIp").val(),
-            "description": $("#nodeDesc").val(),
-            "scan_by_ip": $("#nodeScanByIp").is(":checked") ? true : false,
+            "name": this.name,
+            "ip": this.ip,
+            "description": this.description,
+            "scan_by_ip": this.scan,
+            "cluster": this.cluster
             // "container": $("#nodeContainer").is(":checked") ? true : false,
         }
     }
@@ -96,6 +128,7 @@ const NodeForm = class {
         $("#nodeIPContainer").html(this.inputNodeIP)
         $("#nodeDescriptionContainer").html(this.inputNodeDescription)
         $("#nodeScanByIpContainer").html(this.inputNodeScanByIp)
+        $("#nodeClusterContainer").html(this.inputNodeCluster)
         // $("#nodeContainer").html(this.inputNodeContainer)
     }
 
@@ -103,44 +136,22 @@ const NodeForm = class {
         $("#" + parentName).html(this.frame)
     }
 
-    validateForm = () => {
-        this.setFormData()
-        let nodeName = this.formData["name"].trim(), nodeIP = this.formData["ip"].trim()
-        let actionRes = "failure"
-        toast.msgTitle = "Node submit Failure"
-
-        if ( nodeName === '' ) {
-            toast.msgText = "The node name is required. Empty value is not accepted."
-            toast.notify(actionRes)
-            return false
-        }
-
-        if ( nodeIP === '' ) {
-            toast.msgText = "The node IP is required. Empty value is not accepted."
-            toast.notify(actionRes)
-            return false
-        }
-
-        return true
-    }
-
     addNode = () => {
-        if ( this.validateForm() ) {
-            let actionRes, nodeData = this.formData
-            node.add(nodeData).then((Resp) => {
-                if (Resp["result"] === "created") {
-                    toast.msgTitle = "Node create Success"
-                    toast.msgText = dictionary["node"]["add"].replace('%nodeName%', nodeData["name"])
-                    actionRes = "success"
-                } else if ( Object.keys(Resp).includes("failure") ) {
-                    toast.msgTitle = "Node create Failure"
-                    toast.msgText = Resp["failure"]
-                    actionRes = "failure"
-                }
-                toast.notify(actionRes)
-                setTimeout(() => { location.reload() }, 2000)
-            })
-        }
+        this.setFormData()
+        let actionRes, nodeData = this.formData
+        node.add(nodeData).then((Resp) => {
+            if (Resp["result"] === "created") {
+                toast.msgTitle = "Node create Success"
+                toast.msgText = dictionary["node"]["add"].replace('%nodeName%', nodeData["name"])
+                actionRes = "success"
+            } else if ( Object.keys(Resp).includes("failure") ) {
+                toast.msgTitle = "Node create Failure"
+                toast.msgText = Resp["failure"]
+                actionRes = "failure"
+            }
+            toast.notify(actionRes)
+            setTimeout(() => { location.reload() }, 2000)
+        })
     }
 
     render = (parentName) => {

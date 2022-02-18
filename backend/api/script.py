@@ -17,7 +17,7 @@
 import json
 from api import statistic
 from api import scenario
-from api.setting import Setting, decrypt_password
+from api import setting
 
 
 class Script:
@@ -26,7 +26,7 @@ class Script:
         self.ES = connector
         self.DB_INDEX = 'blast_obj_script'
         self.SCENARIO = scenario.Scenario(self.ES)
-        self.SETTING = Setting(self.ES)
+        self.SETTING = setting.Setting(self.ES)
         self.STATISTIC = statistic.Statistic(self.ES)
         self.STATISTIC_DATA = self.STATISTIC.STATISTIC_DATA
         self.STATISTIC_DATA["object_type"] = 'script'
@@ -248,12 +248,9 @@ class Script:
             return {"failure": str(e)}
 
     def map_id_name(self, realm: str, script_id: str):
-        """
-        This function returns a JSON object of {"id_a": "name_a", "id_b": "name_b", ... }
-        """
+
         try:
-            script = self.list_by_id(realm, script_id)["hits"]["hits"][0]
-            return script["_source"]["name"]
+            return self.list_by_id(realm, script_id)["hits"]["hits"][0]["_source"]["name"]
 
         except Exception as e:
             print(e)

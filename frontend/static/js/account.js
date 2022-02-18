@@ -15,6 +15,7 @@
 */
 import FrontendConfig from './frontend.js'
 import Toast from './blast-ui/main/notification/toast.js'
+import {dictionary} from './blast-ui/main/message/en/dictionary.js'
 
 let config = new FrontendConfig()
 let toast = new Toast()
@@ -43,110 +44,78 @@ const Account = class {
     get registerPassword() { return this._registerPassword }
     get realm() { return this._realm }
 
-    add = (formData) => {
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                url: config.proxyAPI + '/aaa/accounts',
-                type: "POST",
-                data: JSON.stringify(formData),
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: (Resp) => {
-                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
-                }
-            })
-        })
+    add = async (formData) => {
+        let url = config.proxyAPI + '/aaa/accounts'
+        let header = { 'Authorization': config.session.httpToken, 'Content-Type': "application/json; charset=utf-8" }
+        let data = JSON.stringify(formData)
+        let response = await fetch(url, {method: 'POST', headers: header, body: data})
+        if (response.ok) {
+            response = JSON.parse(await response.text())
+            if (Object.keys(response).includes("tokenExpired")) { this.logout() } else { return response }
+        }
     }
 
-    update = (data) => {
+    update = async (data) => {
         let formData = new FormData()
         formData.append("web_server_path", config.frontend.webServerPath)
         formData.append("account_profile_picture", data["accountPicture"])
         formData.append("account_profile_first_name", data["accountFirstName"])
         formData.append("account_profile_family_name", data["accountFamilyName"])
         formData.append("account_profile_email", data["accountEmail"])
-
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                url: config.proxyAPI + '/aaa/accounts/' + config.session.accountId,
-                type: "PUT",
-                data: formData,
-                headers: {"Authorization": config.session.httpToken},
-                contentType: false,
-                processData: false,
-                success: (Resp) => {
-                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
-                }
-            })
-        })
+        data = formData
+        let url = config.proxyAPI + '/aaa/accounts/' + config.session.accountId
+        let header = { 'Authorization': config.session.httpToken }
+        let response = await fetch(url, {method: 'PUT', headers: header, body: data})
+        if (response.ok) {
+            response = JSON.parse(await response.text())
+            if (Object.keys(response).includes("tokenExpired")) { this.logout() } else { return response }
+        }
     }
 
-    updatePassword = (account_data) => {
-        var id = config.session.accountId
-        var newPassword = account_data["newPassword"]
-        var oldPassword = account_data["oldPassword"]
-        var data = {"id": id, "old_password": oldPassword, "new_password": newPassword}
-        console.log(id, newPassword, oldPassword)
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                url: config.proxyAPI + '/aaa/accounts/password',
-                type: "PUT",
-                data: JSON.stringify(data),
-                headers: {"Authorization": config.session.httpToken},
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: (Resp) => {
-                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
-                }
-            })
-        })
+    updatePassword = async (account_data) => {
+        let id = config.session.accountId
+        let newPassword = account_data["newPassword"]
+        let oldPassword = account_data["oldPassword"]
+        account_data = {"id": id, "old_password": oldPassword, "new_password": newPassword}
+        let url = config.proxyAPI + '/aaa/accounts/password'
+        let header = { 'Authorization': config.session.httpToken, 'Content-Type': "application/json; charset=utf-8" }
+        let data = JSON.stringify(account_data)
+        let response = await fetch(url, {method: 'PUT', headers: header, body: data})
+        if (response.ok) {
+            response = JSON.parse(await response.text())
+            if (Object.keys(response).includes("tokenExpired")) { this.logout() } else { return response }
+        }
     }
 
-    delete = (formData) => {
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                url: config.proxyAPI + '/aaa/accounts',
-                type: "DELETE",
-                data: JSON.stringify(formData),
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: (Resp) => {
-                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
-                }
-            })
-        })
+    delete = async (formData) => {
+        let url = config.proxyAPI + '/aaa/accounts'
+        let header = { 'Authorization': config.session.httpToken, 'Content-Type': "application/json; charset=utf-8" }
+        let data = JSON.stringify(formData)
+        let response = await fetch(url, {method: "DELETE", headers: header, body: data})
+        if (response.ok) {
+            response = JSON.parse(await response.text())
+            if (Object.keys(response).includes("tokenExpired")) { this.logout() } else { return response }
+        }
     }
 
-    list = () => {
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                url: config.proxyAPI + '/aaa/accounts',
-                type: "GET",
-                headers: {"Authorization": config.session.httpToken},
-                success: (Resp) => {
-                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
-                }
-            })
-        })
+    list = async () => {
+        let url = config.proxyAPI + '/aaa/accounts'
+        let header = { 'Authorization': config.session.httpToken }
+        let response = await fetch(url, {method: "GET", headers: header})
+        if (response.ok) {
+            response = JSON.parse(await response.text())
+            if (Object.keys(response).includes("tokenExpired")) { this.logout() } else { return response }
+        }
     }
 
-    listById = (accountId) => {
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                url: config.proxyAPI + '/aaa/accounts/' + config.session.accountId,
-                type: "GET",
-                headers: {"Authorization": config.session.httpToken},
-                success: (Resp) => {
-                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
-                }
-            })
-        })
+    listById = async (accountId) => {
+        let url = config.proxyAPI + '/aaa/accounts/' + config.session.accountId
+        let header = { 'Authorization': config.session.httpToken}
+        let response = await fetch(url, {method: "GET", headers: header})
+        if (response.ok) {
+            response = JSON.parse(await response.text())
+            if (Object.keys(response).includes("tokenExpired")) { this.logout() } else { return response }
+        }
     }
 
     getFormRegisterData = () => {
@@ -174,20 +143,15 @@ const Account = class {
         this.loginPassword = $("input[name=loginAccountPassword]").val()
     }
 
-    authenticate = (formData) => {
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                url: config.proxyAPI + '/aaa/accounts/authenticate',
-                type: "POST",
-                data: JSON.stringify(formData),
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: (Resp) => {
-                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
-                }
-            })
-        })
+    authenticate = async (formData) => {
+        let url = config.proxyAPI + '/aaa/accounts/authenticate'
+        let header = { 'Content-Type': "application/json; charset=utf-8" }
+        let data = JSON.stringify(formData)
+        let response = await fetch(url, {method: 'POST', headers: header, body: data})
+        if (response.ok) {
+            response = JSON.parse(await response.text())
+            if (Object.keys(response).includes("tokenExpired")) { this.logout() } else { return response }
+        }
     }
 
     cookies = (email) => {
@@ -210,19 +174,14 @@ const Account = class {
         })
     }
 
-    profile = (email) => {
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                url: config.proxyAPI + '/aaa/accounts/profile',
-                type: "GET",
-                headers: {"Authorization": 'Bearer ' + $.cookie('jwt')},
-                data: "email=" + email,
-                success: (Resp) => {
-                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
-                }
-            })
-        })
+    profile = async (email) => {
+        let url = config.proxyAPI + '/aaa/accounts/profile/' + email
+        let header = { 'Authorization': 'Bearer ' + $.cookie('jwt')}
+        let response = await fetch(url, {method: "GET", headers: header})
+        if (response.ok) {
+            response = JSON.parse(await response.text())
+            if (Object.keys(response).includes("tokenExpired")) { this.logout() } else { return response }
+        }
     }
 
     login = () => {
@@ -238,7 +197,8 @@ const Account = class {
                 actionRes = "failure"
                 toast.msgTitle = 'Login Failure'
                 toast.msgText = Resp["failure"]
-                toast.notify()
+                toast.notify(actionRes)
+                setTimeout(() => { location.reload() }, 2000)
             }
         })
     }
@@ -260,17 +220,12 @@ const Account = class {
                 toast.msgText = Resp["failure"]
                 actionRes = "failure"
             }
+            toast.notify(actionRes)
+            setTimeout(() => { location.reload() }, 2000)
         })
     }
 }
 
-let account = new Account()
-const loginAccount = function() { account.login() }
-const logoutAccount = function() { account.logout() }
-const registerAccount = function() { account.register().then((resp) => { }) }
 
-window.registerAccount = registerAccount
-window.loginAccount = loginAccount
-window.logoutAccount = logoutAccount
 
 export default Account

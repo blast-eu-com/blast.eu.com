@@ -9,7 +9,7 @@
                 "description": { "type": "text" },
                 "realm": { "type": "keyword" },
                 "scenario_ids": { "type": "keyword" },
-                "status": { "type": "keyword" },
+                "state": { "type": "keyword" },
                 "flag_parallel_mode": { "type": "boolean" },
                 "frequency": {
                     "type": "nested",

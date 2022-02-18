@@ -240,14 +240,12 @@ class SchedulerManager:
             print(" >>> Enter file:schedulerManager:class:schedulerManager:func:execute_scenario_in_sequential")
             sce = scenario.Scenario(self.ES)
             scenario_manager = scenarioManager.ScenarioManager(self.ES)
-            mapping = sce.map_id_name(self.scheduler_realm, self.scheduler_scenario_ids)
-
-            for sce_name in sorted(mapping):
-                scenario_source = sce.list_by_ids(self.scheduler_realm, [mapping[sce_name]])["hits"]["hits"][0]["_source"]
+            for scheduler_scenario_id in self.scheduler_scenario_ids:
+                scenario_data = sce.list_by_id(self.scheduler_realm, scheduler_scenario_id)["hits"]["hits"][0]["_source"]
                 execute_scenario_kwargs = {
                     "scenario_realm": self.scheduler_realm,
-                    "scenario_id": mapping[sce_name],
-                    "scenario": scenario_source,
+                    "scenario_id": scheduler_scenario_id,
+                    "scenario": scenario_data,
                     "execution_id": self.execution_id
                 }
                 scenario_manager.execute_scenario(**execute_scenario_kwargs)

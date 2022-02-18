@@ -50,10 +50,12 @@ const AnsibleForm = class {
             </div>
         `
         this.inputAnsibleCertificate = `
-            <div>
-                <label for="ansibleUserCertificate" class="form-label">Ansible Certificate</div>
-                <input id="ansibleUserCertificate" type="text" name="ansibleUserCertificate" class="form-control" />
-                <div id="ansibleUserCertificateHelp" class="form-text">Define the Ansible certificate for the Ansible username give.</div>
+            <label for="ansibleCertificate" class="form-label">SSH certificate</label>
+            <input type="file" name="ansibleCertificate" class="form-control" id="inputGroupAnsible">
+            <!-- <div id="ansibleCertificateHelp" class="form-text">Upload the Ansible certificate of the Ansible username.</div> -->
+            <div id="ansibleCertificateHelp">
+                <input class="form-check-input" type="checkbox" value="" id="ansibleCertificateSet" disabled>
+                <label class="form-check-label" for="ansibleCertificateSet">Ansible Certificate set</label>
             </div>
         `
         this.inputAnsibleInventoryLocation = `

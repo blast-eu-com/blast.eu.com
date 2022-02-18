@@ -70,8 +70,8 @@ def jwtrequired():
     account = Account(ES)
     if request.path in ["/api/v1/aaa/accounts/authenticate", "/api/v1/aaa/accounts"]:
         return None
-    elif re.match(r'/api/v1/aaa/accounts/profile', request.path) and request.method == "GET":
-        account_email = request.args.get('email')
+    elif re.match(r'/api/v1/aaa/accounts/profile/[a-zA-Z\-\_\.]{6,}\@[a-zA-z]+\.[a-zA-Z\.]+', request.path) and request.method == "GET":
+        account_email = re.search(r'[a-zA-Z\-\_\.]{6,}\@[a-zA-z]+\.[a-zA-Z\.]+', request.path).group()
     else:
         account_email = json.loads(request.cookies.get('account'))["email"]
     token = request.headers['AUTHORIZATION'].split()[1]
@@ -233,11 +233,11 @@ def aaa_account_password_update():
     password_data = {"old": request.get_json()["old_password"], "new": request.get_json()["new_password"]}
     return Response(json.dumps(account.update_password(account_id, password_data)))
 
-@app.route('/api/v1/aaa/accounts/profile', methods=["GET"])
-def aaa_load_profile():
+@app.route('/api/v1/aaa/accounts/profile/<email>', methods=["GET"])
+def aaa_load_profile(email):
     """ this function load the account which will be used as cookie """
     account = Account(ES)
-    return Response(json.dumps(account.load_account_profile(request.args.get("email"))))
+    return Response(json.dumps(account.load_account_profile(email)))
 
 # * *********************************************************************************************************
 # *
@@ -287,12 +287,12 @@ def script_list(realm):
     script = Script(ES)
     return Response(json.dumps(script.list(realm)))
 
-@app.route('/api/v1/realms/<realm>/scripts/<id>', methods=["GET"])
+@app.route('/api/v1/realms/<realm>/scripts/<script_id>', methods=["GET"])
 @active_realm_member
-def script_list_by_ids(realm, id):
+def script_list_by_ids(realm, script_id):
     """ this function returns the script for the given id """
     script = Script(ES)
-    return Response(json.dumps(script.list_by_id(realm, id)))
+    return Response(json.dumps(script.list_by_id(realm, script_id)))
 
 @app.route('/api/v1/realms/<realm>/scripts/name/<name>', methods=["GET"])
 @active_realm_member
@@ -427,12 +427,11 @@ def infrastructure_update(realm):
     account_email = json.loads(request.cookies.get('account'))["email"]
     return Response(json.dumps(infra.update(account_email, realm, infrastructures)))
 
-@app.route('/api/v1/realms/<realm>/infrastructures/ids', methods=['GET'])
+@app.route('/api/v1/realms/<realm>/infrastructures/<infra_id>', methods=['GET'])
 @active_realm_member
-def infrastructure_list_by_id(realm):
+def infrastructure_list_by_id(realm, infra_id):
     """ this function returns the doc matching the infrastructure id """
     infra = Infra(ES)
-    infra_id = request.args.get('id')
     return Response(json.dumps(infra.list_by_id(realm, infra_id)))
 
 @app.route('/api/v1/realms/<realm>/infrastructures', methods=['DELETE'])
@@ -505,20 +504,18 @@ def node_delete(realm):
     node_id = request.get_json()["node_id"]
     return Response(json.dumps(node.delete(account_email, realm, node_id)))
 
-@app.route('/api/v1/realms/<realm>/nodes/ids', methods=['GET'])
+@app.route('/api/v1/realms/<realm>/nodes/<node_id>', methods=['GET'])
 @active_realm_member
-def node_list_by_id(realm):
+def node_list_by_id(realm, node_id):
     """ this function returns the node details by node id """
     node = Node(ES)
-    node_id = request.args.get('id')
     return Response(json.dumps(node.list_by_id(realm, node_id)))
 
-@app.route('/api/v1/realms/<realm>/nodes/names', methods=["GET"])
+@app.route('/api/v1/realms/<realm>/nodes/names/<name>', methods=["GET"])
 @active_realm_member
-def node_list_by_nodename(realm):
+def node_list_by_nodename(realm, name):
     """ this function returns the node details for given realm and name """
     node = Node(ES)
-    name = request.args.get('name')
     return Response(json.dumps(node.list_by_name(realm, name)))
 
 @app.route('/api/v1/realms/<realm>/nodes/<id>/rescan', methods=['GET'])
@@ -806,13 +803,12 @@ def scenario_update(realm):
     account_email = json.loads(request.cookies.get('account'))["email"]
     return Response(json.dumps(sco.update(account_email, realm, payload)))
 
-@app.route('/api/v1/realms/<realm>/scenarios/ids', methods=['GET'])
+@app.route('/api/v1/realms/<realm>/scenarios/<scenario_id>', methods=['GET'])
 @active_realm_member
-def scenario_list_by_ids(realm):
+def scenario_list_by_ids(realm, scenario_id):
     """ this function returns the doc matching the infrastructure id """
     sco = Scenario(ES)
-    scenario_ids = request.args.getlist('ids[]')
-    return Response(json.dumps(sco.list_by_ids(realm, scenario_ids)))
+    return Response(json.dumps(sco.list_by_id(realm, scenario_id)))
 
 @app.route('/api/v1/realms/<realm>/scenarios', methods=["GET"])
 @active_realm_member
@@ -871,13 +867,12 @@ def scheduler_all(realm):
     scheduler = Scheduler(ES)
     return Response(json.dumps(scheduler.list(realm)))
 
-@app.route('/api/v1/realms/<realm>/schedulers/ids', methods=["GET"])
+@app.route('/api/v1/realms/<realm>/schedulers/<scheduler_id>', methods=["GET"])
 @active_realm_member
-def scheduler_list_by_id(realm):
+def scheduler_list_by_id(realm, scheduler_id):
     """ this function list scheduler by id """
     scheduler = Scheduler(ES)
-    scheduler_ids = request.args.getlist('ids[]')
-    return Response(json.dumps(scheduler.list_by_ids(realm, scheduler_ids)))
+    return Response(json.dumps(scheduler.list_by_id(realm, scheduler_id)))
 
 @app.route('/api/v1/realms/<realm>/schedulers/action', methods=["POST"])
 @active_realm_member
@@ -908,14 +903,33 @@ def scheduler_execute(realm):
 def list_settings(realm):
     """ this function returns the settings per realm """
     setting = Setting(ES)
-    return Response(json.dumps(setting.list(id)))
+    return Response(json.dumps(setting.list(realm)))
 
 @app.route('/api/v1/realms/<realm>/settings/<id>', methods=["PUT"])
 @active_realm_member
 def save_setting(realm, id):
     """ this function save the setting of a particular realm """
     setting = Setting(ES)
-    return Response(json.dumps(setting.save(id, request.get_json())))
+    ssh_certificate = '' if "ssh_certificate" in request.form.keys() else request.files["ssh_certificate"]
+    ansible_certificate = '' if "ansible_certificate" in request.form.keys() else request.files["ansible_certificate"]
+    setting_data = {
+        "ssh": {
+            "username": request.form["ssh_username"],
+            "password": request.form["ssh_password"],
+            "certificate": ssh_certificate,
+            "location": request.form["ssh_location"]
+        },
+        "ansible": {
+            "username": request.form["ansible_username"],
+            "password": request.form["ansible_password"],
+            "certificate": ansible_certificate,
+            "inventory": {
+                "location": request.form["ansible_inventory_location"]
+            }
+        }
+    }
+    return Response(json.dumps(setting.save(id, setting_data)))
+
 
 # * *********************************************************************************************************
 # *

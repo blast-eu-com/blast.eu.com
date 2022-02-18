@@ -20,67 +20,45 @@ import Account from './account.js'
 var account = new Account()
 var config = new FrontendConfig()
 
-export function listAgg(report) {
-    return new Promise((resolve, reject) => {
-        $.ajax({
-            url: config.proxyAPI + '/realms/' + config.session.realm + '/reports/agg',
-            type: "POST",
-            data: JSON.stringify({"report": report}),
-            headers: {'Authorization': config.session.httpToken},
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: (Resp) => {
-                if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
-            }
-        })
-    })
+export async function listAgg(report) {
+    let url = config.proxyAPI + '/realms/' + config.session.realm + '/reports/agg'
+    let header = { 'Authorization': config.session.httpToken, 'Content-Type': "application/json; charset=utf-8" }
+    let data = JSON.stringify({"report": report})
+    let response = await fetch(url, {method: "POST", headers: header, body: data})
+    if (response.ok) {
+        response = JSON.parse(await response.text())
+        if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+    }
 }
 
-export function listScroll(report) {
-    return new Promise((resolve, reject) => {
-        $.ajax({
-            url: config.proxyAPI + '/realms/' + config.session.realm + '/reports/list/scroll',
-            type: "POST",
-            data: JSON.stringify({"report": report}),
-            headers: {'Authorization': config.session.httpToken},
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: (Resp) => {
-                if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
-            }
-        })
-    })
+export async function listScroll(report) {
+    let url = config.proxyAPI + '/realms/' + config.session.realm + '/reports/list/scroll'
+    let header = { 'Authorization': config.session.httpToken, 'Content-Type': "application/json; charset=utf-8" }
+    let data = JSON.stringify({"report": report})
+    let response = await fetch(url, {method: "POST", headers: header, body: data})
+    if (response.ok) {
+        response = JSON.parse(await response.text())
+        if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+    }
 }
 
-export function filterScroll(report) {
-   return new Promise((resolve, reject) => {
-        $.ajax({
-            url: config.proxyAPI + '/realms/' + config.session.realm + '/reports/filter/scroll',
-            type: "POST",
-            data: JSON.stringify({"report": report}),
-            headers: {'Authorization': config.session.httpToken},
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: (Resp) => {
-                if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
-            }
-        })
-   })
+export async function filterScroll(report) {
+    let url = config.proxyAPI + '/realms/' + config.session.realm + '/reports/filter/scroll'
+    let header = { 'Authorization': config.session.httpToken, 'Content-Type': "application/json; charset=utf-8" }
+    let data = JSON.stringify({"report": report})
+    let response = await fetch(url, {method: "POST", headers: header, body: data})
+    if (response.ok) {
+        response = JSON.parse(await response.text())
+        if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+    }
 }
 
-export function filterScrollData(report_type, scroll_id) {
-   return new Promise((resolve, reject) => {
-        $.ajax({
-            url: config.proxyAPI + '/realms/' + config.session.realm + '/reports/filter/scroll/data?report_type=' + report_type + '&_scroll_id=' + scroll_id,
-            type: "GET",
-            headers: {'Authorization': config.session.httpToken},
-            success: (Resp) => {
-                if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                if (Object.keys(Resp).includes("tokenExpired")) { account.logout() } else { resolve(Resp) }
-            }
-        })
-   })
+export async function filterScrollData(report_type, scroll_id) {
+    let url = config.proxyAPI + '/realms/' + config.session.realm + '/reports/filter/scroll/data?report_type=' + report_type + '&_scroll_id=' + scroll_id
+    let header = { 'Authorization': config.session.httpToken }
+    let response = await fetch(url, {method: "GET", headers: header})
+    if (response.ok) {
+        response = JSON.parse(await response.text())
+        if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+    }
 }

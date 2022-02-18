@@ -74,13 +74,21 @@ class Node:
             node["mode"] = "running"
 
             node_add_res = self.ES.index(index=self.DB_INDEX, body=json.dumps(node), refresh=True)
-            if node_add_res["result"] == "created":
-                self.STATISTIC_DATA["object_action"] = 'create'
-                self.STATISTIC_DATA["timestamp"] = statistic.UTC_time()
-                self.STATISTIC_DATA["realm"] = realm
-                self.STATISTIC_DATA["account_email"] = account_email
-                self.STATISTIC_DATA["object_name"] = node["name"]
-                self.STATISTIC.add(self.STATISTIC_DATA)
+            if not node_add_res["result"] == "created":
+                raise Exception("Node creation error: " + node_add_res)
+
+            self.STATISTIC_DATA["object_action"] = 'create'
+            self.STATISTIC_DATA["timestamp"] = statistic.UTC_time()
+            self.STATISTIC_DATA["realm"] = realm
+            self.STATISTIC_DATA["account_email"] = account_email
+            self.STATISTIC_DATA["object_name"] = node["name"]
+            self.STATISTIC.add(self.STATISTIC_DATA)
+
+            if node["cluster"] != '':
+                node_data = {"name": node["name"], "id": node_add_res["_id"]}
+                add_clu_node_res = self.CLUSTER.add_node(account_email, realm, node["cluster"], node_data)
+                if not add_clu_node_res["result"] == "updated":
+                    raise Exception("Node cluster link error: " + add_clu_node_res)
 
             return node_add_res
 
@@ -302,7 +310,7 @@ class Node:
             settings = self.SETTING.list_by_realm(realm)
             ssh_username = settings["hits"]["hits"][0]["_source"]["ssh"]["username"]
             ssh_password = self.SETTING.list_ssh_password_by_realm(realm)
-            ssh_certificate = settings["hits"]["hits"][0]["_source"]["ssh"]["certificate"]
+            ssh_certificate = self.SETTING.list_ssh_certificate_by_realm(realm)
             return discover(name, realm, **{"username": ssh_username, "password": ssh_password, "certificate": ssh_certificate})
 
         except Exception as e:
@@ -319,7 +327,7 @@ class Node:
             self.STATISTIC_DATA["timestamp"] = statistic.UTC_time()
             self.STATISTIC_DATA["account_email"] = data["account_email"]
             self.STATISTIC_DATA["realm"] = node_data["realm"]
-            host_net_info = node_data["ip_reference"] if node_data["scan_by_ip"] else node_data["hostname"]
+            host_net_info = node_data["ip_reference"] if node_data["scan_by_ip"] else node_data["name"]
             discovered_data = self.scan(node_data["realm"], host_net_info)
             if "failure" not in discovered_data.keys():
                 node_data["ip"] = discovered_data["ip"]

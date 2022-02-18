@@ -250,7 +250,7 @@ class Scenario:
             print(e)
             return {"failure": str(e)}
 
-    def list_by_ids(self, realm: str, scenario_ids: list):
+    def list_by_id(self, realm: str, scenario_id: str):
 
         try:
             req = json.dumps(
@@ -265,7 +265,7 @@ class Scenario:
                                 },
                                 {
                                     "terms": {
-                                        "_id": scenario_ids
+                                        "_id": scenario_id
                                     }
                                 }
                             ]
@@ -280,17 +280,10 @@ class Scenario:
             print(e)
             return {"failure": str(e)}
 
-    def map_id_name(self, realm: str, scenario_ids: list):
-        """
-        This function receives a list of scenario ids, it returns an object mapping scenario ids with scenario names
-        :param scenario_ids: A list of scenario ids to be sorted
-        """
+    def map_id_name(self, realm: str, scenario_id: str):
+
         try:
-            mapping = {}
-            resp = self.list_by_ids(realm, scenario_ids)
-            for sce in resp["hits"]["hits"]:
-                mapping[sce["_source"]["name"]] = sce["_id"]
-            return mapping
+            return self.list_by_id(realm, scenario_id)["hits"]["hits"][0]["_source"]["name"]
 
         except Exception as e:
             print(e)

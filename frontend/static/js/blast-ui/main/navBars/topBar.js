@@ -36,24 +36,24 @@ let TopBar = class {
 
             <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <!-- <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #306998"> -->
-                <a class="navbar-brand" style="width: 201px; text-align: center;">
+                <a class="navbar-brand" style="width: auto; margin-left: 2rem;" href="https://blast.eu.com">
                     <img src="/img/blast_header_yellow.ico" width="120" height="40" class="d-inline-block align-bottom"/>
                 </a>
-                <div class="dropdown p-1 mx-3" style="border-left: thin solid gray; border-right: thin solid gray;">
+                <div class="dropdown">
                     <img id="dropDownProfileMenuLink" data-toggle="dropdown-toggle" type="button"
-                         style="margin-left: 10px; margin-right: 10px;" data-bs-toggle="dropdown"
+                         style="margin-left: 2rem;" data-bs-toggle="dropdown"
                          src="" width="36" height="36" />
                     <div class="dropdown-menu mr-3 mt-2 bg-dark" style="z-index: 1001" aria-labelledby="dropDownProfileMenuLink">
                         <a class="dropdown-item bg-dark text-light" href="/html/profile.html">
                             <img src="/img/object/profile.svg" width="24" height="24" /><span style="margin-left: 24px">Profile</span></a>
                         <a class="dropdown-item bg-dark text-light" href="/html/request.html">
                             <img src="/img/bootstrap-icons-1.0.0-alpha5/box-arrow-right.svg" width="24" height="24" /><span id="menuRequest" style="margin-left: 24px">Request</span></a>
-                        <div class="dropdown-divider seconday"></div>
+                        <div class="dropdown-divider secondary"></div>
                         <a id="userAccountLogout" class="dropdown-item bg-dark text-light" href="/html/logout.html">
                             <img src="/img/object/logout.svg" width="24" height="24" /><span style="margin-left: 24px">Logout</span></a>
                     </div>
                 </div>
-                <div class="collapse navbar-collapse" id="navbarSupportedContent" style="max-width: 500px;">
+                <div class="collapse navbar-collapse" id="navbarSupportedContent" style="max-width: fit-content; margin-left: 1rem;">
                     <ul class="navbar-nav">
                         <li id="navDropDown" class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle blast-nav-realm" id="realmDropDownMenu" role="button"
@@ -63,7 +63,7 @@ let TopBar = class {
                         </li>
                     </ul>     
                 </div>
-                <div>
+                <div style="margin-left: 5%;">
                     <div class="input-group">
                         <input id="globalSearch" class="form-control" size="64" type="search" style="background-color: #373A3E; color: #EEE; border: thin solid #373A3E" />
                         <a class="btn blast-btn" type="button" href="#global_search_result" rel="modal:open" onclick="searchGlobal() ;" style="color: #EEE;">Search</a>
