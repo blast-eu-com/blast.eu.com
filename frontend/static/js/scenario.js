@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Jerome DE LUCCHI
+    Copyright 2022 Jerome DE LUCCHI
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -178,87 +178,5 @@ let Scenario = class {
         })
     }
 }
-
-let sce = new Scenario()
-
-const loadScriptSessManagement = () => {
-    return new Promise((resolve, reject) => {
-        let docStart = (sce.ManagementSamplePageNum - 1)  * sce.ManagementSamplePerPage
-        let docEnd = sce.ManagementSamplePageNum * sce.ManagementSamplePerPage
-        let delta = sce.ManagementSampleIntervalPicker * sce.ManagementSampleIntervalCounter
-        sce.listSessByTimeAndPageRange(delta, docStart, docEnd).then((data) => {
-            console.log(data)
-            resolve(data)
-        })
-    })
-}
-
-/* update the select and search script window of the management page
- * add script list core data
- * add script list navigation control
- */
-const loadScenarioScriptUIHeader = () => {
-    script.listLang().then((scriptLangsData) => {
-        windower.scriptSelectAndSearchWindow("managementUIScriptFrame", scriptLangsData["hits"]["hits"])
-    })
-}
-
-const loadScenarioScriptUICore = () => {
-    let pageLength = $("select#scriptSelSamplePerPage option:selected").val()
-    script.list().then((scriptData) => {
-        windower.scriptSelectAndSearchWindowData(pageLength, scriptData["hits"]["hits"])
-    })
-}
-
-const loadScenarioScriptUI = () => {
-    let pageLength = $("select#scriptSelSamplePerPage option:selected").val()
-    script.list().then((scriptData) => {
-        if ( scriptData["hits"]["total"]["value"] > 0) {
-            loadScenarioScriptUIHeader()
-            loadScenarioScriptUICore()
-        } else { $("#managementUIScriptFrame").html(msgScriptNotFound) }
-    })
-}
-
-
-const scriptSelectAndSearchGoToPrevPage = (pageNum) => {
-    script.list().then((objectData) => {
-        windower.scriptSelectAndSearchGoToPrevPage(pageNum, objectData["hits"]["hits"])
-    })
-}
-
-const scriptSelectAndSearchGoToThisPage = (pageNum) => {
-    script.list().then((objectData) => {
-        windower.scriptSelectAndSearchGoToThisPage(pageNum, objectData["hits"]["hits"])
-    })
-}
-
-const scriptSelectAndSearchGoToNextPage = (pageNum, lastPage) => {
-    script.list().then((objectData) => {
-        windower.scriptSelectAndSearchGoToNextPage(pageNum, lastPage, objectData["hits"]["hits"])
-    })
-}
-
-const loadManagementUI = () => {
-    managementFilter.managementWindow('managementFrame')
-    management.list().then((managementData) => {
-        managementFilter.managementWindowCoreData('undefined', managementData["hits"]["hits"])
-    })
-}
-
-
-/* GLOBAL PAGE FUNCTIONS */
-const loadScenarioUI = () => {
-    loadScriptInfraTreeManagement()
-    loadManagementUI()
-}
-
-/* DEFINE FUNCTION CALLED FROM PAGE */
-window.loadScenarioUI = loadScenarioUI
-window.scriptSearchString =  loadScenarioScriptUICore
-window.scriptSearchWindowDisplayNewRange = loadScenarioScriptUICore
-window.scriptSelectAndSearchGoToPrevPage = scriptSelectAndSearchGoToPrevPage
-window.scriptSelectAndSearchGoToThisPage = scriptSelectAndSearchGoToThisPage
-window.scriptSelectAndSearchGoToNextPage = scriptSelectAndSearchGoToNextPage
 
 export default Scenario
