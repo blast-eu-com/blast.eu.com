@@ -15,9 +15,9 @@ This project is created with:
 * Bootstrap 5.3.1
 * Chart 3.7.1
 * Daterangepicker 3.1  
-* Elasticsearch-Client 7.10
+* Elasticsearch-Client 7.16.3
 * Fancytree 2.38.0 
-* Flask 1.1.2
+* Flask 2.0.3
 * Jquery 1.12.4
 * Jquery-cookie 1.4.1
 * Popper 2.11.2  
