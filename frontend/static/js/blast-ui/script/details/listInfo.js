@@ -23,7 +23,6 @@ const ScriptListInfo = class {
     addListInfo = (script) => {
         console.log(script)
         let html = `
-            <img style="margin-left: 1rem" src="` + script.logoImgPath + `" height="56" width="56" />
             <table style="margin-top: 1rem" class="table"><thead></thead>
             <tr><td>script id</td><td>` + script.id + `</td></tr>
         `

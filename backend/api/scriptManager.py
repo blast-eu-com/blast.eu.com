@@ -20,7 +20,7 @@ import hashlib
 import datetime
 import subprocess
 from api.discovery import SSH
-from api.setting import Setting, decrypt_string
+from api.setting import Setting
 from api import script
 from api import reporter
 from api import node
@@ -317,7 +317,7 @@ class ScriptManager:
             print(" >>> Enter file:scenarioManager:class:scenarioManager:func:ssh_connector")
             return SSH(node, **{"username": self.realm_settings["hits"]["hits"][0]["_source"]["ssh"]["username"],
                                 "password": self.settings.list_ssh_password_by_realm(realm),
-                                "certificate": self.realm_settings["hits"]["hits"][0]["_source"]["ssh"]["certificate"]})
+                                "certificate": self.settings.list_ssh_certificate_by_realm(realm)})
 
         except Exception as e:
             print("backend Exception, file:scriptManager:class:scriptManager:func:ssh_connector")
@@ -460,8 +460,8 @@ class ScriptManager:
 
                 crypto = self.realm_settings["hits"]["hits"][0]["_source"]["crypto"]
                 ansible_user = self.realm_settings["hits"]["hits"][0]["_source"]["ansible"]["username"]
-                ansible_password = self.realm_settings["hits"]["hits"][0]["_source"]["ansible"]["password"]
-                ansible_certificate = self.realm_settings["hits"]["hits"][0]["_source"]["ansible"]["certificate"]
+                ansible_password = self.settings.list_ansible_password_by_realm(self.script_realm)
+                ansible_certificate = self.settings.list_ansible_certificate_by_realm(self.script_realm)
 
                 # write the inventory ansible group to tag with the session id
                 # to tag the nodes targeted by this session.
@@ -478,8 +478,7 @@ class ScriptManager:
                 inventory.write('ansible_user=' + ansible_user + '\n')
 
                 if ansible_password != "":
-                    inventory.write(
-                        str('ansible_password=' + decrypt_string(crypto, ansible_password) + '\n'))
+                    inventory.write(str('ansible_password=' + ansible_password + '\n'))
                 elif ansible_certificate != "":
                     inventory.write(str(' ansible_ssh_private_key_file=' + ansible_certificate + '\n'))
                 else:

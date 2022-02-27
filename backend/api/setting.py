@@ -209,18 +209,45 @@ class Setting:
     def list_ssh_password_by_realm(self, realm: str):
         """ this function returns the ssh password decrypted """
         print(" >>> Enter file:setting:class:Setting:function:list_ssh_password_by_realm")
-        setting = self.list_by_realm(realm)
-        if setting["hits"]["total"]["value"] == 1:
-            return decrypt_string(setting["hits"]["hits"][0]["_source"]["crypto"],
-                                    setting["hits"]["hits"][0]["_source"]["ssh"]["password"])
+        try:
+            setting = self.list_by_realm(realm)
+            if setting["hits"]["total"]["value"] == 1:
+                return decrypt_string(setting["hits"]["hits"][0]["_source"]["crypto"],
+                                      setting["hits"]["hits"][0]["_source"]["ssh"]["password"])
+
+        except Exception as e:
+            return {"failure": str(e)}
 
     def list_ssh_certificate_by_realm(self, realm: str):
         """ this function returns the ssh certificate decrypted """
-        print(" >>> Enter file:setting:class:Setting:function:list_ssh_password_by_realm")
+        print(" >>> Enter file:setting:class:Setting:function:list_ssh_certificate_by_realm")
         try:
             setting = self.list_by_realm(realm)
             return decrypt_string(setting["hits"]["hits"][0]["_source"]["crypto"],
                                   setting["hits"]["hits"][0]["_source"]["ssh"]["certificate"])
+
+        except Exception as e:
+            return {"failure": str(e)}
+
+    def list_ansible_password_by_realm(self, realm: str):
+        """ this function returns the ansible password decrypted """
+        print(" >>> Enter file:setting:class:Setting:function:list_ansible_password_by_realm")
+        try:
+            setting = self.list_by_realm(realm)
+            if setting["hits"]["total"]["value"] == 1:
+                return decrypt_string(setting["hits"]["hits"][0]["_source"]["crypto"],
+                                      setting["hits"]["hits"][0]["_source"]["ansible"]["password"])
+
+        except Exception as e:
+            return {"failure": str(e)}
+
+    def list_ansible_certificate_by_realm(self, realm: str):
+        """ this function returns the ansible certificate decrypted """
+        print(" >>> Enter file:setting:class:Setting:function:list_ansible_certificate_by_realm")
+        try:
+            setting = self.list_by_realm(realm)
+            return decrypt_string(setting["hits"]["hits"][0]["_source"]["crypto"],
+                                  setting["hits"]["hits"][0]["_source"]["ansible"]["certificate"])
 
         except Exception as e:
             return {"failure": str(e)}

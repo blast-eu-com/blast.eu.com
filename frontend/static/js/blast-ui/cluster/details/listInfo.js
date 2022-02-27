@@ -21,7 +21,6 @@ const ClusterListInfo = class {
 
     addListInfo = (cluster) => {
         let htmlTableHeader = `
-            <img style="margin-left: 1rem; margin-bottom: 1rem" src="/img/object/cluster.svg" height="56" width="56" />
             <table class="table">
                 <thead></thead>
                 <tr><td><b>Cluster id</b></td><td>` + cluster.id + `</td></tr>`

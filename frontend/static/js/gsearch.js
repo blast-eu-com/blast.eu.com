@@ -20,11 +20,10 @@ import Account from './account.js'
 var config = new FrontendConfig()
 var account = new Account()
 
-export async function GSearch(data) {
-    let url = config.proxyAPI + '/realms/' + config.session.realm + '/global/filter'
+export async function GSearch(gsearch_data) {
+    let url = config.proxyAPI + '/realms/' + config.session.realm + '/global/filter/' + gsearch_data
     let header = {'Authorization': config.session.httpToken}
-    let data = { "string": data }
-    let response = await fetch(url, {method: "GET", headers: header, body: data})
+    let response = await fetch(url, {method: "GET", headers: header})
     if (response.ok) {
         response = JSON.parse(await response.text())
         if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
@@ -32,10 +31,9 @@ export async function GSearch(data) {
 }
 
 export async function GSearchScrollId(scrollId) {
-    let url = config.proxyAPI + '/realms/' + config.session.realm + '/global/filter/scroll'
+    let url = config.proxyAPI + '/realms/' + config.session.realm + '/global/filter/scroll/' + scrollId
     let header = { 'Authorization': config.session.httpToken }
-    let data = { "_scroll_id": scrollId }
-    let response = await fetch(url, {method: "GET", headers: header, body: data})
+    let response = await fetch(url, {method: "GET", headers: header})
     if (response.ok) {
         response = JSON.parse(await response.text())
         if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }

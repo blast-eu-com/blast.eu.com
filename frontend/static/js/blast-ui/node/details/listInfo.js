@@ -28,8 +28,8 @@ const NodeListInfo = class {
     get node() { return this._node }
 
     addListInfo = (node) => {
-        let html = `<img style="margin-left: 1rem; margin-bottom: 1rem" src="/img/object/node.svg" height="56" width="56" />
-        <table class="table"><tr><td><b>Node id</b></td><td>` + node.id + `</td></tr>`
+        let html = `
+        <table class="table"><thead></thead><tr><td><b>Node id</b></td><td>` + node.id + `</td></tr>`
         $.each(node.rawData, function(idx, val) {
             if ( idx === "ip" ) {
                 html = html + '<tr><td><b>' + idx.charAt(0).toUpperCase() + idx.slice(1) + '</b></td><td>'

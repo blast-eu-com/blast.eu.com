@@ -380,20 +380,18 @@ def cluster_delete_node(realm, cluster_id, node_name):
 # * INFRASTRUCTURE PART -*- INFRASTRUCTURE PART -*- INFRASTRUCTURE PART -*- INFRASTRUCTURE PART -*- INFRASTRUCTURE PART
 # *
 # * *********************************************************************************************************
-@app.route('/api/v1/realms/<realm>/global/filter', methods=['GET'])
+@app.route('/api/v1/realms/<realm>/global/filter/<string>', methods=['GET'])
 @active_realm_member
-def global_filter(realm):
+def global_filter(realm, string):
     """ this function returns all objects matching the string passed via the get """
     gsearch = Gsearch(ES)
-    string = request.args.get('string')
     return Response(json.dumps(gsearch.search(realm, string)))
 
-@app.route('/api/v1/realms/<realm>/global/filter/scroll', methods=["GET"])
+@app.route('/api/v1/realms/<realm>/global/filter/scroll/<scroll_id>', methods=["GET"])
 @active_realm_member
-def global_filter_scroll(realm):
+def global_filter_scroll(realm, scroll_id):
     """ this function returns all objects matching the scroll id passed via the get """
     gsearch = Gsearch(ES)
-    scroll_id = request.args.get('_scroll_id')
     return Response(json.dumps(gsearch.search_scroll(realm, scroll_id)))
 
 

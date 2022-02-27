@@ -41,8 +41,8 @@ let TopBar = class {
                 </a>
                 <div class="dropdown">
                     <img id="dropDownProfileMenuLink" data-toggle="dropdown-toggle" type="button"
-                         style="margin-left: 2rem;" data-bs-toggle="dropdown"
-                         src="" width="36" height="36" />
+                        style="margin-left: 2rem;" data-bs-toggle="dropdown"
+                        src="" width="36" height="36" />
                     <div class="dropdown-menu mr-3 mt-2 bg-dark" style="z-index: 1001" aria-labelledby="dropDownProfileMenuLink">
                         <a class="dropdown-item bg-dark text-light" href="/html/profile.html">
                             <img src="/img/object/profile.svg" width="24" height="24" /><span style="margin-left: 24px">Profile</span></a>
