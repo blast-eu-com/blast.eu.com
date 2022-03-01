@@ -58,7 +58,6 @@ const ScriptFilterAndSelect = class {
         $("#" + this.parentName).html(this.frame)
         let selectOptions = '<option value="any">any</option>'
         let selectData = await script.listLang()
-        console.log(selectData)
         selectData["hits"]["hits"].forEach((selectOption) => {
             console.log(selectOption)
             selectOptions = selectOptions + '<option value="' + selectOption["_source"]["name"] + '">' + selectOption["_source"]["name"] + '</option>'
@@ -89,11 +88,9 @@ const ScriptFilterAndSelect = class {
     }
 
     filterScriptData(scriptData, scriptType, scriptStr) {
-        console.log('script value ' + scriptData)
         let scriptDataFiltered = []
         for ( let i=0; i<scriptData.length; i++ ) {
             let record = scriptData[i]
-            console.log(record, i, scriptData.length)
             let filterType = this.filterByScriptType(scriptType, record["_source"]["type"])
             let filterStr = this.filterStrMatch(scriptStr, record["_source"]["name"])
             if (filterType && filterStr) { scriptDataFiltered.push(record) }
@@ -108,24 +105,12 @@ const ScriptFilterAndSelect = class {
         let scriptDataFiltered = this.filterScriptData(scriptData, scriptType, scriptStr)
         let firstRec = ( this.curPageNum - 1 ) * this.numRecord
         let lastRec = ( this.curPageNum * this.numRecord )
-        let html = `<table class="table table-sm">
-            <thead><tr>
-                <th></th>
-                <th></th>
-                <th>Name</th>
-                <th>File name</th>
-                <th>Description</th>
-            </tr></thead>`
-        let scriptIcon = 'undefined'
-        console.log(firstRec, lastRec, scriptDataFiltered.length)
+        let html = `<table class="table table-sm"><thead><tr><th></th><th></th><th>Name</th><th>File name</th><th>Description</th></tr></thead>`
+        let scriptIcon = "/img/bootstrap-icons/file-code.svg"
         if (scriptDataFiltered.length < lastRec ) { lastRec = scriptDataFiltered.length }
-        console.log('---*---')
-        console.log(firstRec, lastRec)
         for ( let i=firstRec; i<lastRec; i++) {
             if ( Object.keys(JSON.parse($.cookie('scriptlangs'))).includes(scriptDataFiltered[i]["_source"]["type"]) ) {
                 scriptIcon = "/img/script/" + JSON.parse($.cookie('scriptlangs'))[scriptDataFiltered[i]["_source"]["type"]]
-            } else {
-                scriptIcon = "/img/bootstrap-icons/file-code.svg"
             }
             html = html + `<tr style="display:table-row">
             <td width="50px"><input name="scr" value="` + scriptDataFiltered[i]["_source"]["name"] + `" type="checkbox" style="margin-left: 10px"/></td>
@@ -210,9 +195,8 @@ const ScriptFilterAndSelect = class {
         })
     }
 
-    scriptSearchString(scriptData) {
-        this.scriptSelectAndSearchWindowCoreData(scriptData)
-        this.scriptSelectAndSearchWindowPagination()
+    scriptSearchString = () => {
+        this.scriptSelectAndSearchWindowData()
     }
 
     scriptSelectAndSearchWindow(parentName, selectData) {

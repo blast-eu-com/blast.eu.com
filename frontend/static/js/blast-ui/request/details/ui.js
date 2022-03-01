@@ -85,7 +85,6 @@ async function main() {
     if (urlParams.has("id")) {
         let request_id = urlParams.get('id')
         let request_data = await request.listById(request_id)
-        console.log(request_data)
         request.load(request_data["hits"]["hits"][0])
         setPageTitle(request.id)
         requestListInfo.render('requestDetails', request)

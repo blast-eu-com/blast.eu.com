@@ -208,7 +208,6 @@ var SchedulerSelectAndManage = class {
     scheduleChecked() {
         let schedulers = []
         $("input[name='scheduler']").each(function(data, tag) {
-            console.log(tag)
             if ( tag.checked ) { schedulers.push(tag.value) }
         })
         return schedulers

@@ -29,33 +29,27 @@ const ScenarioForm = class {
         this._fd = undefined
 
         this.frame = `
-            <form>
-                <div class="row mb-3">
-                    <div id="scenarioNameContainer" class="col-md-6"></div>
-                    <div id="scenarioDescriptionContainer" class="col-md-6">
-
-                    </div>
+            <div class="row mb-3">
+                <div id="scenarioNameContainer" class="col-md-6"></div>
+                <div id="scenarioDescriptionContainer" class="col-md-6"></div>
+            </div>
+            <div class="row mb-3">
+                <div id="scenarioParallelModeContainer" class="col-md-6">
+                    <input type="checkbox" id="ScenarioParallelMode" name="ScenarioParallelMode" /> Parallel Mode
+                    <div id="scenarioParallelHelp" class="form-text">Check if the scenario should run the scripts selected in parallel.</div>
                 </div>
-                <div class="row mb-3">
-                    <div id="scenarioParallelModeContainer" class="col-md-6">
-                        <input type="checkbox" id="ScenarioParallelMode" name="ScenarioParallelMode" /> Parallel Mode
-                        <div id="scenarioParallelHelp" class="form-text">Check if the scenario should run the scripts selected in parallel.</div>
-                    </div>
-                    <div id="scenarioParallelThreadContainer" class="col-md-6">
-
-                    </div>
+                <div id="scenarioParallelThreadContainer" class="col-md-6"></div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <div id="managementUIScriptFrame" class="card-text"></div>
                 </div>
-                <div class="row mb-3">
-                    <div class="col-md-12">
-                        <div id="managementUIScriptFrame" class="card-text"></div>
-                    </div>
-                </div>
-            </form>
+            </div>
         `
 
         this.inputScenarioName = `
             <label for="scenarioName" class="form-label">Scenario Name</label>
-            <input id="scenarioName" type="text" name="scenarioName" required pattern="\w+" class="form-control" />
+            <input id="scenarioName" type="text" name="scenarioName" required pattern="([^ ]){6,}" class="form-control" />
             <div id="scenarioNameHelp" class="form-text">Give a name to your new scenario.</div>
         `
 

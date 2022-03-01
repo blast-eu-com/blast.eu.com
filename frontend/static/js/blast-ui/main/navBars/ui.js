@@ -20,18 +20,6 @@ import SideBar from "./sideBar.js"
 var topBar = new TopBar()
 var sideBar = new SideBar()
 
-/* to be reviewed
-pagePreload = () => {
-    document.onreadystatechange = function() {
-        if (document.readyState !== 'complete' ) {
-            document.querySelector('body').style.visibility = 'hidden' ;
-        } else if ( document.readyState === 'complete' ) {
-            document.querySelector('body').style.visibility = 'visible'
-        }
-    }
-}
-*/
-
 function mainUI(pageName) {
     topBar.render()
     sideBar.render(pageName)

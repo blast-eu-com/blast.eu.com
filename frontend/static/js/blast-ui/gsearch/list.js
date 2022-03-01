@@ -46,18 +46,15 @@ const GSearchList = class {
 
     gSearchSection = (gSearchDataSet) => {
         let table = document.getElementById("gSearchListTable")
-        console.log(gSearchDataSet)
         $.each(gSearchDataSet, (gSearchSectionName, gSearchData) => {
             if ( gSearchSectionName !== 'undefined' ) {
                 let ObjectType = gSearchSectionName.split("_")[2]
-                console.log(gSearchSectionName, gSearchData)
                 gSearchData["data"].forEach((gSearchDataUnit) => {
                     let count = 0
                     let tableRow = document.createElement("li")
                     tableRow.setAttribute("class", "list-group-item blast-gsearch-line")
                     let html = `<div class="row"><div class="col-2" style="display: flex; align-items: center;"><img src="/img/object/` + ObjectType + `.svg" height="48" width="48" /></div><div class="col-10">`
                     if ( ObjectType !== "report") { tableRow.setAttribute("onclick", 'javascript:location.href=\'/html/' + ObjectType + '-details.html?id=' + gSearchDataUnit["_id"] + '\'') }
-                    console.log(html)
                     $.each(gSearchDataUnit["_source"], (key, value) => {
                         if ( count === 0 ) {
                             html = html + `<div class="row"><div class="col-4" style="display: flex; align-items: center">` + key + `: ` + value + `</div>`

@@ -150,7 +150,6 @@ var RequestList = class {
             let key = requestTableCols[idx]
             if ( key === "state") { status = req["_source"][key] }
             let field = document.createElement("TD")
-            console.log(req["_source"][key], key)
             let value = ( key === "action" ) ? document.createTextNode(req["_source"][key]["name"]) : document.createTextNode(req["_source"][key])
             field.appendChild(value)
             row.appendChild(field)
@@ -175,7 +174,6 @@ var RequestList = class {
     addFrameContent = () => {
         request.list_by_account().then((Resp) => {
             Resp["hits"]["hits"].forEach((req) => {
-                console.log(req)
                 if (req["_source"]["sender"].includes(config.session.accountEmail)) {
                     this.updateRequestTable("sender", req)
                 } else if ( req["_source"]["receiver"].includes(config.session.accountEmail)) {

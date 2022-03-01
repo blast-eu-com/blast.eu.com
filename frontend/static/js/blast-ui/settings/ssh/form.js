@@ -82,7 +82,6 @@ const SshForm = class {
         $("#sshLocationContainer").html(this.inputSshLocation)
         // Assign SSH setting values directly from the cookie
         let ssh = JSON.parse($.cookie('setting'))['ssh']
-        console.log(ssh)
         $("#sshUsername").val(ssh["username"])
         $("#sshCertificate").val(ssh["certificate"])
         $("#sshLocation").val(ssh["location"])

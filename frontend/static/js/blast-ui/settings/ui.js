@@ -50,10 +50,7 @@ function updateSettings() {
         }
     }
 
-    console.log(formData["ansible"]["certificate"], formData["ssh"]["certificate"])
-
     setting.save(formData).then(function(Resp) {
-        console.log(Resp)
         let actionRes
         if (Resp["result"] === "updated") {
             account.cookies(config.session.accountEmail)

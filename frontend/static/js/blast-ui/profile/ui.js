@@ -38,7 +38,6 @@ const updateProfile = () => {
         }
 
         account.update(profileData).then((Resp) => {
-        console.log(Resp)
         // account.cookies(config.session.accountEmail).then((setCookieResult) => {
         //    console.log(setCookieResult)
             // nav.loadNavBarProfilePicture()

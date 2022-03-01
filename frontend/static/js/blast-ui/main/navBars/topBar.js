@@ -87,7 +87,6 @@ let TopBar = class {
     loadBadges = () => {
         // load menu request badge
         request.list_by_account_and_state("new").then((active_requests) => {
-            console.log(active_requests)
             if (active_requests["hits"]["total"]["value"] > 0) {
                 let menuRequestBadge = `<span class="position-absolute top-50 start-100 translate-middle badge rounded-pill bg-danger">` + active_requests["hits"]["total"]["value"] + `</span>`
                 $("#menuRequest").html("Requests" + menuRequestBadge)

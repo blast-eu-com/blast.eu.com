@@ -1,4 +1,4 @@
-ansible==5.4.0
+ansible==2.10.4
 cryptography==3.4.7
 elasticsearch==7.16.3
 Flask==2.0.3

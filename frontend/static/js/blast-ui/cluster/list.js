@@ -29,8 +29,8 @@ var ClusterList = class {
             <div id="simpleWindowInteractive" class="row p-1 m-1"></div>
         `
         this.msgScriptNotFound = `<div class="p-5" style="text-align: center;">
-        <img src="/img/object/cluster.svg" width="92" height="92"><b><h3 class="mt-3">SCRIPT NOT FOUND</h3></b>
-        Add a script from this page\'s form to see it appearing into this list.</div>`
+        <img src="/img/object/cluster.svg" width="92" height="92"><b><h3 class="mt-3">CLUSTER NOT FOUND</h3></b>
+        Add a cluster from this page\'s form to see it appearing into this list.</div>`
     }
 
     set parentName(pn) { this.pn = pn }

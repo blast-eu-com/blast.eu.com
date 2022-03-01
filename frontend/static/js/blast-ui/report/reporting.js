@@ -57,7 +57,6 @@ const Reporting = class {
         let ctx = $("#" + this.parentName + "Canvas")
         let data = []
 
-        console.log(this.reporterData)
         this.reporterData["aggregations"]["time"]["buckets"].forEach((bucket) => {
             data.push({"x": bucket["key_as_string"], "y": bucket["doc_count"]})
         })

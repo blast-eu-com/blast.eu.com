@@ -36,6 +36,7 @@ window.main = main
 window.oneShotScenario = scenarioForm.oneShotScenario
 window.saveScenario = scenarioForm.saveScenario
 window.switchScenarioReportLast = scenarioLast.switchScenarioReportLast
+window.scriptSearchString = scriptFilterAndSelect.scriptSearchString
 window.scriptSelectAndSearchGoToPrevPage = scriptFilterAndSelect.scriptSelectAndSearchGoToPrevPage
 window.scriptSelectAndSearchGoToThisPage = scriptFilterAndSelect.scriptSelectAndSearchGoToThisPage
 window.scriptSelectAndSearchGoToNextPage = scriptFilterAndSelect.scriptSelectAndSearchGoToNextPage

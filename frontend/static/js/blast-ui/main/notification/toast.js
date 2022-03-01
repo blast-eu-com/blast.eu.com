@@ -94,7 +94,6 @@ const Toast = class {
         this.createToast(actionRes)
         this.updateFrameContent()
         let container = document.getElementById(this.notifContainer)
-        console.log(container, this.frame)
         container.appendChild(this.frame)
         $("#" + this.id).html(this.subFrame)
     }

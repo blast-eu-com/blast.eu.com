@@ -131,7 +131,7 @@ class Account:
         print(" >>> Enter file:aaa:class:Account:function:is_valid_token")
         try:
             secret = self.list_by_email(email)["hits"]["hits"][0]["_source"]["secret"]
-            jwt.decode(token, secret, verify=True)
+            jwt.decode(token, secret, verify=True, algorithms="HS256")
             return True
 
         except Exception as e:
@@ -248,7 +248,7 @@ class Account:
         account_email = account["_source"]["email"]
         jwt_payload = {"email": account_email, "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=480)}
         jwt_str = jwt.encode(jwt_payload, account_secret, algorithm="HS256")
-        return jwt_str.decode("utf-8").strip('\"')
+        return jwt_str.decode("UTF-8").strip('\"')
 
     def load_account_profile(self, account_email: str):
         """ This function returns the account which is set a account cookie """

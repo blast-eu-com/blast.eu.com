@@ -124,7 +124,6 @@ const ClusterForm = class {
     }
 
     render = (parentName) => {
-        console.log($("#selectClusterInfra"))
         this.parentName = parentName
         this.addForm()
     }

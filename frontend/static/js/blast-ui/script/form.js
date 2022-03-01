@@ -190,7 +190,6 @@ const ScriptForm = class {
     addShareableRealmSelected = () => {
         let shareableRealm = $("#scriptShareableRealmsSelector option:selected").val()
         if ( ! this.scrShareableRealms.includes(shareableRealm) ) {
-            console.log(this.scrShareableRealms, shareableRealm)
             this.scrShareableRealms.push(shareableRealm)
             this.scriptShareableRealmsBadges()
         }
