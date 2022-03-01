@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 """
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -240,14 +240,12 @@ class SchedulerManager:
             print(" >>> Enter file:schedulerManager:class:schedulerManager:func:execute_scenario_in_sequential")
             sce = scenario.Scenario(self.ES)
             scenario_manager = scenarioManager.ScenarioManager(self.ES)
-            mapping = sce.map_id_name(self.scheduler_realm, self.scheduler_scenario_ids)
-
-            for sce_name in sorted(mapping):
-                scenario_source = sce.list_by_ids(self.scheduler_realm, [mapping[sce_name]])["hits"]["hits"][0]["_source"]
+            for scheduler_scenario_id in self.scheduler_scenario_ids:
+                scenario_data = sce.list_by_id(self.scheduler_realm, scheduler_scenario_id)["hits"]["hits"][0]["_source"]
                 execute_scenario_kwargs = {
                     "scenario_realm": self.scheduler_realm,
-                    "scenario_id": mapping[sce_name],
-                    "scenario": scenario_source,
+                    "scenario_id": scheduler_scenario_id,
+                    "scenario": scenario_data,
                     "execution_id": self.execution_id
                 }
                 scenario_manager.execute_scenario(**execute_scenario_kwargs)
@@ -269,14 +267,8 @@ class SchedulerManager:
             self.scheduler_scenario_ids = kwargs["scheduler_source"]["scenario_ids"]
             self.execution_id = str(base64.urlsafe_b64encode(''.join([random.choice(string.ascii_letters + string.digits) for n in range(16)]).encode('utf-8')).decode("utf-8"))
 
-            if self.__open_scheduler_report():
-                if self.scheduler_exec_scenario_in_parallel_mode:
-                    self.execute_scenario_in_parallel()
-                else:
-                    self.execute_scenario_in_sequential()
-
-            else:
-                raise Exception("file:schedulerManager:class:schedulerManager:func:execute_schedule, ERROR:open scheduler report failure")
+            self.__open_scheduler_report()
+            self.execute_scenario_in_parallel() if self.scheduler_exec_scenario_in_parallel_mode else self.execute_scenario_in_sequential()
 
             return True if self.__close_scheduler_report() else False
 
@@ -303,12 +295,12 @@ class SchedulerManager:
                     "start_at": datetime.datetime.now().timestamp()
                 }
             }
-            resp = new_s.__add__(self.scheduler_report)
-            if resp["result"] == "created":
-                self.scheduler_report_id = resp["_id"]
-                return True
-            else:
-                return False
+            resp = new_s.add(self.scheduler_report)
+
+            if not resp["result"] == "created":
+                raise Exception("__open_scheduler_report error: report result not created.")
+
+            self.scheduler_report_id = resp["_id"]
 
         except Exception as e:
             print(e)

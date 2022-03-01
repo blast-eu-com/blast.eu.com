@@ -1,5 +1,5 @@
 /*
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -23,18 +23,14 @@ let ScriptReport = class {
 
     constructor() { }
 
-    list() {
-        return new Promise(function(resolve, reject) {
-            $.ajax({
-                url: config.proxyAPI + "/realm/" + config.session.realm + "/script-reports/",
-                type: "GET",
-                headers: {'Authorization': config.session.httpToken},
-                success: function(Resp) {
-                    if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) { account.logoutAccount() } else { resolve(Resp) }
-                }
-            })
-        })
+    list = async () => {
+        let url = config.proxyAPI + "/realm/" + config.session.realm + "/script-reports/"
+        let header = { 'Authorization': config.session.httpToken }
+        let response = await fetch(url, {method: "GET", headers: header})
+        if (response.ok) {
+            response = JSON.parse(await response.text())
+            if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+        }
     }
 
 }

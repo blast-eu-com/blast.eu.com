@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Jerome DE LUCCHI
+    Copyright 2022 Jerome DE LUCCHI
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 */
 
 import Script from './script.js'
-import Account from './aaa.js'
+import Account from './account.js'
 import Node from './node.js'
 import Windower from './windower.js'
 import FrontendConfig from './frontend.js'
@@ -78,29 +78,16 @@ let Scenario = class {
     get scenarioScriptPageMax() { return this.scriptPageMax }
     get scenarioScriptFiltered() { return this.scriptFiltered }
 
-    add = (scenarios) => {
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                url: config.proxyAPI + '/realms/' + config.session.realm + '/scenarios',
-                type: "POST",
-                headers: {'Authorization': config.session.httpToken},
-                data: JSON.stringify({"scenarios": scenarios}),
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: (Resp) => {
-                    if ( typeof Resp === 'string' ) {
-                        Resp = JSON.parse(Resp)
-                        if (Object.keys(Resp).includes("tokenExpired")) {
-                            account.logout()
-                        } else if (Object.keys(Resp).includes("failure")) {
-                            console.log("failure")
-                        }
-                    } else if ( typeof Resp === 'object') {
-                        resolve(Resp)
-                    }
-                }
-            })
-        })
+    add = async (scenario) => {
+        let url = config.proxyAPI + '/realms/' + config.session.realm + '/scenarios'
+        let header = { 'Authorization': config.session.httpToken, 'Content-Type': "application/json; charset=utf-8"}
+        let data = JSON.stringify({ "scenario": scenario })
+        let response = await fetch(url, {method: 'POST', headers: header, body: data})
+        if (response.ok) {
+            response = await response.text()
+            response = JSON.parse(response)
+            if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+        }
     }
 
     load = (scenarioData) => {
@@ -116,83 +103,48 @@ let Scenario = class {
         this.rawData = scenarioData["_source"]
     }
 
-    list() {
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                url: config.proxyAPI + '/realms/' + config.session.realm + '/scenarios',
-                type: "GET",
-                headers: {"Authorization": config.session.httpToken},
-                success: (Resp) => {
-                    if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) {
-                        account.logout()
-                    } else { resolve(Resp) }
-                }
-            })
-        })
+    list = async () => {
+        let url = config.proxyAPI + '/realms/' + config.session.realm + '/scenarios'
+        let header = { 'Authorization': config.session.httpToken}
+        let response = await fetch(url, {method: 'GET', headers: header})
+        if (response.ok) {
+            response = await response.text()
+            response = JSON.parse(response)
+            if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+        }
     }
 
-    listByIds(scenarioIds) {
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                url: config.proxyAPI + '/realms/' + config.session.realm + '/scenarios/ids',
-                type: "GET",
-                data: {"ids": scenarioIds},
-                headers: {"Authorization": config.session.httpToken},
-                success: (Resp) => {
-                    if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) {
-                        account.logout()
-                    } else { resolve(Resp) }
-                }
-            })
-        })
+    listById = async (scenarioId) => {
+        let url = config.proxyAPI + '/realms/' + config.session.realm + '/scenarios/' + scenarioId
+        let header = { 'Authorization': config.session.httpToken }
+        let response = await fetch(url, {method: 'GET', headers: header})
+        if (response.ok) {
+            response = await response.text()
+            response = JSON.parse(response)
+            if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+        }
     }
 
-    listByScriptRunId(scriptRunId) {
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                url: config.proxyAPI + '/realm/' + config.session.realm + '/management/scriptrun/' + scriptRunId,
-                type: "GET",
-                headers: {"Authorization": config.session.httpToken},
-                success: (Resp) => {
-                    if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
-                    if (Object.keys(Resp).includes("tokenExpired")) {
-                        account.logout()
-                    } else { resolve(Resp) }
-                }
-            })
-        })
+    listByScriptRunId = async (scriptRunId) => {
+        let url = config.proxyAPI + '/realm/' + config.session.realm + '/management/scriptrun/' + scriptRunId
+        let header = { 'Authorization': config.session.httpToken }
+        let response = await fetch(url, {method: 'GET', headers: header})
+        if (response.ok) {
+            response = await response.text()
+            response = JSON.parse(response)
+            if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+        }
     }
 
-    execScript(scenario) {
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                url: config.proxyAPI + '/realms/' + config.session.realm + '/scenarios/execute',
-                type: "POST",
-                headers: {"Authorization": config.session.httpToken},
-                data: JSON.stringify(scenario),
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: (Resp) => {
-                    if (typeof Resp === 'string') { Resp = JSON.parse(Resp) }
-                    if ("tokenExpired" in Resp) {
-                        account.logout()
-                    } else { resolve(Resp) }
-                }
-            })
-        })
-    }
-
-    runScenario = (formData) => {
-        // this.scripts = await this.runScriptsId()
-        // this.nodes = await this.runNodesId()
-        // this.setFormData()
-        console.log(formData)
-        if (formData["nodes"].length > 0 && formData["scripts"].length > 0) {
-            this.execScript(formData).then((scriptRunResult) => {
-                console.log("return")
-            })
+    execute = async (scenario) => {
+        let url = config.proxyAPI + '/realms/' + config.session.realm + '/scenarios/execute'
+        let header = { 'Authorization': config.session.httpToken, 'Content-Type': "application/json; charset=utf-8" }
+        let data = JSON.stringify(scenario)
+        let response = await fetch(url, {method: 'POST', headers: header, body: data})
+        if (response.ok) {
+            response = await response.text()
+            response = JSON.parse(response)
+            if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
         }
     }
 
@@ -225,93 +177,6 @@ let Scenario = class {
             })
         })
     }
-
-    saveScenario = async (formData) => {
-        this.add([formData]).then((res) => { console.log(res) })
-    }
-
 }
-
-let sce = new Scenario()
-
-const loadScriptSessManagement = () => {
-    return new Promise((resolve, reject) => {
-        let docStart = (sce.ManagementSamplePageNum - 1)  * sce.ManagementSamplePerPage
-        let docEnd = sce.ManagementSamplePageNum * sce.ManagementSamplePerPage
-        let delta = sce.ManagementSampleIntervalPicker * sce.ManagementSampleIntervalCounter
-        sce.listSessByTimeAndPageRange(delta, docStart, docEnd).then((data) => {
-            console.log(data)
-            resolve(data)
-        })
-    })
-}
-
-/* update the select and search script window of the management page
- * add script list core data
- * add script list navigation control
- */
-const loadScenarioScriptUIHeader = () => {
-    script.listLang().then((scriptLangsData) => {
-        windower.scriptSelectAndSearchWindow("managementUIScriptFrame", scriptLangsData["hits"]["hits"])
-    })
-}
-
-const loadScenarioScriptUICore = () => {
-    let pageLength = $("select#scriptSelSamplePerPage option:selected").val()
-    script.list().then((scriptData) => {
-        windower.scriptSelectAndSearchWindowData(pageLength, scriptData["hits"]["hits"])
-    })
-}
-
-const loadScenarioScriptUI = () => {
-    let pageLength = $("select#scriptSelSamplePerPage option:selected").val()
-    script.list().then((scriptData) => {
-        if ( scriptData["hits"]["total"]["value"] > 0) {
-            loadScenarioScriptUIHeader()
-            loadScenarioScriptUICore()
-        } else { $("#managementUIScriptFrame").html(msgScriptNotFound) }
-    })
-}
-
-
-const scriptSelectAndSearchGoToPrevPage = (pageNum) => {
-    script.list().then((objectData) => {
-        windower.scriptSelectAndSearchGoToPrevPage(pageNum, objectData["hits"]["hits"])
-    })
-}
-
-const scriptSelectAndSearchGoToThisPage = (pageNum) => {
-    script.list().then((objectData) => {
-        windower.scriptSelectAndSearchGoToThisPage(pageNum, objectData["hits"]["hits"])
-    })
-}
-
-const scriptSelectAndSearchGoToNextPage = (pageNum, lastPage) => {
-    script.list().then((objectData) => {
-        windower.scriptSelectAndSearchGoToNextPage(pageNum, lastPage, objectData["hits"]["hits"])
-    })
-}
-
-const loadManagementUI = () => {
-    managementFilter.managementWindow('managementFrame')
-    management.list().then((managementData) => {
-        managementFilter.managementWindowCoreData('undefined', managementData["hits"]["hits"])
-    })
-}
-
-
-/* GLOBAL PAGE FUNCTIONS */
-const loadScenarioUI = () => {
-    loadScriptInfraTreeManagement()
-    loadManagementUI()
-}
-
-/* DEFINE FUNCTION CALLED FROM PAGE */
-window.loadScenarioUI = loadScenarioUI
-window.scriptSearchString =  loadScenarioScriptUICore
-window.scriptSearchWindowDisplayNewRange = loadScenarioScriptUICore
-window.scriptSelectAndSearchGoToPrevPage = scriptSelectAndSearchGoToPrevPage
-window.scriptSelectAndSearchGoToThisPage = scriptSelectAndSearchGoToThisPage
-window.scriptSelectAndSearchGoToNextPage = scriptSelectAndSearchGoToNextPage
 
 export default Scenario

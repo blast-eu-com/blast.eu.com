@@ -1,5 +1,5 @@
 /*
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -36,8 +36,11 @@ const ScenarioNodesTree = class {
 
     runNodesId = async () => {
         let nodesId = []
-        let nodesData = await node.listByNames(this.runNodes())
-        for ( let i=0; i<nodesData["hits"]["hits"].length; i++ ) { nodesId.push(nodesData["hits"]["hits"][i]["_id"]) }
+        let nodesList = this.runNodes()
+        for ( let i=0; i < nodesList.length; i++ ) {
+            let nodeData = await node.listByName(nodesList[i])
+            nodesId.push(nodeData["hits"]["hits"][0]["_id"])
+        }
         return nodesId
     }
 

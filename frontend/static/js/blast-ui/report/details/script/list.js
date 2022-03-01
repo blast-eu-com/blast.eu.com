@@ -1,5 +1,5 @@
 /*
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -133,27 +133,20 @@ const ReportScriptList = class {
     }
 
     expandReporterList = () => {
-        console.log(this.reportDataScrollId)
         filterScrollData('script', this.reportDataScrollId).then((reportData) => {
             this.reportData = reportData["hits"]["hits"]
             this.reportDataScrollId = reportData["_scroll_id"]
-            this.reportData.forEach((scriptData) => {
-                this.addReporterList(scriptData)
-            })
+            this.reportData.forEach((scriptData) => { this.addReporterList(scriptData) })
         })
     }
 
-    render = (parentName, formData) => {
+    render = async (parentName, formData) => {
         this.parentName = parentName
         this.addFrame()
-        filterScroll(formData).then((reportData) => {
-            this.reportData = reportData["hits"]["hits"]
-            this.reportDataScrollId = reportData["_scroll_id"]
-            console.log(this.reportDataScrollId)
-            this.reportData.forEach((scriptData) => {
-                this.addReporterList(scriptData)
-            })
-        })
+        let reportData = await filterScroll(formData)
+        this.reportData = reportData["hits"]["hits"]
+        this.reportDataScrollId = reportData["_scroll_id"]
+        this.reportData.forEach((scriptData) => { this.addReporterList(scriptData) })
 
         let options = {
             "root": document.querySelector("#reporterScriptListContainer"),

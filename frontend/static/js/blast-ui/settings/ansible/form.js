@@ -1,5 +1,5 @@
 /*
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -42,14 +42,20 @@ const AnsibleForm = class {
             <div>
                 <label for="ansibleUserPassword" class="form-label">Ansible Password</div>
                 <input id="ansibleUserPassword" type="password" name="ansibleUserPassword" class="form-control" />
-                <div id="ansibleUserPasswordHelp" class="form-text">Define the Ansible password for the Ansible username given.</div>
+                <!-- <div id="ansibleUserPasswordHelp" class="form-text">Define the Ansible password for the Ansible username given.</div> -->
+                <div id="ansibleUserPasswordHelp">
+                    <input class="form-check-input" type="checkbox" value="" id="ansibleUserPasswordSet" disabled>
+                    <label class="form-check-label" for="ansibleUserPasswordSet">Ansible Password set</label>
+                </div>
             </div>
         `
         this.inputAnsibleCertificate = `
-            <div>
-                <label for="ansibleUserCertificate" class="form-label">Ansible Certificate</div>
-                <input id="ansibleUserCertificate" type="text" name="ansibleUserCertificate" class="form-control" />
-                <div id="ansibleUserCertificateHelp" class="form-text">Define the Ansible certificate for the Ansible username give.</div>
+            <label for="ansibleCertificate" class="form-label">SSH certificate</label>
+            <input type="file" name="ansibleCertificate" class="form-control" id="inputGroupAnsible">
+            <!-- <div id="ansibleCertificateHelp" class="form-text">Upload the Ansible certificate of the Ansible username.</div> -->
+            <div id="ansibleCertificateHelp">
+                <input class="form-check-input" type="checkbox" value="" id="ansibleCertificateSet" disabled>
+                <label class="form-check-label" for="ansibleCertificateSet">Ansible Certificate set</label>
             </div>
         `
         this.inputAnsibleInventoryLocation = `
@@ -83,6 +89,7 @@ const AnsibleForm = class {
         $("#ansibleUserName").val(ansible["username"])
         $("#ansibleUserCertificate").val(ansible["certificate"])
         $("#ansibleInventoryLocation").val(ansible["inventory"]["location"])
+        if (ansible["is_password_set"]) { $("#ansibleUserPasswordSet").prop("checked", true) }
     }
 
     render(parentName) {

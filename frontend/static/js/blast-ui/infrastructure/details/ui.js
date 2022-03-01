@@ -1,5 +1,5 @@
 /*
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,7 +27,7 @@ var infrastructureManageClusters = new InfrastructureManageClusters()
 
 const setButtonDeleteAction = function(infraId) {
     $('#btnDelInfra').on("click", function() {
-        infrastructure.delete([infraId]).then(function(resp) { location.href = "/html/infrastructure.html" })
+        infrastructure.delete(infraId).then(function(resp) { location.href = "/html/infrastructure.html" })
     })
 }
 
@@ -39,7 +39,7 @@ async function main() {
     let urlParams = new URLSearchParams(window.location.href.split('?')[1])
     if ( urlParams.has("id") ) {
         let infraId = urlParams.get("id")
-        let infraData = await infrastructure.listByIds([infraId])
+        let infraData = await infrastructure.listById(infraId)
         infrastructure.load(infraData["hits"]["hits"][0])
         setPageTitle(infrastructure.name)
         setButtonDeleteAction(infrastructure.id)

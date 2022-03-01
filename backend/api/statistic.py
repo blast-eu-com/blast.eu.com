@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 """
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 
 import json
 import datetime
-import elasticsearch
 
 
 def UTC_time():
@@ -26,32 +25,35 @@ def UTC_time():
 
 class Statistic:
 
-    def __init__(self, ESConnector):
-        self.ES = ESConnector
-        self.DB_INDEX = 'statistic'
+    def __init__(self, connector):
+        self.ES = connector
+        self.DB_INDEX = 'blast_statistic'
         self.STATISTIC_DATA = {
             "object_type": "", "object_action": "", "object_name": "", "timestamp": "", "account_email": "", "realm": ""
         }
 
-    def __add__(self, data: dict):
+    def add(self, data: dict):
 
         """ this function add a new setting document into the database """
         try:
             return self.ES.index(index=self.DB_INDEX, body=json.dumps(data), refresh=True)
 
-        except (elasticsearch.exceptions.ConnectionError, elasticsearch.exceptions.NotFoundError) as e:
-            return {"failure": e}
+        except Exception as e:
+            print("backend Exception, file:statistic:class:statistic:func:add")
+            print(e)
+            return {"failure": str(e)}
 
-    def __delete__(self, id: str):
+    def delete(self, id: str):
 
         """ this function delete the setting identified as id part of the realm id as passed in arg """
         try:
             return self.ES.delete(index=self.DB_INDEX, id=id, refresh=True)
 
-        except (elasticsearch.exceptions.ConnectionError, elasticsearch.exceptions.NotFoundError) as e:
-            return {"failure": e}
+        except print("backend Exception, file:statistic:class:statistic:func:delete") as e:
+            print(e)
+            return {"failure": str(e)}
 
-    def __list__(self, realm: str):
+    def list(self, realm: str):
 
         """ this function returns all the settings attached to the realm id passed as arg """
         try:
@@ -64,17 +66,19 @@ class Statistic:
             })
             return self.ES.search(index=self.DB_INDEX, body=req)
 
-        except (elasticsearch.exceptions.ConnectionError, elasticsearch.exceptions.NotFoundError) as e:
-            return {"failure": e}
+        except print("backend Exception, file:statistic:class:statistic:func:list") as e:
+            print(e)
+            return {"failure": str(e)}
 
     def list_by_id(self, id: str):
 
-        """ this function retuns the settings linked contained in inside the doc having the id passed as arg """
+        """ this function returns the settings linked contained in inside the doc having the id passed as arg """
         try:
             return self.ES.get(index=self.DB_INDEX, id=id)
 
-        except (elasticsearch.exceptions.ConnectionError, elasticsearch.exceptions.NotFoundError) as e:
-            return {"failure": e}
+        except print("backend Exception, file:statistic:class:statistic:func:list_by_id") as e:
+            print(e)
+            return {"failure": str(e)}
 
     def list_by_realm(self, realm: str):
 
@@ -89,6 +93,7 @@ class Statistic:
             })
             return self.ES.search(index=self.DB_INDEX, body=req)
 
-        except (elasticsearch.exceptions.ConnectionError, elasticsearch.exceptions.NotFoundError) as e:
-            return {"failure": e}
+        except print("backend Exception, file:statistic:class:statistic:func:list_by_realm") as e:
+            print(e)
+            return {"failure": str(e)}
 

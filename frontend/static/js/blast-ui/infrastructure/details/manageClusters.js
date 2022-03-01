@@ -1,5 +1,5 @@
 /*
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,11 +15,15 @@
    limitations under the License.
 */
 
-import Cluster from '../../../cluster.js'
 import Infrastructure from '../../../infrastructure.js'
-
-var cluster = new Cluster()
+import Cluster from '../../../cluster.js'
+import Toast from '../../main/notification/toast.js'
+import {dictionary} from '../../main/message/en/dictionary.js'
 var infrastructure = new Infrastructure()
+var cluster = new Cluster()
+var toast = new Toast()
+toast.msgPicture = '../../../../img/object/infrastructure.svg'
+
 
 const InfrastructureManageClusters = class {
 
@@ -64,7 +68,23 @@ const InfrastructureManageClusters = class {
         let clusterId = $('select[name=select_infra_clu_add] option:selected').val()
         let clusterName = $('select[name=select_infra_clu_add] option:selected').text()
         let infraClusterData = {"id": clusterId, "name": clusterName}
-        infrastructure.add_cluster(this.infrastructure_id, [infraClusterData]).then(function(resp) { location.reload() })
+        let actionRes, displayTime
+        infrastructure.add_cluster(this.infrastructure_id, infraClusterData).then(function(Resp) {
+            if ( Resp["result"] === "updated" ) {
+                toast.msgTitle = "Infrastructure add cluster Success"
+                toast.msgText = dictionary["infrastructure"]["addCluster"].replace('%clusterName%', clusterName)
+                actionRes = "success"
+                displayTime = 2000
+            } else if ( Object.keys(Resp).includes("failure") ) {
+                toast.msgTitle = "Infra add cluster Failure"
+                toast.msgText = Resp["failure"]
+                actionRes = "failure"
+                displayTime = 5000
+            }
+
+            toast.notify(actionRes)
+            setTimeout(() => { location.reload() }, 2000)
+        })
     }
 
     setInfraManageRemClusters = (infrastructure) => {
@@ -78,14 +98,30 @@ const InfrastructureManageClusters = class {
             <button id="btnRemCluster" class="btn blast-btn" onclick="remClusterFromInfra()">remove</a>
             </div>
         `
-        infrastructure.clusters.forEach(function(cluObj) { htmlSelectCore = htmlSelectCore + '<option value="' + cluObj["id"] + '">' + cluObj["name"] + '</option>' })
+        infrastructure.clusters.forEach(function(cluObj) { htmlSelectCore = htmlSelectCore + '<option value="' + cluObj["name"] + '">' + cluObj["name"] + '</option>' })
         $("#selectRemClustersContainer").html(htmlSelectHeader + htmlSelectCore + htmlSelectFooter)
 
     }
 
     remClusterFromInfra = () => {
-        let clusterId = $('select[name=select_infra_clu_rem] option:selected').val()
-        infrastructure.delete_cluster(this.infrastructure_id, [clusterId]).then(function(resp) { location.reload() })
+        let clusterName = $('select[name=select_infra_clu_rem] option:selected').val()
+        let actionRes, displayTime
+        infrastructure.delete_cluster(this.infrastructure_id, clusterName).then(function(Resp) {
+            if ( Resp["result"] === "updated" ) {
+                toast.msgTitle = "Infra remove cluster Success"
+                toast.msgText = dictionary["infrastructure"]["removeCluster"].replace('%clusterName%', clusterName)
+                actionRes = "success"
+                displayTime = 2000
+            } else if ( Object.keys(Resp).includes("failure") ) {
+                toast.msgTitle = "Infrastructure remove cluster Failure"
+                toast.msgText = Resp["failure"]
+                actionRes = "failure"
+                displayTime = 5000
+            }
+
+            toast.notify(actionRes)
+            setTimeout(() => { location.reload() }, displayTime )
+        })
     }
 
     render(parentName, infrastructure) {

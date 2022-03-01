@@ -1,5 +1,5 @@
 /*
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ async function main() {
     let urlParams = new URLSearchParams(window.location.href.split('?')[1])
     if (urlParams.has("id")) {
         let script_id = urlParams.get('id')
-        let scriptData = await script.listByIds([script_id])
+        let scriptData = await script.listById(script_id)
         script.load(scriptData["hits"]["hits"][0])
         setPageTitle(script.name)
         setButtonDelAction(script)

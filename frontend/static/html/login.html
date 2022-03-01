@@ -1,5 +1,5 @@
 <!--
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -18,95 +18,96 @@
     <head>
         <!-- start some meta here -->
         <meta charset="UTF-8">
-        <!-- Load bootstrap stack -->
-        <link rel="stylesheet" type="text/css" href="/css/bootstrap-5.0.0-beta2-dist/css/bootstrap.min.css" />
+        <!-- links starts here -->
+        <link rel="stylesheet" type="text/css" href="/css/bootstrap-5.1.3-dist/css/bootstrap.min.css" />
         <link rel="stylesheet" type="text/css" href="/css/blast.eu.com.css" />
-        <script src="/js/bootstrap-5.0.0-beta2-dist/js/bootstrap.min.js"></script>
-        <!-- End Load bootstrap stack -->
+        <!-- scripts start here -->
+        <script src="/js/bootstrap-5.1.3-dist/js/bootstrap.min.js"></script>
         <script src="/js/jquery-1.12.4/jquery-1.12.4.min.js"></script>
         <script src="/js/jquery-cookie-1.4.1/jquery.cookie.js"></script>
-        <script src="/js/popper-1.16.1/popper.min.js"></script>
-        <script src="/js/aaa.js" type="module"></script>
+        <script src="/js/popper-2.11.2/popper.min.js"></script>
+        <script src="/js/account.js" type="module"></script>
+        <script src="/js/blast-ui/login/ui.js" type="module"></script>
     </head>
     <!-- <body class="d-flex flex-column" style="background-image: url('/img/blast_first_page_3.jpeg'); background-position: center"> -->
     <body class="d-flex flex-column">
         <div class="container p-0 min-vh-100 min-vw-100">
-
-            <!-- <div aria-live="polite" aria-atomic="true" style="position: relative; min-height: 100px;">
-                <div id="toaster" style="position: absolute; top: 50px; right: 30px"></div></div> -->
-
             <div class="container min-vh-100 min-vw-100">
                 <div class="row min-vh-100">
-                    <div class="col-md-6">
-                        <div class="card blast-card" style="width:60%; margin-top: 40%; margin-left: 39.5%">
+                    <div class="col-md-6" style="background-color: #FEFEFE">
+                        <div class="card blast-card rounded shadow" style="width:60%; margin-top: 35%; margin-left: 39.5%">
                             <div class="card-body">
-                                <p class="card-text">
-                                    <div class="input-group mb-3">
-                                        <input id="accountEmail" name="accountEmail" type="text"
-                                               class="form-control" placeholder="Username"/>
-                                    </div>
-                                    <div class="input-group mb-3">
-                                        <input id="accountPassword" name="accountPassword" type="password"
-                                               pattern=".{6,}" title="six or more character" class="form-control"
-                                               placeholder="Password"/>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-3">
-                                            <button class="btn blast-btn" onclick="loginAccount();">Sign in</button>
+                                <div class="card-text">
+                                    <nav>
+                                        <div class="nav nav-tabs" id="myTab" role="tablist">
+                                            <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login" type="button" role="tab" aria-controls="login" aria-selected="true">Login</button>
+                                            <button class="nav-link" id="register-tab" data-bs-toggle="tab" data-bs-target="#register" type="button" role="tab" aria-controls="register" aria-selected="false">Register</button>
                                         </div>
-                                        <div class="col-3">
-                                            <button class="btn blast-btn" onclick="registerAccount();">Sign up</button>
+                                    </nav>
+                                    <div class="tab-content mt-2" id="myTabContent">
+                                        <div class="tab-pane fade show active" id="login" role="tabpanel" aria-labelledby="login-tab">
+                                            <div class="input-group mb-3">
+                                                <input id="loginAccountEmail" name="loginAccountEmail" type="text" class="form-control" placeholder="Username"/>
+                                            </div>
+                                            <div class="input-group mb-3">
+                                                <input id="loginAccountPassword" name="loginAccountPassword" type="password" pattern=".{6,}" title="six or more character" class="form-control" placeholder="Password"/>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-3">
+                                                    <button class="btn blast-login-btn" onclick="loginAccount();">Login</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane fade" id="register" role="tabpanel" aria-labelledby="register-tab">
+                                            <div class="input-group mb-3">
+                                                <input id="registerAccountEmail" name="registerAccountEmail" type="text" class="form-control" placeholder="Username"/>
+                                            </div>
+                                            <div class="input-group mb-3">
+                                                <input id="registerAccountPassword" name="registerAccountPassword" type="password" pattern=".{6,}" title="six or more character" class="form-control" placeholder="Password"/>
+                                            </div>
+                                            <div class="input-group mb-3" id="registerAccountRealmContainer">
+                                                <input id="registerAccountRealm" name="registerAccountRealm" type="text" pattern=".{6,}" title="six or more character" class="form-control" placeholder="Realm name"/>
+                                            </div>
+                                            <div class="mb-3">
+                                                <input id="checkboxDefaultRealm" name="checkboxDefaultRealm" type="checkbox" onclick="updateRegisterMenu() ;">
+                                                <label for="checkboxDefaultRealm">Default Realm</label>
+                                            </div>
+                                            <div class="mb-3" style="display: none;" id="defaultRealmTextContainer">
+                                                <p id="defaultRealmText" style="text-align: justify; text-justify: auto">Any user who desire to be a member of the default realm will share information with the other members of the default realm. All objects will be visible, moreover account
+                                                details and username will be shared. For privacy and more objects control, it is better to create your own realm at the registration time.</p>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-3">
+                                                    <button class="btn blast-login-btn" onclick="registerAccount();">Register</button>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-
-                                </p>
+                                </div>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-6" style="background-color: #EEE;">
-                        <p style="font-size: 160px; font-family: nasa, sans-serif; color: #0995D3; margin-top: 40%">BLAST</p>
+                        <p style="font-size: 180px; font-family: nasa, sans-serif; color: #0995D3; margin-top: 35%">BLAST</p>
                     </div>
                 </div>
-                <!--
-                <div class="card border" style="margin-top: 30%; width: 600px; border: thin solid gray">
-                    <div class="card-body">
-                        <h4 class="card-title text-center">BLAST</h4>
-                        <h6 class="card-title text-center">The digital blast</h6>
-                        <div card="text">
-                            <label for="accountEmail"></label>
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text" id="addon-wrapping" for="accountEmail">@</span>
-                                </div>
-                                <input id="accountEmail" name="accountEmail" type="text"
-                                       class="form-control" placeholder="Username"/>
-                        </div>
-                        <div card="text">
-                            <div class="form-group">
-                                <label for="accountPassword"></label>
-                                <input id="accountPassword" name="accountPassword" type="password"
-                                       pattern=".{6,}" title="six or more character" class="form-control "
-                                       placeholder="Password"/>
-                            </div>
-                        </div>
-                        <div class="card-text">
-                            <div class="row">
-                                <div class="col-6">
-                                    <button class="btn btn-block" style="background-color: #FFE873; border: thin solid #CED4EA; color: #454545"
-                                            onclick="loginAccount();"><b>SIGN IN</b></button>
-                                </div>
-                                <div class="col-6">
-                                    <button class="btn btn-block" style="background-color: #FFE873; border: thin solid #CED4EA; color: #454545"
-                                            onclick="registerAccount();"><b>SIGN UP</b></button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                -->
             </div>
-            <div style="position: fixed; bottom: 0px; padding-top: 12.5px; border-top: thin solid black; height: 50px; width: 100%; text-align: center; background-color: #343A40; color: #ffffff">
-                <p>Copyright &copy; 2020 Blast.eu.com<p>
-            </div>
+            <div style="position: fixed; bottom: 0px; padding-top: 12.5px; border-top: thin solid black; height: 50px; width: 100%; text-align: center; background-color: #343A40; color: #ffffff"><div><p>Copyright &copy; 2022 Blast.eu.com</divp></div>
         </div>
+        <div id="notification-container" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11"></div>
+        <script>
+            function updateRegisterMenu() {
+                var inputCheckbox = document.getElementById("checkboxDefaultRealm")
+                var registerAccountRealmContainer = document.getElementById("registerAccountRealmContainer")
+                var defaultRealmTextContainer = document.getElementById("defaultRealmTextContainer")
+                if ( inputCheckbox.checked ) {
+                    registerAccountRealmContainer.style.display = "none"
+                    defaultRealmTextContainer.style.display = "flex"
+                } else {
+                    registerAccountRealmContainer.style.display = "flex"
+                    defaultRealmTextContainer.style.display = "none"
+                }
+            }
+        </script>
     </body>
 </html>

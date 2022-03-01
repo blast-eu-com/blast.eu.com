@@ -1,5 +1,5 @@
 # -*- coding:utf-8 -*-
-#   Copyright 2021 Jerome DE LUCCHI
+#   Copyright 2022 Jerome DE LUCCHI
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -26,6 +26,10 @@ elasticsearch:
     # Set the port of the Elasticsearch API
     # This value should be either 9200 or 9300
     port: 9200
+
+    # Set authenticate to True or False
+    # Define if authentication method is used to connect to Elasticsearch
+    authenticate: False
 
 scheduler:
     logging:

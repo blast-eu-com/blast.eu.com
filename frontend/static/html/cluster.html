@@ -1,5 +1,5 @@
 <!--
-#   Copyright 2021 Jerome DE LUCCHI
+#   Copyright 2022 Jerome DE LUCCHI
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -16,20 +16,22 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <!-- start some meta here -->
+        <!-- meta starts here -->
         <meta charset="UTF-8">
-        <meta title="management">
+        <meta title="BLAST Cluster management">
+        <meta name="author" content="www.blast.eu.com">
+        <meta name="description" content="Manage BLAST cluster">
+        <meta name="keywords" content="blast, blast.eu.com, cluster, management">
+        <!-- link starts here -->
         <link rel="icon" href="/img/favicon.ico" />
-        <!-- Load bootstrap stack
-        <link rel="stylesheet" type="text/css" href="/css/bootstrap-4.5.2-dist/css/bootstrap.min.css" />
-        <script src="/js/bootstrap-4.5.2-dist/js/bootstrap.min.js"></script> -->
-        <link rel="stylesheet" type="text/css" href="/css/bootstrap-5.0.0-beta2-dist/css/bootstrap.min.css" />
-        <script src="/js/bootstrap-5.0.0-beta2-dist/js/bootstrap.min.js"></script>
-        <!-- End Load bootstrap stack -->
+        <link rel="stylesheet" type="text/css" href="/css/bootstrap-5.1.3-dist/css/bootstrap.min.css" />
         <link rel="stylesheet" type="text/css" href="/css/blast.eu.com.css" />
+        <!-- script starts here -->
+        <script src="/js/bootstrap-5.1.3-dist/js/bootstrap.min.js"></script>
         <script src="/js/jquery-1.12.4/jquery-1.12.4.min.js"></script>
         <script src="/js/jquery-cookie-1.4.1/jquery.cookie.js"></script>
         <script src="/js/blast-ui/cluster/ui.js" type="module"></script>
+        <script src="/js/blast-ui/main/navBars/ui.js" type="module"></script>
     </head>
 
     <body class="d-flex flex-column min-vh-100 bg-light" margin="0" onload="main();">
@@ -49,29 +51,21 @@
         </script>
 
         <div class="container p-0 min-vh-100 min-vw-100">
-
-            <div aria-live="polite" aria-atomic="true" style="position: relative; min-height: 100px;">
-                <div id="toaster" style="position: absolute; top: 65px; right: 30px"></div></div>
-
             <div id="nav_container" class="bg-dark blast-nav"></div>
 
             <div id="side_nav_container" class="d-inline-block min-vh-100 blast-sidenav">
-                <script type="module">
-                    import Nav from "/js/nav.js"
-                    let nav = new Nav()
-                    nav.loadNavBars("cluster");
-                </script>
+                <script type="module">mainUI("cluster");</script>
             </div>
 
             <div id="blast-disp" class="min-vh-100 blast-disp">
                 <div>
-                    <nav aria-label="breadcrumb">
+                    <nav class="blast-obj-title" aria-label="breadcrumb">
                         <ol class="breadcrumb blast-breadcrumb shadow-sm fs-4 text-white">
                             <li class="breadcrumb-item" aria-current="page">Cluster</li>
                         </ol>
                     </nav>
 
-                    <div class="card blast-card shadow-sm m-3 border">
+                    <div class="card blast-card shadow-sm rounded m-3">
                         <div class="card-body">
                             <div class="card-title row mb-4">
                                 <div class="col-11 fs-4">Cluster Form</div>
@@ -80,7 +74,7 @@
                             <p id="clusterForm" class="card-text"></p>
                         </div>
                     </div>
-                    <div class="card blast-card shadow-sm m-3 border">
+                    <div class="card blast-card shadow-sm rounded m-3">
                         <div class="card-body">
                             <div class="card-title fs-4">Cluster List</div>
                             <p id="clusterList" class="card-text"></p>
@@ -89,5 +83,6 @@
                 </div>
             </div>
         </div>
+        <div id="notification-container" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11"></div>
     </body>
 </html>

@@ -1,5 +1,5 @@
 /*
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -15,39 +15,27 @@
 */
 
 import FrontendConfig from './frontend.js'
-import Account from './aaa.js'
+import Account from './account.js'
 
 var config = new FrontendConfig()
 var account = new Account()
 
-export function GSearch(data) {
-    return new Promise(function(resolve, reject) {
-        $.ajax({
-            url: config.proxyAPI + '/realms/' + config.session.realm + '/global/filter',
-            type: "GET",
-            data: {"string": data},
-            headers: {'Authorization': config.session.httpToken},
-            success: function(Resp) {
-                if ( typeof Resp === "string" ) { Resp = JSON.parse(Resp) }
-                if ( Object.keys(Resp).includes("tokenExpired")) { account.logoutAccount()
-                    } else { resolve(Resp) }
-            }
-        })
-    })
+export async function GSearch(gsearch_data) {
+    let url = config.proxyAPI + '/realms/' + config.session.realm + '/global/filter/' + gsearch_data
+    let header = {'Authorization': config.session.httpToken}
+    let response = await fetch(url, {method: "GET", headers: header})
+    if (response.ok) {
+        response = JSON.parse(await response.text())
+        if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+    }
 }
 
-export function GSearchScrollId(scrollId) {
-     return new Promise(function(resolve, reject) {
-        $.ajax({
-            url: config.proxyAPI + '/realms/' + config.session.realm + '/global/filter/scroll',
-            type: "GET",
-            data: {"_scroll_id": scrollId},
-            headers: {'Authorization': config.session.httpToken},
-            success: function(Resp) {
-                if ( typeof Resp === "string" ) { Resp = JSON.parse(Resp) }
-                if ( Object.keys(Resp).includes("tokenExpired")) { account.logoutAccount()
-                    } else { resolve(Resp) }
-            }
-        })
-    })
+export async function GSearchScrollId(scrollId) {
+    let url = config.proxyAPI + '/realms/' + config.session.realm + '/global/filter/scroll/' + scrollId
+    let header = { 'Authorization': config.session.httpToken }
+    let response = await fetch(url, {method: "GET", headers: header})
+    if (response.ok) {
+        response = JSON.parse(await response.text())
+        if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+    }
 }

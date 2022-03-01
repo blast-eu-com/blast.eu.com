@@ -1,5 +1,5 @@
 /*
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -14,12 +14,10 @@
    limitations under the License.
 */
 
-import Account from './aaa.js'
-import Nav from './nav.js'
+import Account from './account.js'
 import FrontendConfig from './frontend.js'
 
 let account = new Account()
-let nav = new Nav()
 let config = new FrontendConfig()
 
 export function updateProfile() {
@@ -32,10 +30,5 @@ export function updateProfile() {
     }
     account.update(profileData).then((Resp) => {
         console.log(Resp)
-        // account.cookies(config.session.accountEmail).then((setCookieResult) => {
-        //    console.log(setCookieResult)
-            // nav.loadNavBarProfilePicture()
-            // location.reload()
-        // })
     })
 }

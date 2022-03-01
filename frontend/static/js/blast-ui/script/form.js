@@ -1,5 +1,5 @@
 /*
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -18,11 +18,14 @@ import PortMap from '../../portmap.js'
 import Realm from '../../realm.js'
 import FrontendConfig from '../../frontend.js'
 import Script from '../../script.js'
-
+import Toast from '../main/notification/toast.js'
+import {dictionary} from '../main/message/en/dictionary.js'
 var portmap = new PortMap()
 var realm = new Realm()
 var config = new FrontendConfig()
 var script = new Script()
+var toast = new Toast()
+toast.msgPicture = '../../../img/object/script.svg'
 
 const ScriptForm = class {
 
@@ -187,7 +190,6 @@ const ScriptForm = class {
     addShareableRealmSelected = () => {
         let shareableRealm = $("#scriptShareableRealmsSelector option:selected").val()
         if ( ! this.scrShareableRealms.includes(shareableRealm) ) {
-            console.log(this.scrShareableRealms, shareableRealm)
             this.scrShareableRealms.push(shareableRealm)
             this.scriptShareableRealmsBadges()
         }
@@ -253,10 +255,21 @@ const ScriptForm = class {
 
     addScript = () => {
         this.setFormData()
-        script.add(this.formData).then(function(Resp) {
+        let scriptData = this.formData
+        let actionRes
+        script.add(scriptData).then((Resp) => {
             if ( Resp["result"] === "created" ) {
-                location.reload()
+                toast.msgTitle = "Script create Success"
+                toast.msgText = dictionary["script"]["add"].replace('%scriptName%', scriptData["script_file_name"])
+                actionRes = "success"
+            } else if ( Object.keys(Resp).includes("failure") ) {
+                toast.msgTitle = "Script create Failure"
+                toast.msgText = Resp["failure"]
+                actionRes = "failure"
             }
+
+            toast.notify(actionRes)
+            setTimeout(() => { location.reload() }, 2000)
         })
     }
 

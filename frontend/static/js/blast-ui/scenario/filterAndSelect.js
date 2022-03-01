@@ -1,5 +1,5 @@
 /*
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -121,10 +121,8 @@ var ScenarioFilterAndSelect = class {
         this.curNumRecord > 1 ? this.firstPage = 1 : this.firstPage = 0
         this.curNumRecord > 1 ? this.lastPage = Math.ceil(this.curNumRecord/this.numRecord) : this.lastPage = 0
         let html = ''
-        console.log(this.curNumRecord, this.numRecord)
         if ( this.curNumRecord > this.numRecord ) {
             this.scenarioSearchWindowInteractive()
-            console.log(this.lastPage, this.firstPage)
             if ( this.lastPage > this.firstPage ) {
                 html = `<li class="page-item" onclick="scenarioSearchGoToPrevPage();">
                     <a class="page-link blast-page-link" href="#">Previous</a></li>`
@@ -136,7 +134,6 @@ var ScenarioFilterAndSelect = class {
                     <a class="page-link blast-page-link" href="#">Next</a></li>`
             }
         }
-        console.log(html)
         $("#scenarioSearchWindowFramePagination").html(html)
         return true
     }

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright 2021 Jerome DE LUCCHI
+# Copyright 2022 Jerome DE LUCCHI
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ BLAST_BACKEND_USER="blast"
 BLAST_BACKEND_GRP="blast"
 BLAST_BACKEND_HOSTNAME="127.0.0.1"
 BLAST_BACKEND_PORT="28080"
-BLAST_BACKEND_PROTOCOL="http"
+BLAST_BACKEND_SSL="false"
 BLAST_BACKEND_GIT_URL="https://github.com/blast-eu-com/blast.eu.com"
 BLAST_BACKEND_INSTALL_PATH="/tmp/${BLAST_BACKEND_NAME}"
 BLAST_BACKEND_ROOT_PATH="/opt/${BLAST_BACKEND_NAME}"
@@ -32,11 +32,11 @@ BLAST_BACKEND_OS=`cat /etc/os-release | egrep "^ID=" | cut --delimiter=\= -f2 | 
 case $BLAST_BACKEND_OS in
   rhel|fedora|centos)
     PKG_MANAGER=`which yum`
-    BLAST_REQUIRED_PACKAGES="clang git make python3-pip python3-virtualenv"
+    BLAST_REQUIRED_PACKAGES="clang git make python3-pip python3-virtualenv dos2unix"
     ;;
   debian)
     PKG_MANAGER=`which apt-get`
-    BLAST_REQUIRED_PACKAGES="clang git make python3 python3-dev python3-pip python3-venv"
+    BLAST_REQUIRED_PACKAGES="clang git make python3 python3-dev python3-pip python3-venv dos2unix"
     ;;
   *)
     echo "Unknown OS ID: $BLAST_BACKEND_OS"
@@ -53,7 +53,7 @@ echo_step_phase () {
 
 install_blast_backend_user () {
   echo_step_phase "@blastServer +add user"
-  useradd -m -U -c "blast user" -s "/sbin/nologin" $BLAST_BACKEND_USER
+  useradd -m -U -c "blast user" -s `which nologin` $BLAST_BACKEND_USER
 }
 
 install_blast_backend_root_folder () {
@@ -124,7 +124,7 @@ install_blast_backend_config_pip () {
 
 install_blast_backend_config_system_tree () {
   echo_step_phase "@blastServer +install server system tree"
-  mkdir "$BLAST_BACKEND_CONFIG_PATH" "$BLAST_BACKEND_TMP_PATH" "${BLAST_BACKEND_PATH}/ansible" "${BLAST_BACKEND_PATH}/script" \
+  mkdir "${BLAST_BACKEND_PATH}/ansible" "${BLAST_BACKEND_PATH}/script" \
   "${BLAST_BACKEND_PATH}/session"
   cp -pr "${BLAST_BACKEND_INSTALL_PATH}/backend" "$BLAST_BACKEND_ROOT_PATH"
   cp -p "${BLAST_BACKEND_INSTALL_PATH}/installer/backend/backend.yml.template" "${BLAST_BACKEND_CONFIG_PATH}/backend.yml"
@@ -134,7 +134,6 @@ install_blast_backend_config_uwsgi () {
   echo_step_phase "@blastServer +install server config uwsgi"
   sed -e "s|%BLAST_BACKEND_USER%|${BLAST_BACKEND_USER}|g" \
       -e "s|%BLAST_BACKEND_GRP%|${BLAST_BACKEND_GRP}|g" \
-      -e "s|%BLAST_BACKEND_PROTOCOL%|${BLAST_BACKEND_PROTOCOL}|g" \
       -e "s|%BLAST_BACKEND_HOSTNAME%|${BLAST_BACKEND_HOSTNAME}|g" \
       -e "s|%BLAST_BACKEND_PORT%|${BLAST_BACKEND_PORT}|g" \
       -e "s|%BLAST_BACKEND_LOG_PATH%|${BLAST_BACKEND_LOG_PATH}|g" \

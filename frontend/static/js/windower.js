@@ -1,5 +1,5 @@
 /*
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -109,11 +109,8 @@ let Windower = class {
 
     managementSessionFilter(managementSessionData, managementSessionName) {
         let managementSessionFiltered = []
-        console.log(managementSessionData)
         for ( var i=0; i<managementSessionData.length; i++ ) {
             let record = managementSessionData[i]
-            console.log(record)
-            console.log("val A:" + managementSessionName, "val B:" + record["_source"]["management_run_id"])
             if ( filterStrMatch(managementSessionName, record["_source"]["management_run_id"]) ) {
                 managementSessionFiltered.push(record)
             }
@@ -124,7 +121,6 @@ let Windower = class {
 
     managementSessionCoreData(managementSessionData) {
         let managementSessionName = this.managementSessionNameStr()
-        console.log(managementSessionName)
         let managementSessionFiltered = this.managementSessionFilter(managementSessionData, managementSessionName)
         let firstRec = ( this.curPageNum - 1 ) * this.numRecord
         let lastRec = ( this.curPageNum * this.numRecord )
@@ -187,7 +183,6 @@ let Windower = class {
         this.curNumRecord > 1 ? this.firstPage = 1 : this.firstPage = 0
         this.curNumRecord > 1 ? this.lastPage = Math.ceil(this.curNumRecord/this.numRecord) : this.lastPage = 0
         let html = ''
-        console.log(this.curNumRecord, this.numRecord)
         if ( this.curNumRecord > this.numRecord ) {
             this.managementSessionWindowInteractive()
             if ( this.lastPage > this.firstPage ) {
@@ -271,7 +266,6 @@ let Windower = class {
     }
 
     filterScheduleData(scheduleData, filterStr) {
-        console.log(scheduleData)
         let scheduleDataFiltered = []
         for (let i=0; i<scheduleData.length; i++) {
             let record = scheduleData[i]

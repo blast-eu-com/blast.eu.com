@@ -1,5 +1,5 @@
 /*
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -24,9 +24,9 @@ const FrontendConfig = class {
          * this way the backend is not available from outside expect passing thru the nginx (frontend)
          */
         this.frontend = {
-            hostname: "192.168.168.54", // this hostname must be the frontend site url
-            port: "80", // this port must be the frontend port number
-            protocol: "http", // this protocol must be the site protocol
+            hostname: "192.168.168.59", // this hostname must be the frontend site url
+            port: "443", // this port must be the frontend port number
+            protocol: "https", // this protocol must be the site protocol
             version: "v1",
             webServerPath: "/opt/blast.eu.com/frontend/static",
             httpImgFolder: "/img"
@@ -43,6 +43,7 @@ const FrontendConfig = class {
                 accountPicture: accountPicture,
                 realm: JSON.parse($.cookie('realm'))["name"],
                 realmId: JSON.parse($.cookie('realm'))["id"],
+                realms: JSON.parse($.cookie('realms')),
                 setting: JSON.parse($.cookie('setting')),
                 settingId: JSON.parse($.cookie('setting'))["id"],
                 httpToken: 'Bearer ' + $.cookie('jwt')

@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 """
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -16,19 +16,18 @@
 """
 
 import paramiko
+from io import StringIO
 from api.setting import Portmap
 from api.db import ESConnector
 
 
 class SSH:
-
     def __init__(self, *args, **kwargs):
-        print("class SSH function INIT:", args, kwargs)
+        print("class SSH function INIT")
         self.hostname = args[0]
         self.ssh_username = kwargs["username"] if kwargs["username"] != '' else None
         self.ssh_password = kwargs["password"] if kwargs["password"] != '' else None
         self.ssh_certificate = kwargs["certificate"] if kwargs["certificate"] != '' else None
-        print(self.hostname, self.ssh_username, self.ssh_password, self.ssh_certificate)
         self.ssh_client = paramiko.client.SSHClient()
         self.sftp_client = None
         self.ssh_client.set_missing_host_key_policy(paramiko.client.AutoAddPolicy())
@@ -37,29 +36,39 @@ class SSH:
         print(" >>> Enter file:discovery:class:SSH:function:close_ssh_connections")
         self.ssh_client.close()
 
-    def open_ssh_connection(self) -> bool:
-        print(" >>> Enter file:discovery:class:SSH:function:open_ssh_connection")
+    def open_ssh_connection_with_certificate(self):
         try:
-            if self.ssh_username and self.ssh_certificate is not None:
-                """ we do prefer certificate instead of password """
-                print('class SSH::open_ssh_connection: connecting using certificate')
-                self.ssh_client.connect(hostname=self.hostname, username=self.ssh_username, pkey=self.ssh_certificate)
-                return True
-
-            elif self.ssh_username and self.ssh_password is not None:
-                """ we do use password if certificate is not set"""
-                print('class SSH::open_ssh_connection: connecting using password')
-                self.ssh_client.connect(hostname=self.hostname, username=self.ssh_username, password=self.ssh_password)
-                return True
-
-            else:
-                """ no certificate and no password raise a failure """
-                print('class SSH::open_ssh_connection: no password no certificate')
-                self.ssh_client = None
-                return False
+            print('class SSH::open_ssh_connection: connecting using certificate')
+            key = paramiko.RSAKey.from_private_key(StringIO(self.ssh_certificate))
+            self.ssh_client.connect(hostname=self.hostname, username=self.ssh_username, pkey=key)
+            return True
 
         except paramiko.ssh_exception.AuthenticationException:
             return False
+
+    def open_ssh_connection_with_password(self):
+        try:
+            print('class SSH::open_ssh_connection: connecting using password')
+            self.ssh_client.connect(hostname=self.hostname, username=self.ssh_username, password=self.ssh_password)
+            return True
+
+        except paramiko.ssh_exception.AuthenticationException:
+            return False
+
+    def open_ssh_connection(self) -> bool:
+        print(" >>> Enter file:discovery:class:SSH:function:open_ssh_connection")
+        if self.ssh_username and self.ssh_certificate is not None:
+            if self.open_ssh_connection_with_certificate():
+                return True
+
+        if self.ssh_username and self.ssh_password is not None:
+            if self.open_ssh_connection_with_password():
+                return True
+
+        """ no certificate and no password returns False """
+        print('class SSH::open_ssh_connection: no password no certificate')
+        self.ssh_client = None
+        return False
 
     def open_sftp_connection(self) -> bool:
         print(" >>> Enter file:discovery:class:SSH:function:open_sftp_connection")
@@ -93,7 +102,6 @@ def get_active_network_connection_ipv4(ssh_client):
             "connection_status": line.split()[5]
         } for line in list(filter(None, stdout.read().decode("UTF-8").split("\n"))) if len(line.split()) > 5
     ]
-    print(active_internet_connection)
     return active_internet_connection
 
 
@@ -112,7 +120,6 @@ def get_active_network_connection_ipv6(ssh_client):
             "connection_status": line.split()[5]
         } for line in list(filter(None, stdout.read().decode("UTF-8").split("\n"))) if len(line.split()) > 5
     ]
-    print(active_internet_connection)
     return active_internet_connection
 
 
@@ -168,7 +175,7 @@ def colonize():
 class Discovery:
 
     def __init__(self, hostname, realm, ssh_settings):
-        print('class Discovery function INIT:', hostname, realm, ssh_settings)
+        print('class Discovery function INIT:')
         self.hostname = hostname
         self.realm = realm
         self.server_ips = []
@@ -263,6 +270,5 @@ class Discovery:
     def end(self):
         """ this function ends a sequence of discovery actions """
         print(" >>> Enter file:discovery:class:Discovery:function:end")
-        print(self.server_ips, self.server_peers, self.server_roles)
         self.SSH.close_ssh_connection()
 

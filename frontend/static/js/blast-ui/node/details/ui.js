@@ -1,5 +1,5 @@
 /*
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -18,13 +18,11 @@ import Node from '../../../node.js'
 import NodeListInfo from  './listInfo.js'
 import NodeListPeers from './listPeers.js'
 import NodeListRoles from './listRoles.js'
-import ManageMode from './manageMode.js'
 
 var node = new Node()
 var nodeListInfo = new NodeListInfo()
 var nodeListPeers = new NodeListPeers()
 var nodeListRoles = new NodeListRoles()
-var manageMode = new ManageMode()
 
 const setButtonDeleteAction = (nodeId) => {
     $('#btnDelNode').on("click", function() {
@@ -51,7 +49,7 @@ async function main() {
     let urlParams = new URLSearchParams(window.location.href.split('?')[1])
     if ( urlParams.has("id") ) {
         let nodeId = urlParams.get("id")
-        let nodeData = await node.listByIds([nodeId])
+        let nodeData = await node.listById(nodeId)
         node.load(nodeData["hits"]["hits"][0])
         setPageTitle(node.name)
         setButtonDeleteAction(nodeId)
@@ -59,10 +57,9 @@ async function main() {
         nodeListInfo.render('nodeDetails', node)
         nodeListPeers.render('nodePeers', node)
         nodeListRoles.render('nodeRoles', node)
-        manageMode.render('nodeMode', node)
     }
 
 }
 
 window.main = main
-window.updateNodeMode = manageMode.updateNodeMode
+window.updateNodeMode = nodeListInfo.updateNodeMode

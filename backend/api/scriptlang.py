@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 """
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -15,26 +15,25 @@
    limitations under the License.
 """
 import json
-import elasticsearch
-
 
 
 class Scriptlang:
 
-    def __init__(self, ESConnector):
+    def __init__(self, connector):
+        print(" -- Object ScriptLang init -- ")
         self.DB_INDEX = 'blast_script_lang'
-        self.ES = ESConnector
+        self.ES = connector
 
-    def __add__(self):
+    def add(self):
         pass
 
-    def __list__(self):
+    def list(self):
 
         """ this method returns all the registered scriptlang"""
         try:
             req = json.dumps({"query": {"match_all": {}}})
             return self.ES.search(index=self.DB_INDEX, body=req)
 
-        except elasticsearch.exceptions.ConnectionError as e:
+        except Exception as e:
             return {"failure": e}
 

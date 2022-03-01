@@ -1,5 +1,5 @@
 /*
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -66,7 +66,7 @@ var InfrastructureList = class {
                     <div class="card-title" style="font-size: 16px">` + objectData["_source"]["name"] + `</div>
                     <span style="font-size: 12px">` + objectData["_source"]["description"] + `</span><br>
                 </div>
-                <div class="card-footer bg-gradient text-center text-dark p-0" style="background-color: #FFE873">
+                <div class="card-footer bg-gradient text-center text-dark p-0 border-0" style="background-color: #FFE873">
                     <span class="fw-lighter" style="font-size: 12px;">` + recId + `</span>
                 </div>
             </a>`
@@ -175,22 +175,17 @@ var InfrastructureList = class {
     }
 
     simpleListWindowCoreData() {
-        try {
-            let pageLength = $("select#selSamplePerPage option:selected").val()
-            pageLength === undefined ? this.numRecord = 10 : this.numRecord = parseInt(pageLength)
-            infrastructure.list().then((infrastructures) => {
-                if (infrastructures["hits"]["total"]["value"] > 0) {
-                    this.simpleListCoreData(infrastructures["hits"]["hits"])
-                    this.simpleListWindowPagination()
-                } else {
-                    throw 'noInfrastructuresFound'
-                }
-            })
-        } catch (e) {
-            if (e === 'noInfrastructuresFound') {
+        let pageLength = $("select#selSamplePerPage option:selected").val()
+        pageLength === undefined ? this.numRecord = 10 : this.numRecord = parseInt(pageLength)
+        infrastructure.list().then((infrastructures) => {
+            console.log(infrastructures)
+            if (infrastructures["hits"]["total"]["value"] > 0) {
+                this.simpleListCoreData(infrastructures["hits"]["hits"])
+                this.simpleListWindowPagination()
+            } else {
                 $("#" + this.parentName).html(this.msgInfrastructureNotFound)
             }
-        }
+        })
     }
 
     render = (parentName) => {

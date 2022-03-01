@@ -1,5 +1,5 @@
 /*
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -57,7 +57,6 @@ const Reporting = class {
         let ctx = $("#" + this.parentName + "Canvas")
         let data = []
 
-        console.log(this.reporterData)
         this.reporterData["aggregations"]["time"]["buckets"].forEach((bucket) => {
             data.push({"x": bucket["key_as_string"], "y": bucket["doc_count"]})
         })

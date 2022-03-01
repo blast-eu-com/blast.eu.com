@@ -1,5 +1,5 @@
 /*
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,7 @@
 */
 
 import ProfileForm from './form.js'
-import Account from '../../aaa.js'
+import Account from '../../account.js'
 
 var account = new Account()
 var profileForm = new ProfileForm()
@@ -38,7 +38,6 @@ const updateProfile = () => {
         }
 
         account.update(profileData).then((Resp) => {
-        console.log(Resp)
         // account.cookies(config.session.accountEmail).then((setCookieResult) => {
         //    console.log(setCookieResult)
             // nav.loadNavBarProfilePicture()

@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 """
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ import json
 
 class Reporter:
 
-    def __init__(self, ESConnector, report_type=None):
-        self.ES = ESConnector
+    def __init__(self, connector, report_type=None):
+        self.ES = connector
         self.DB_INDEX = "blast_obj_report"
         self.report_type = report_type
         self.filter_time_gte = """1970-01-01T00:00:00.000Z"""
@@ -54,7 +54,7 @@ class Reporter:
         else:
             raise SystemError("time.report or time.interval must be True")
 
-    def __add__(self, report: dict):
+    def add(self, report: dict):
         try:
             json_query = {
                 "size": 1000,

@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 """
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -23,8 +23,8 @@ from .infra import Infra
 from .node import Node
 from .nodemode import NodeMode
 from .nodetype import NodeType
-from .aaa import Account, Realm
 from .reporter import Reporter
+from .request import Request
 from .scheduler import Scheduler
 from .schedulerManager import SchedulerManager
 from .setting import Setting, Portmap
@@ -32,3 +32,6 @@ from .statistic import Statistic
 from .scenario import Scenario
 from .scenarioManager import ScenarioManager
 from .gsearch import Gsearch
+from .aaa.account import Account
+from .aaa.realm import Realm
+

@@ -1,5 +1,5 @@
 /*
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -29,8 +29,8 @@ var ClusterList = class {
             <div id="simpleWindowInteractive" class="row p-1 m-1"></div>
         `
         this.msgScriptNotFound = `<div class="p-5" style="text-align: center;">
-        <img src="/img/object/cluster.svg" width="92" height="92"><b><h3 class="mt-3">SCRIPT NOT FOUND</h3></b>
-        Add a script from this page\'s form to see it appearing into this list.</div>`
+        <img src="/img/object/cluster.svg" width="92" height="92"><b><h3 class="mt-3">CLUSTER NOT FOUND</h3></b>
+        Add a cluster from this page\'s form to see it appearing into this list.</div>`
     }
 
     set parentName(pn) { this.pn = pn }
@@ -63,7 +63,7 @@ var ClusterList = class {
                         <div class="card-title" style="font-size: 16px">` + objectData["_source"]["name"] + `</div>
                         <span style="font-size: 12px">` + objectData["_source"]["description"] + `</span><br>
                     </div>
-                    <div class="card-footer bg-gradient text-center text-dark p-0" style="background-color: #FFE873">
+                    <div class="card-footer bg-gradient text-center text-dark p-0 border-0" style="background-color: #FFE873">
                         <span class="fw-lighter" style="font-size: 12px;">` + recId + `</span>
                     </div>
             </a>`
@@ -173,22 +173,16 @@ var ClusterList = class {
     }
 
     simpleListWindowCoreData() {
-        try {
-            let pageLength = $("select#selSamplePerPage option:selected").val()
-            pageLength === undefined ? this.numRecord = 30 : this.numRecord = parseInt(pageLength)
-            cluster.list().then((clusters) => {
-                if (clusters["hits"]["total"]["value"] > 0) {
-                    this.simpleListCoreData(clusters["hits"]["hits"])
-                    this.simpleListWindowPagination()
-                } else {
-                    throw 'noClustersFound'
-                }
-            })
-        } catch (e) {
-            if (e === 'noClustersFound') {
+        let pageLength = $("select#selSamplePerPage option:selected").val()
+        pageLength === undefined ? this.numRecord = 30 : this.numRecord = parseInt(pageLength)
+        cluster.list().then((clusters) => {
+            if (clusters["hits"]["total"]["value"] > 0) {
+                this.simpleListCoreData(clusters["hits"]["hits"])
+                this.simpleListWindowPagination()
+            } else {
                 $("#" + this.parentName).html(this.msgScriptNotFound)
             }
-        }
+        })
     }
 
     render = (parentName) => {

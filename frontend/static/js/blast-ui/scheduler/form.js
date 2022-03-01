@@ -1,5 +1,5 @@
 /*
- *   Copyright 2021 Jerome DE LUCCHI
+ *   Copyright 2022 Jerome DE LUCCHI
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,8 +16,12 @@
 
 import Scheduler from '../../scheduler.js'
 import ScenarioFilterAndSelect from '../scenario/filterAndSelect.js'
-
+import Toast from '../main/notification/toast.js'
+import {dictionary} from '../main/message/en/dictionary.js'
+var toast = new Toast()
+var scheduler = new Scheduler()
 var scenarioFilterAndSelect = new ScenarioFilterAndSelect()
+toast.msgPicture = '../../../img/object/scheduler.svg'
 
 var SchedulerForm = class {
 
@@ -188,12 +192,19 @@ var SchedulerForm = class {
 
     saveScheduler = () => {
         this.setFormData()
-        console.log(this)
-        let scheduler = new Scheduler()
-        scheduler.add(this.formData).then(function(R) {
-            if ( Object.keys(R).includes("result") && R["result"] === 'created' ) {
-                location.reload()
+        let actionRes, schedulerData = this.formData
+        scheduler.add(schedulerData).then((Resp) => {
+            if (Resp["result"] === "created") {
+                toast.msgTitle = "Scheduler create Success"
+                toast.msgText = dictionary["scheduler"]["add"].replace('%schedulerName%', schedulerData["name"])
+                actionRes = "success"
+            } else if ( Object.keys(Resp).includes("failure") ) {
+                toast.msgTitle = "Scheduler create Failure"
+                toast.msgText = Resp["failure"]
+                actionRes = "failure"
             }
+            toast.notify(actionRes)
+            setTimeout(() => { location.reload() }, 2000)
         })
     }
 

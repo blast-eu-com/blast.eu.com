@@ -1,5 +1,5 @@
 /*
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ const ScriptListInfo = class {
     addListInfo = (script) => {
         console.log(script)
         let html = `
-            <img style="margin-left: 1rem" src="` + script.logoImgPath + `" height="56" width="56" />
             <table style="margin-top: 1rem" class="table"><thead></thead>
             <tr><td>script id</td><td>` + script.id + `</td></tr>
         `

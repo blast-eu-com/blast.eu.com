@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright 2021 Jerome DE LUCCHI
+# Copyright 2022 Jerome DE LUCCHI
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,6 +19,9 @@ BLAST_FRONTEND_GIT_URL="https://github.com/blast-eu-com/blast.eu.com"
 BLAST_FRONTEND_ACTIVE_PROTO="HTTP"
 BLAST_FRONTEND_HTTP_PORT="18080"
 BLAST_FRONTEND_HTTPS_PORT="10443"
+BLAST_FRONTEND_HTTPS_CERTIFICATE=""
+BLAST_FRONTEND_HTTPS_CERTIFICATE_KEY=""
+BLAST_FRONTEND_HTTPS_PROTOCOLS="TLSv1.2"
 BLAST_BACKEND_HOSTNAME="127.0.0.1"
 BLAST_BACKEND_PORT="28080"
 BLAST_FRONTEND_USER="blast"
@@ -54,7 +57,7 @@ echo_step_phase () {
 
 install_blast_frontend_user () {
   echo_step_phase "@blastFront +add user"
-  useradd -m -U -c "blast user" -s "/sbin/nologin" $BLAST_FRONTEND_USER
+  useradd -m -U -c "blast user" -s `which nologin` $BLAST_FRONTEND_USER
 }
 
 install_blast_frontend_root_folder () {
@@ -109,24 +112,37 @@ install_blast_frontend_config_system_tree () {
 
 install_blast_frontend_config_http () {
   echo_step_phase "@blastFrontend +install nginx config http"
-  sed -e "s|%BLAST_BACKEND_HOSTNAME%|${BLAST_BACKEND_HOSTNAME}|g" \
-      -e "s|%BLAST_BACKEND_PORT%|${BLAST_BACKEND_PORT}|g" \
-      -e "s|%BLAST_FRONTEND_PATH%|${BLAST_FRONTEND_PATH}|g" \
+  sed -e "s|%BLAST_FRONTEND_PATH%|${BLAST_FRONTEND_PATH}|g" \
       -e "s|%BLAST_FRONTEND_RUN_PATH%|${BLAST_FRONTEND_RUN_PATH}|g" \
       -e "s|%BLAST_FRONTEND_LOG_PATH%|${BLAST_FRONTEND_LOG_PATH}|g" \
       -e "s|%BLAST_FRONTEND_HTTP_PORT%|${BLAST_FRONTEND_HTTP_PORT}|g" \
-      "${BLAST_FRONTEND_INSTALL_TMP}/installer/frontend/http_blast_frontend.conf" >"${BLAST_FRONTEND_PATH}/http_blast_frontend.conf"
+      -e "s|%BLAST_BACKEND_HOSTNAME%|${BLAST_BACKEND_HOSTNAME}|g" \
+      -e "s|%BLAST_BACKEND_PORT%|${BLAST_BACKEND_PORT}|g" \
+      "${BLAST_FRONTEND_INSTALL_TMP}/installer/frontend/blast_http_frontend.conf" >"${BLAST_FRONTEND_PATH}/blast_http_frontend.conf"
+
+  # Setup upstream block to allow multiple backend to be served by the frontend
+  for B in `echo ${BLAST_BACKEND_HOSTNAME}| sed 's/,/ /'`; do
+    sed -ri "s|upstream blast_backend \{|upstream blast_backend \{\n\t\tserver ${B}:${BLAST_BACKEND_PORT};|" "${BLAST_FRONTEND_PATH}/blast_http_frontend.conf"
+  done
 }
 
 install_blast_frontend_config_https () {
   echo_step_phase "@blastFrontend +install nginx config https"
-  sed -e "s|%BLAST_BACKEND_HOSTNAME%|${BLAST_BACKEND_HOSTNAME}|g" \
-      -e "s|%BLAST_BACKEND_PORT%|${BLAST_BACKEND_PORT}|g" \
-      -e "s|%BLAST_FRONTEND_PATH%|${BLAST_FRONTEND_PATH}|g" \
+  sed -e "s|%BLAST_FRONTEND_PATH%|${BLAST_FRONTEND_PATH}|g" \
       -e "s|%BLAST_FRONTEND_RUN_PATH%|${BLAST_FRONTEND_RUN_PATH}|g" \
       -e "s|%BLAST_FRONTEND_LOG_PATH%|${BLAST_FRONTEND_LOG_PATH}|g" \
       -e "s|%BLAST_FRONTEND_HTTPS_PORT%|${BLAST_FRONTEND_HTTPS_PORT}|g" \
-      "${BLAST_FRONTEND_INSTALL_TMP}/installer/frontend/https_blast_frontend.conf" >"${BLAST_FRONTEND_PATH}/https_blast_frontend_conf"
+      -e "s|%BLAST_FRONTEND_HTTPS_CERTIFICATE%|${BLAST_FRONTEND_HTTPS_CERTIFICATE}|g" \
+      -e "s|%BLAST_FRONTEND_HTTPS_CERTIFICATE_KEY%|${BLAST_FRONTEND_HTTPS_CERTIFICATE_KEY}|g" \
+      -e "s|%BLAST_FRONTEND_HTTPS_PROTOCOLS%|${BLAST_FRONTEND_HTTPS_PROTOCOLS}|g" \
+      -e "s|%BLAST_BACKEND_HOSTNAME%|${BLAST_BACKEND_HOSTNAME}|g" \
+      -e "s|%BLAST_BACKEND_PORT%|${BLAST_BACKEND_PORT}|g" \
+      "${BLAST_FRONTEND_INSTALL_TMP}/installer/frontend/blast_https_frontend.conf" >"${BLAST_FRONTEND_PATH}/blast_https_frontend_conf"
+
+  # Setup upstream block to allow multiple backend to be served by the frontend
+  for B in `echo ${BLAST_BACKEND_HOSTNAME}| sed 's/,/ /'`; do
+    sed -ri "s|upstream blast_backend \{|upstream blast_backend \{\n\t\tserver ${B}:${BLAST_BACKEND_PORT};|" "${BLAST_FRONTEND_PATH}/blast_https_frontend.conf"
+  done
 }
 
 install_blast_frontend_config_service () {

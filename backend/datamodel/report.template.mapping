@@ -1,40 +1,42 @@
 {
-  "index_patterns": "blast_obj_report",
-  "order": 99,
-  "mappings" : {
-    "dynamic": false,
-    "properties" : {
-        "report_type": { "type": "keyword" },
-        "execution_id": { "type": "keyword" },
-        "scheduler_id": { "type": "keyword" },
-        "scenario_id": { "type": "keyword" },
-        "scenario_ids": { "type": "keyword" },
-        "script_id": { "type": "keyword" },
-        "node_id": { "type": "keyword" },
-        "realm": { "type": "keyword" },
-        "name": { "type": "keyword" },
-        "description": { "type": "text" },
-        "account_email": { "type": "keyword" },
-        "output": { "type": "text" },
-        "status": { "type": "keyword" },
-        "start_at": { "type": "date" },
-        "end_at": { "type": "date" },
-        "duration": {
-            "type": "nested",
-            "properties": {
-                "start_at": { "type": "float" },
-                "end_at": { "type": "float" },
-                "time": { "type": "float" },
-                "avg": { "type": "float" }
+    "index_patterns": "blast_obj_report",
+    "priority": 99,
+    "template": {
+        "mappings" : {
+            "dynamic": false,
+            "properties" : {
+                "report_type": { "type": "keyword" },
+                "execution_id": { "type": "keyword" },
+                "scheduler_id": { "type": "keyword" },
+                "scenario_id": { "type": "keyword" },
+                "scenario_ids": { "type": "keyword" },
+                "script_id": { "type": "keyword" },
+                "node_id": { "type": "keyword" },
+                "realm": { "type": "keyword" },
+                "name": { "type": "keyword" },
+                "description": { "type": "text" },
+                "account_email": { "type": "keyword" },
+                "output": { "type": "text" },
+                "status": { "type": "keyword" },
+                "start_at": { "type": "date" },
+                "end_at": { "type": "date" },
+                "duration": {
+                    "type": "nested",
+                    "properties": {
+                        "start_at": { "type": "float" },
+                        "end_at": { "type": "float" },
+                        "time": { "type": "float" },
+                        "avg": { "type": "float" }
+                    }
+                }
+            }
+        },
+        "settings" : {
+            "index" : {
+                "number_of_shards" : "1",
+                "number_of_replicas" : "0",
+                "refresh_interval": "1s"
             }
         }
     }
-  },
-  "settings" : {
-    "index" : {
-        "number_of_shards" : "1",
-        "number_of_replicas" : "0",
-        "refresh_interval": "1s"
-    }
-  }
 }

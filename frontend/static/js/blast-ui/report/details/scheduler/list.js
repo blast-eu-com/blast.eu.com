@@ -1,5 +1,5 @@
 /*
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -38,9 +38,9 @@ const ReportSchedulerList = class {
             </ul>
         `
 
-        this._parentName = undefined
-        this._reportData = undefined
-        this._reportDataScrollId = undefined
+        this._parentName
+        this._reportData
+        this._reportDataScrollId
     }
 
     set parentName(pn) { this._parentName = pn }
@@ -122,23 +122,17 @@ const ReportSchedulerList = class {
         filterScrollData('scheduler', this.reportDataScrollId).then((reportData) => {
             this.reportData = reportData["hits"]["hits"]
             this.reportDataScrollId = reportData["_scroll_id"]
-            this.reportData.forEach((schedulerData) => {
-                this.addReporterList(schedulerData)
-            })
+            this.reportData.forEach((schedulerData) => { this.addReporterList(schedulerData) })
         })
     }
 
-    render = (parentName, formData) => {
+    render = async (parentName, formData) => {
         this.parentName = parentName
         this.addFrame()
-        console.log(formData)
-        filterScroll(formData).then((reportData) => {
-            this.reportData = reportData["hits"]["hits"]
-            this.reportDataScrollId = reportData["_scroll_id"]
-            this.reportData.forEach((schedulerData) => {
-                this.addReporterList(schedulerData)
-            })
-        })
+        let reportData = await filterScroll(formData)
+        this.reportData = reportData["hits"]["hits"]
+        this.reportDataScrollId = reportData["_scroll_id"]
+        this.reportData.forEach((schedulerData) => { this.addReporterList(schedulerData) })
 
         let options = {
             "root": document.querySelector("#reporterSchedulerListContainer"),

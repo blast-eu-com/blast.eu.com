@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 """
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ class NodeMode:
         self.ES = ESConnector
         self.DB_INDEX = 'blast_node_mode'
 
-    def __list__(self):
+    def list(self):
 
         """ this function returns all the node mode """
         try:

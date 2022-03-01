@@ -1,20 +1,20 @@
 {
-  "index_patterns": "blast_node_type",
-  "order": 99,
-  "mappings" : {
-    "dynamic": false,
-    "properties" : {
-      "type": {
-        "type" : "keyword"
-      }
+    "index_patterns": "blast_node_type",
+    "priority": 99,
+    "template": {
+        "mappings" : {
+            "dynamic": false,
+            "properties" : {
+                "type": { "type" : "keyword" }
+            }
+        },
+        "settings" : {
+            "index" : {
+                "number_of_shards" : "1",
+                "number_of_replicas" : "0",
+                "refresh_interval": "1s"
+            }
+        }
     }
-  },
-  "settings" : {
-    "index" : {
-        "number_of_shards" : "1",
-        "number_of_replicas" : "0",
-        "refresh_interval": "1s"
-    }
-  }
 }
 

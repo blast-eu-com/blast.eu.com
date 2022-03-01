@@ -1,5 +1,5 @@
 /*
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -53,7 +53,6 @@ const SchedulerOnGoing = class {
                 let delta = current_at - report["_source"]["duration"]["start_at"]
                 if ( delta > 0 && Object.keys(report["_source"]["duration"]).includes("avg")) {
                     let percent = parseInt((delta / report["_source"]["duration"]["avg"])*100)
-                    console.log(current_at, report["_source"]["duration"]["start_at"], delta, report["_source"]["duration"]["avg"], percent)
                     html = html + `
                     <tr>
                     <td>` + report["_source"]["execution_id"] + `</td>

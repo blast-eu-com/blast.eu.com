@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 """
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -14,15 +14,16 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 """
-import re
 import sys
+import re
 import json
-import threading
 import yaml
+from functools import wraps
 from flask_cors import CORS
 from flask import Flask, request, Response
 from api.db import ESConnector
-from api.aaa import Account, Realm
+from api.aaa.account import Account
+from api.aaa.realm import Realm
 from api.script import Script
 from api.scriptlang import Scriptlang
 from api.cluster import Cluster
@@ -30,6 +31,7 @@ from api.gsearch import Gsearch
 from api.node import Node
 from api.nodemode import NodeMode
 from api.infra import Infra
+from api.request import Request
 from api.reporter import Reporter
 from api.scenario import Scenario
 from api.setting import Setting, Portmap
@@ -58,18 +60,103 @@ except KeyError:
 
 @app.before_request
 def jwtrequired():
-
-    """ this function is called before processing any request to check the jwt
-        except if the request trigger the login endpoint """
+    """
+        This function is called before processing any request to check
+        the jwt except if the request trigger the login endpoint.
+        The goal here is to confirm the identity of the requestor.
+        The requestor account_email passed in  the cookie is compare
+        to the owner of the token.
+    """
     account = Account(ES)
     if request.path in ["/api/v1/aaa/accounts/authenticate", "/api/v1/aaa/accounts"]:
         return None
-    elif re.match(r'/api/v1/aaa/accounts/profile', request.path) and request.method == "GET":
-        account_email = request.args.get('email')
+    elif re.match(r'/api/v1/aaa/accounts/profile/[a-zA-Z\-\_\.]{6,}\@[a-zA-z]+\.[a-zA-Z\.]+', request.path) and request.method == "GET":
+        account_email = re.search(r'[a-zA-Z\-\_\.]{6,}\@[a-zA-z]+\.[a-zA-Z\.]+', request.path).group()
     else:
         account_email = json.loads(request.cookies.get('account'))["email"]
     token = request.headers['AUTHORIZATION'].split()[1]
     return None if account.is_valid_token(account_email, token) else Response(json.dumps({"tokenExpired": True}))
+
+
+def active_realm_member(f):
+    """
+        This decorator forbidden no active realm member to access the data of the realm
+        targeted by the route url
+    """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        realm = Realm(ES)
+        account_email = json.loads(request.cookies.get('account'))["email"]
+        if not realm.is_active_realm_member(account_email, kwargs["realm"]):
+            return Response(json.dumps({"failure": "permission_denied", "message": "This realm is not your active realm"}))
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+def realm_member(f):
+    """ This decorator forbidden no realm member to access the data of the realm
+    targeted by the route url """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        realm = Realm(ES)
+        account_email = json.loads(request.cookies.get('account'))["email"]
+        if not realm.is_realm_member(account_email, kwargs["realm"]):
+            return Response(json.dumps({"failure": "permission_denied", "message": "You are not member of this realm"}))
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+def regular_realm_member(f):
+    """ This decorator forbidden no regular realm member to access the data of the realm
+    targeted by the route url """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        realm = Realm(ES)
+        account_email = json.loads(request.cookies.get('account'))["email"]
+        if not realm.is_regular_realm_member(account_email, kwargs["realm"]):
+            return Response(json.dumps({"failure": "permission_denied", "message": "You are not member of this realm"}))
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+def delegate_or_owner_realm_member(f):
+    """ This decorator forbidden no delegate realm member to access the data of the realm
+        targeted by the route url """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        realm = Realm(ES)
+        account_email = json.loads(request.cookies.get('account'))["email"]
+        if not realm.is_delegate_realm_member(account_email, kwargs["realm"]) and not realm.is_owner_realm_member(account_email, kwargs["realm"]):
+            return Response(json.dumps({"failure": "permission_denied", "message": "You are not member of this realm"}))
+        return f(*args, **kwargs)
+
+    return decorated_function
+
+
+def delegate_realm_member(f):
+    """ This decorator forbidden no delegate realm member to access the data of the realm
+    targeted by the route url """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        realm = Realm(ES)
+        account_email = json.loads(request.cookies.get('account'))["email"]
+        if not realm.is_delegate_realm_member(account_email, kwargs["realm"]):
+            return Response(json.dumps({"failure": "permission_denied", "message": "You are not member of this realm"}))
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+def owner_realm_member(f):
+    """ This decorator forbidden no owner realm member to access the data of the realm
+    targeted by the route url """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        realm = Realm(ES)
+        account_email = json.loads(request.cookies.get('account'))["email"]
+        if not realm.is_owner_realm_member(account_email, kwargs["realm"]):
+            return Response(json.dumps({"failure": "permission_denied", "message": "You are not member of this realm"}))
+        return f(*args, **kwargs)
+    return decorated_function
 
 # * *********************************************************************************************************
 # *
@@ -80,19 +167,32 @@ def jwtrequired():
 def aaa_account_add():
     """ this function add a new account using the aaa endpoint """
     account = Account(ES)
-    return Response(json.dumps(account.__add__(request.get_json())))
+    realm = Realm(ES)
+    payload = request.get_json()
+    account_data = {"email": payload["email"], "password": payload["password"]}
+    realm_data = {"name": payload["realm_name"], "member": payload["email"], "active": payload["realm_active"], "role": payload["realm_role"]}
+
+    account_add_result = account.add(account_data)
+    if "failure" in account_add_result.keys():
+        return Response(json.dumps(account_add_result))
+
+    realm_add_result = realm.add(realm_data)
+    if "failure" in realm_add_result.keys():
+        return Response(json.dumps(realm_add_result))
+
+    return Response(json.dumps(account_add_result))
 
 @app.route('/api/v1/aaa/accounts', methods=["GET"])
-def aaa_account_list(ids):
+def aaa_account_list():
     """ this function list all the account """
     account = Account(ES)
-    return Response(json.dumps(account.__list__()))
+    return Response(json.dumps(account.list()))
 
-@app.route('/api/v1/aaa/accounts/<ids>', methods=["GET"])
-def aaa_account_list_by_id(ids):
+@app.route('/api/v1/aaa/accounts/<id>', methods=["GET"])
+def aaa_account_list_by_id(id):
     """ this function returns the details of the account with id """
     account = Account(ES)
-    return Response(json.dumps(account.list_by_ids(ids.split(','))))
+    return Response(json.dumps(account.list_by_id(id)))
 
 @app.route('/api/v1/aaa/accounts/<id>', methods=["PUT"])
 def aaa_account_update(id):
@@ -110,13 +210,12 @@ def aaa_account_update(id):
     }
     return Response(json.dumps(account.update_profile(id, account_data)))
 
-@app.route('/api/v1/aaa/accounts/<ids>', methods=["DELETE"])
-def aaa_account_delete(ids):
+@app.route('/api/v1/aaa/accounts/<id>', methods=["DELETE"])
+def aaa_account_delete(id):
     """ this function remove an existing account using the aaa endpoint """
     account = Account(ES)
     account_email = json.loads(request.cookies.get('account'))["email"]
-    account_ids = [id.replace("id=", "") for id in ids.split("&")]
-    return Response(json.dumps(account.__delete__(account_email, account_ids)))
+    return Response(json.dumps(account.delete(account_email, id)))
 
 @app.route('/api/v1/aaa/accounts/authenticate', methods=["POST"])
 def aaa_login():
@@ -134,25 +233,11 @@ def aaa_account_password_update():
     password_data = {"old": request.get_json()["old_password"], "new": request.get_json()["new_password"]}
     return Response(json.dumps(account.update_password(account_id, password_data)))
 
-@app.route('/api/v1/aaa/accounts/profile', methods=["GET"])
-def aaa_load_profile():
+@app.route('/api/v1/aaa/accounts/profile/<email>', methods=["GET"])
+def aaa_load_profile(email):
     """ this function load the account which will be used as cookie """
     account = Account(ES)
-    return Response(json.dumps(account.load_account_profile(request.args.get("email"))))
-
-@app.route('/api/v1/aaa/accounts/realms', methods=["PUT"])
-def aaa_account_activate_realm(realm):
-    """ this function activate an account realm """
-    account = Account(ES)
-    realm = request.get_json()["realm"]
-    account_email = json.loads(request.cookies.get('account'))["email"]
-    return Response(json.dumps(account.activate_realm(account_email, realm)))
-
-@app.route('/api/v1/realms/<realm>/accounts', methods=["GET"])
-def aaa_account_list_by_realm(realm):
-    """ this function return the account by given realm """
-    account = Account(ES)
-    return Response(json.dumps(account.list_by_realm(realm)))
+    return Response(json.dumps(account.load_account_profile(email)))
 
 # * *********************************************************************************************************
 # *
@@ -160,10 +245,10 @@ def aaa_account_list_by_realm(realm):
 # *
 # * *********************************************************************************************************
 @app.route('/api/v1/realms/<realm>/scripts', methods=['POST'])
+@active_realm_member
 def script_add(realm):
     """ this function add a new ansible playbook """
     script = Script(ES)
-    account = Account(ES)
     account_email = json.loads(request.cookies.get('account'))["email"]
 
     # Build script name based on the script filename
@@ -184,79 +269,49 @@ def script_add(realm):
         "script_type": request.form["script_type"]
     }
 
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(script.__add__(realm, data)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
+    return Response(json.dumps(script.add(account_email, realm, data)))
 
 @app.route('/api/v1/realms/<realm>/scripts', methods=['DELETE'])
+@active_realm_member
 def script_delete(realm):
     """ this function delete one script identify by given id from the given realm """
     script = Script(ES)
-    account = Account(ES)
+    script_id = request.get_json()["script_id"]
     account_email = json.loads(request.cookies.get('account'))["email"]
-    script_ids = request.get_json()["script_ids"]
-
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(script.__delete__(realm, script_ids)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
+    return Response(json.dumps(script.delete(account_email, realm, script_id)))
 
 @app.route('/api/v1/realms/<realm>/scripts', methods=['GET'])
+@active_realm_member
 def script_list(realm):
     """ this function returns all scripts """
     script = Script(ES)
-    account = Account(ES)
-    account_email = json.loads(request.cookies.get('account'))["email"]
+    return Response(json.dumps(script.list(realm)))
 
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(script.__list__(realm)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
-
-@app.route('/api/v1/realms/<realm>/scripts/<ids>', methods=["GET"])
-def script_list_by_ids(realm, ids):
+@app.route('/api/v1/realms/<realm>/scripts/<script_id>', methods=["GET"])
+@active_realm_member
+def script_list_by_ids(realm, script_id):
     """ this function returns the script for the given id """
     script = Script(ES)
-    account = Account(ES)
-    account_email = json.loads(request.cookies.get('account'))["email"]
-    script_ids = [id.replace("id=", "") for id in ids.split('&')]
+    return Response(json.dumps(script.list_by_id(realm, script_id)))
 
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(script.list_by_ids(realm, script_ids)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
-
-@app.route('/api/v1/realms/<realm>/scripts/name/<names>', methods=["GET"])
-def script_list_by_names(realm, names):
+@app.route('/api/v1/realms/<realm>/scripts/name/<name>', methods=["GET"])
+@active_realm_member
+def script_list_by_names(realm, name):
     """ this function returns the script for the given name """
     script = Script(ES)
-    account = Account(ES)
-    account_email = json.loads(request.cookies.get('account'))["email"]
-    script_names = [name.replace("name=", "") for name in names.split('&')]
+    return Response(json.dumps(script.list_by_name(realm, name)))
 
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(script.list_by_names(realm, script_names)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
-
-@app.route('/api/v1/realms/<realm>/scripts/roles/<roles>', methods=["GET"])
-def script_list_by_roles(realm, roles):
+@app.route('/api/v1/realms/<realm>/scripts/roles/<role>', methods=["GET"])
+@active_realm_member
+def script_list_by_roles(realm, role):
     """ this function returns the script for the given roles """
     script = Script(ES)
-    account = Account(ES)
-    account_email = json.loads(request.cookies.get('account'))["email"]
-    script_roles = [role.replace("role=", "") for role in roles.split('&')]
-
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(script.list_by_roles(realm, script_roles)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
+    return Response(json.dumps(script.list_by_role(realm, role)))
 
 @app.route('/api/v1/scripts/langs', methods=["GET"])
 def script_list_langs():
     scriptlang = Scriptlang(ES)
-    return Response(json.dumps(scriptlang.__list__()))
+    return Response(json.dumps(scriptlang.list()))
 
 # * *********************************************************************************************************
 # *
@@ -264,138 +319,80 @@ def script_list_langs():
 # *
 # * *********************************************************************************************************
 @app.route('/api/v1/realms/<realm>/clusters', methods=['GET'])
+@active_realm_member
 def cluster_list(realm):
     """ this function returns all the registered cluster """
     cluster = Cluster(ES)
-    account = Account(ES)
-    account_email = json.loads(request.cookies.get('account'))["email"]
-
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(cluster.__list__(realm)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
+    return Response(json.dumps(cluster.list(realm)))
 
 @app.route('/api/v1/realms/<realm>/clusters', methods=['POST'])
+@active_realm_member
 def cluster_add(realm):
     """ this function add a cluster reference """
     cluster = Cluster(ES)
-    account = Account(ES)
-    clusters = request.get_json()["clusters"]
+    cluster_data = request.get_json()["cluster"]
     account_email = json.loads(request.cookies.get('account'))["email"]
-
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(cluster.__add__(account_email, realm, clusters)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
+    return Response(json.dumps(cluster.add(account_email, realm, cluster_data)))
 
 @app.route('/api/v1/realms/<realm>/clusters', methods=["PUT"])
+@active_realm_member
 def cluster_update(realm):
     """ This function update one or more clusters """
     cluster = Cluster(ES)
-    account = Account(ES)
-    clusters = request.get_json()
+    cluster_data = request.get_json()
     account_email = json.loads(request.cookies.get('account'))["email"]
+    return Response(json.dumps(cluster.update(account_email, realm, cluster_data)))
 
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(cluster.update(account_email, realm, clusters)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
-
-@app.route('/api/v1/realms/<realm>/clusters', methods=['DELETE'])
-def cluster_delete(realm):
+@app.route('/api/v1/realms/<realm>/clusters/<cluster_id>', methods=['DELETE'])
+@active_realm_member
+def cluster_delete(realm, cluster_id):
     """ this function delete a cluster reference """
     cluster = Cluster(ES)
-    account = Account(ES)
     account_email = json.loads(request.cookies.get('account'))["email"]
-    cluster_ids = request.get_json()["cluster_ids"]
+    return Response(json.dumps(cluster.delete(account_email, realm, cluster_id)))
 
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(cluster.__delete__(account_email, realm, cluster_ids)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
-
-@app.route('/api/v1/realms/<realm>/clusters/ids', methods=['GET'])
-def cluster_list_by_ids(realm):
+@app.route('/api/v1/realms/<realm>/clusters/<cluster_id>', methods=['GET'])
+@active_realm_member
+def cluster_list_by_id(realm, cluster_id):
     """ this function returns the doc matching the cluster id """
-
     cluster = Cluster(ES)
-    account = Account(ES)
-    account_email = json.loads(request.cookies.get('account'))["email"]
-    cluster_ids = request.args.getlist('ids[]')
+    return Response(json.dumps(cluster.list_by_id(realm, cluster_id)))
 
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(cluster.list_by_ids(realm, cluster_ids)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
-
-@app.route('/api/v1/realms/<realm>/clusters/<id>/nodes', methods=['GET'])
-def cluster_list_node(realm, id):
+@app.route('/api/v1/realms/<realm>/clusters/<cluster_id>/nodes', methods=['POST'])
+@active_realm_member
+def cluster_add_node(realm, cluster_id):
     """ this function add a cluster node """
     cluster = Cluster(ES)
-    account = Account(ES)
+    node_data = request.get_json()["node"]
     account_email = json.loads(request.cookies.get('account'))["email"]
+    return Response(json.dumps(cluster.add_node(account_email, realm, cluster_id, node_data)))
 
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(cluster.list_nodes(realm, id)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
-
-@app.route('/api/v1/realms/<realm>/clusters/<id>/nodes', methods=['POST'])
-def cluster_add_node(realm, id):
-    """ this function add a cluster node """
-    cluster = Cluster(ES)
-    account = Account(ES)
-    nodes = request.get_json()["nodes"]
-    account_email = json.loads(request.cookies.get('account'))["email"]
-
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(cluster.add_nodes(account_email, realm, id, nodes)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
-
-@app.route('/api/v1/realms/<realm>/clusters/<id>/nodes', methods=['DELETE'])
-def cluster_delete_node(realm, id):
+@app.route('/api/v1/realms/<realm>/clusters/<cluster_id>/nodes/<node_name>', methods=['DELETE'])
+@active_realm_member
+def cluster_delete_node(realm, cluster_id, node_name):
     """ this function delete a node from cluster """
     cluster = Cluster(ES)
-    account = Account(ES)
-    node_ids = request.get_json()["node_ids"]
     account_email = json.loads(request.cookies.get('account'))["email"]
-
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(cluster.delete_nodes(account_email, realm, id, node_ids)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
+    return Response(json.dumps(cluster.delete_node(account_email, realm, cluster_id, node_name)))
 
 # * *********************************************************************************************************
 # *
 # * INFRASTRUCTURE PART -*- INFRASTRUCTURE PART -*- INFRASTRUCTURE PART -*- INFRASTRUCTURE PART -*- INFRASTRUCTURE PART
 # *
 # * *********************************************************************************************************
-@app.route('/api/v1/realms/<realm>/global/filter', methods=['GET'])
-def global_filter(realm):
+@app.route('/api/v1/realms/<realm>/global/filter/<string>', methods=['GET'])
+@active_realm_member
+def global_filter(realm, string):
     """ this function returns all objects matching the string passed via the get """
-    account = Account(ES)
     gsearch = Gsearch(ES)
-    string = request.args.get('string')
-    account_email = json.loads(request.cookies.get('account'))['email']
+    return Response(json.dumps(gsearch.search(realm, string)))
 
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(gsearch.search(realm, string)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
-
-@app.route('/api/v1/realms/<realm>/global/filter/scroll', methods=["GET"])
-def global_filter_scroll(realm):
+@app.route('/api/v1/realms/<realm>/global/filter/scroll/<scroll_id>', methods=["GET"])
+@active_realm_member
+def global_filter_scroll(realm, scroll_id):
     """ this function returns all objects matching the scroll id passed via the get """
-    account = Account(ES)
     gsearch = Gsearch(ES)
-    scroll_id = request.args.get('_scroll_id')
-    account_email = json.loads(request.cookies.get('account'))['email']
-
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(gsearch.search_scroll(realm, scroll_id)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
+    return Response(json.dumps(gsearch.search_scroll(realm, scroll_id)))
 
 
 # * *********************************************************************************************************
@@ -404,214 +401,139 @@ def global_filter_scroll(realm):
 # *
 # * *********************************************************************************************************
 @app.route('/api/v1/realms/<realm>/infrastructures', methods=['GET'])
+@active_realm_member
 def infrastructure_list(realm):
     """ this function returns a json string containing all the infrastructure """
     infra = Infra(ES)
-    account = Account(ES)
-    account_email = json.loads(request.cookies.get('account'))["email"]
-
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(infra.__list__(realm)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
+    return Response(json.dumps(infra.list(realm)))
 
 @app.route('/api/v1/realms/<realm>/infrastructures', methods=['POST'])
+@active_realm_member
 def infrastructure_add(realm):
     """ this function returns a json string containing the result of addition """
     infra = Infra(ES)
-    account = Account(ES)
-    infrastructures = request.get_json()["infrastructures"]
+    infrastructure = request.get_json()["infrastructure"]
     account_email = json.loads(request.cookies.get('account'))["email"]
-
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(infra.__add__(account_email, realm, infrastructures)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
+    return Response(json.dumps(infra.add(account_email, realm, infrastructure)))
 
 @app.route('/api/v1/realms/<realm>/infrastructures', methods=["PUT"])
+@active_realm_member
 def infrastructure_update(realm):
     """ This function update one or more infrastructures """
     infra = Infra(ES)
-    account = Account(ES)
     infrastructures = request.get_json()
     account_email = json.loads(request.cookies.get('account'))["email"]
+    return Response(json.dumps(infra.update(account_email, realm, infrastructures)))
 
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(infra.update(account_email, realm, infrastructures)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
-
-@app.route('/api/v1/realms/<realm>/infrastructures/ids', methods=['GET'])
-def infrastructure_list_by_id(realm):
+@app.route('/api/v1/realms/<realm>/infrastructures/<infra_id>', methods=['GET'])
+@active_realm_member
+def infrastructure_list_by_id(realm, infra_id):
     """ this function returns the doc matching the infrastructure id """
     infra = Infra(ES)
-    account = Account(ES)
-    account_email = json.loads(request.cookies.get('account'))["email"]
-    infra_ids = request.args.getlist('ids[]')
-
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(infra.list_by_ids(realm, infra_ids)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
+    return Response(json.dumps(infra.list_by_id(realm, infra_id)))
 
 @app.route('/api/v1/realms/<realm>/infrastructures', methods=['DELETE'])
+@active_realm_member
 def infrastructure_delete(realm):
     """ this function returns a json string containing the result of deletion """
     infra = Infra(ES)
-    account = Account(ES)
     account_email = json.loads(request.cookies.get('account'))["email"]
-    infra_ids = request.get_json()["infrastructure_ids"]
-
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(infra.__delete__(account_email, realm, infra_ids)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
+    infra_id = request.get_json()["infrastructure_id"]
+    return Response(json.dumps(infra.delete(account_email, realm, infra_id)))
 
 @app.route('/api/v1/realms/<realm>/infrastructures/<id>/clusters', methods=['POST'])
+@active_realm_member
 def infrastructure_add_cluster(realm, id):
     """ this function adds a link between an infrastructure and an existing cluster """
     infra = Infra(ES)
-    account = Account(ES)
-    clusters = request.get_json()["clusters"]
+    cluster = request.get_json()["cluster"]
     account_email = json.loads(request.cookies.get('account'))["email"]
-
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(infra.add_clusters(account_email, realm, id, clusters)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
+    return Response(json.dumps(infra.add_cluster(account_email, realm, id, cluster)))
 
 @app.route('/api/v1/realms/<realm>/infrastructures/<id>/clusters', methods=['DELETE'])
+@active_realm_member
 def infrastructure_delete_cluster(realm, id):
     """ this function remove an existing link between an infrastructure and a cluster"""
     infra = Infra(ES)
-    account = Account(ES)
     account_email = json.loads(request.cookies.get('account'))["email"]
-    cluster_ids = request.get_json()["cluster_ids"]
-
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(infra.delete_clusters(account_email, realm, id, cluster_ids)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
+    cluster_name = request.get_json()["cluster_name"]
+    return Response(json.dumps(infra.delete_cluster(account_email, realm, id, cluster_name)))
 
 @app.route('/api/v1/realm/<realm>/infrastructures/tree', methods=["GET"])
-def ream_infrastructure_tree(realm):
+@active_realm_member
+def infrastructure_realm_tree(realm):
     """ this function returns the tree """
-    account = Account(ES)
-    account_email = json.loads(request.cookies.get('account'))["email"]
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(realm_infrastructure_tree(ES, realm)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
+    return Response(json.dumps(realm_infrastructure_tree(ES, realm)))
 
 # * *********************************************************************************************************
 # *
 # * NODE PART -*- NODE PART -*- NODE PART -*- NODE PART -*- NODE PART -*- NODE PART -*- NODE PART# *
 # * *********************************************************************************************************
 @app.route('/api/v1/realms/<realm>/nodes', methods=['GET'])
+@active_realm_member
 def node_list(realm):
     """ this function returns the list of nodes by cluster id """
     node = Node(ES)
-    account = Account(ES)
-    account_email = json.loads(request.cookies.get('account'))["email"]
-
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(node.__list__(realm)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
+    return Response(json.dumps(node.list(realm)))
 
 @app.route('/api/v1/realms/<realm>/nodes', methods=['POST'])
+@active_realm_member
 def node_add(realm):
     """ this function add a new node into the database """
     node = Node(ES)
-    account = Account(ES)
-    nodes = request.get_json()["nodes"]
+    node_data = request.get_json()["node"]
     account_email = json.loads(request.cookies.get('account'))["email"]
-
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(node.__add__(account_email, realm, nodes)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
+    return Response(json.dumps(node.add(account_email, realm, node_data)))
 
 @app.route('/api/v1/realms/<realm>/nodes', methods=['PUT'])
+@active_realm_member
 def node_update(realm):
     """ this function update the node data """
     node = Node(ES)
-    account = Account(ES)
     node_data = request.get_json()
-    account_email = json.loads(request.cookies.get('account'))["email"]
-
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(node.update(node_data["id"], node_data["data"])))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
+    return Response(json.dumps(node.update(node_data["id"], node_data["data"])))
 
 @app.route('/api/v1/realms/<realm>/nodes', methods=['DELETE'])
+@active_realm_member
 def node_delete(realm):
     """ this function delete an existing node from the database """
     node = Node(ES)
-    account = Account(ES)
     account_email = json.loads(request.cookies.get('account'))["email"]
-    node_ids = request.get_json()["node_ids"]
+    node_id = request.get_json()["node_id"]
+    return Response(json.dumps(node.delete(account_email, realm, node_id)))
 
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(node.__delete__(account_email, realm, node_ids)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
-
-@app.route('/api/v1/realms/<realm>/nodes/ids', methods=['GET'])
-def node_list_by_id(realm):
+@app.route('/api/v1/realms/<realm>/nodes/<node_id>', methods=['GET'])
+@active_realm_member
+def node_list_by_id(realm, node_id):
     """ this function returns the node details by node id """
     node = Node(ES)
-    account = Account(ES)
-    account_email = json.loads(request.cookies.get('account'))["email"]
-    node_ids = request.args.getlist('ids[]')
+    return Response(json.dumps(node.list_by_id(realm, node_id)))
 
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(node.list_by_ids(realm, node_ids)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
-
-@app.route('/api/v1/realms/<realm>/nodes/names', methods=["GET"])
-def node_list_by_nodename(realm):
+@app.route('/api/v1/realms/<realm>/nodes/names/<name>', methods=["GET"])
+@active_realm_member
+def node_list_by_nodename(realm, name):
     """ this function returns the node details for given realm and name """
     node = Node(ES)
-    account = Account(ES)
-    account_email = json.loads(request.cookies.get('account'))["email"]
-    names = request.args.getlist('names[]')
-
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(node.list_by_names(realm, names)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
+    return Response(json.dumps(node.list_by_name(realm, name)))
 
 @app.route('/api/v1/realms/<realm>/nodes/<id>/rescan', methods=['GET'])
+@active_realm_member
 def node_rescan(realm, id):
     """ this function rescan a node which """
     node = Node(ES)
-    account = Account(ES)
-    account_email = json.loads(request.cookies.get('account'))["email"]
-    data = {"id": id, "realm": realm, "account_email": json.loads(request.cookies.get('account'))["email"] }
-
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(node.rescan(data)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
+    data = {"id": id, "realm": realm, "account_email": json.loads(request.cookies.get('account'))["email"]}
+    return Response(json.dumps(node.rescan(data)))
 
 # * *********************************************************************************************************
 # *
 # * NODE MODE PART -*- NODE MODE PART -*- NODE MODE PART -*- NODE MODE PART -*- NODE MODE PART -*- NODE MODE
 # * *********************************************************************************************************
 @app.route('/api/v1/realms/<realm>/nodemode', methods=['GET'])
+@active_realm_member
 def nodemode_list(realm):
     """ this function return the node status """
     node_mode = NodeMode(ES)
-    account = Account(ES)
-    account_email = json.loads(request.cookies.get('account'))["email"]
-
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(node_mode.__list__()))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
+    return Response(json.dumps(node_mode.list()))
 
 # * *********************************************************************************************************
 # *
@@ -621,183 +543,289 @@ def nodemode_list(realm):
 def portmap_list(realm):
     """ This function list all portmaps that belong to a given realm"""
     portmap = Portmap()
-    return Response(json.dumps(portmap.__list__(realm)))
+    return Response(json.dumps(portmap.list(realm)))
 
 
 # * *********************************************************************************************************
 # *
-# * REALM PART -*- ACCREALM PART -*- REALM PART -*- ACCREALM PART -*- REALM PART -*- ACCREALM PART -*- REALM PART# *
+# * REALM PART -*- REALM PART -*- REALM PART -*- ACCREALM PART -*- REALM PART -*- ACCREALM PART -*- REALM PART# *
 # * *********************************************************************************************************
 @app.route('/api/v1/realms', methods=["GET"])
 def realm_list():
-    """ this function list all the realm"""
-    realm = Realm(ES)
-    return Response(json.dumps(realm.__list__()))
+    """
+        This function returns the full list of the existing realms.
+        There are no restrictions for requesting the list of the realms.
+        For security reason, the realm owner is not exposed to the no realm members via Blast UI.
+    """
+    rlm = Realm(ES)
+    return Response(json.dumps(rlm.list()))
 
 @app.route('/api/v1/realms', methods=["POST"])
 def realm_add():
-    """ this function create a new realm """
-    realm = Realm(ES)
-    realms = request.get_json()["realms"]
+    """
+        This function allows any users to create their own realm.
+        There are no restrictions for creating a new realm.
+    """
+    rlm = Realm(ES)
+    payload = request.get_json()["realm"]
     account_email = json.loads(request.cookies.get('account'))["email"]
-    return Response(json.dumps(realm.__add__(account_email, realms)))
+    payload["member"] = account_email
+    return Response(json.dumps(rlm.add(payload)))
 
-@app.route('/api/v1/realms', methods=["PUT"])
-def realm_update_by_id(ids):
-    """ this function update the realm having id as passed in param """
-    realm = Realm(ES)
-    realms = request.get_json()
+@app.route('/api/v1/realms/uniqs', methods=["GET"])
+def realm_list_by_uniq_name():
+    """
+        This function allows any users to create their own realm.
+        There are no restrictions for creating a new realm.
+    """
+    rlm = Realm(ES)
+    return Response(json.dumps(rlm.list_by_uniq_name()))
+
+@app.route('/api/v1/realms/members/<member>', methods=["GET"])
+def realm_list_by_member(member):
+    """
+        This function allows any users to create their own realm.
+        There are no restrictions for creating a new realm.
+    """
+    rlm = Realm(ES)
     account_email = json.loads(request.cookies.get('account'))["email"]
-    return Response(json.dumps(realm.update(realms)))
+    if account_email == member:
+        return Response(json.dumps(rlm.list_by_member(member)))
 
-@app.route('/api/v1/realms/<ids>', methods=["DELETE"])
-def realm_delete(ids):
-    """ this function delete realm """
-    realm = Realm(ES)
+@app.route('/api/v1/realms/<realm>', methods=["PUT"])
+@active_realm_member
+@owner_realm_member
+def realm_update(realm):
+    """
+        This function allows to update an existing realm.
+        For security reason, only the owner of a realm is allowed to modify the realm definition.
+        If a realm member wants to update the realm then he needs to request to owner to do it
+        Or he needs to become the owner of this realm.
+    """
+    rlm = Realm(ES)
+    data = request.get_json()
+    return Response(json.dumps(rlm.update(data)))
+
+@app.route('/api/v1/realms/<realm>', methods=["DELETE"])
+@active_realm_member
+@owner_realm_member
+def realm_delete(realm):
+    """
+        This route delete a realm.
+        The realm deletion is not recommended because of the destructive action.
+        Anyways only a realm owner can destruct a realm. If a no realm owner wants to destroy a realm
+        then he needs to requests the ownership of this realm to the current realm owner.
+    """
+    rlm = Realm(ES)
     account_email = json.loads(request.cookies.get('account'))["email"]
-    realm_ids = request.get_json()['realm_ids']
-    return Response(json.dumps(realm.__delete__(account_email, realm_ids)))
+    return Response(json.dumps(rlm.delete(account_email, realm)))
 
-@app.route('/api/v1/realms/ids', methods=["GET"])
-def realm_list_by_id():
-    """ this function list the realm having id as passed in param """
-    realm = Realm(ES)
-    realm_ids = request.args.getlist('ids[]')
-    return Response(json.dumps(realm.list_by_ids(realm_ids)))
+@app.route('/api/v1/realms/<realm>', methods=["GET"])
+@realm_member
+def realm_list_by_name(realm):
+    """
+        This route returns the content of a realm by providing the realm name
+        for security reason only a realm member can access the content of a realm.
+        If a no member user wants to read the content of a realm then he needs to
+        subscribe to this realm.
+    """
+    rlm = Realm(ES)
+    return Response(json.dumps(rlm.list_by_name(realm)))
+
+@app.route('/api/v1/realms/<realm>/members/<member>', methods=["GET"])
+@realm_member
+def realm_list_by_member_and_name(realm, member):
+    """
+        This route returns the content of a realm by providing the realm name
+        for security reason only a realm member can access the content of a realm.
+        If a no member user wants to read the content of a realm then he needs to
+        subscribe to this realm.
+    """
+    rlm = Realm(ES)
+    return Response(json.dumps(rlm.list_by_member_and_name(member, realm)))
+
+@app.route('/api/v1/realms/<realm>/active', methods=["PUT"])
+@realm_member
+def switch_realm_active(realm):
+    """
+        this function switch current active realm
+        to another realm
+    """
+    rlm = Realm(ES)
+    payload = request.get_json()["realm"]
+    new_current_active = False if payload["active"] else True
+    realm_switch_result = rlm.switch_realm_active(realm, payload["member"], new_current_active)
+    if realm_switch_result["result"] != "updated":
+        return Response(json.dumps(realm_switch_result))
+
+    return Response(json.dumps(rlm.switch_realm_active(payload["name"], payload["member"], payload["active"])))
+
+@app.route('/api/v1/realms/<realm>/role', methods=["PUT"])
+@delegate_or_owner_realm_member
+def switch_realm_role(realm):
+    """
+        this function switch current active realm
+        to another realm
+    """
+    rlm = Realm(ES)
+    payload = request.get_json()["realm"]
+    if payload["role"] == "owner":
+        owner = rlm.list_by_member_role_and_name(payload["role"], realm)["hits"]["hits"][0]["_source"]["member"]
+        owner_switch_res = rlm.switch_member_role(realm, owner, "delegate")
+        if owner_switch_res["result"] == "updated":
+            return Response(json.dumps(rlm.switch_member_role(realm, payload["member"], payload["role"])))
 
 # * *********************************************************************************************************
 # *
 # * REPORT PART -*- REPORT PART -*- REPORT PART -*- SCENARIO PART -*- REPORT PART -*- REPORT PART
 # * *********************************************************************************************************
 @app.route('/api/v1/realms/<realm>/reports/filter/scroll', methods=["POST"])
+@active_realm_member
 def report_filter(realm):
 
     report_data = request.get_json()['report']
-    account = Account(ES)
     reporter = Reporter(ES, report_data["object"]["name"])
-    account_email = json.loads(request.cookies.get('account'))["email"]
-
-    if account.is_active_realm_member(account_email, realm):
-        print(report_data)
-        if report_data["search"][0]["string"] != "":
-            return Response(json.dumps(reporter.filter_regexp_scroll(realm, report_data)))
-        else:
-            return Response(json.dumps(reporter.filter_list_scroll(realm, report_data)))
+    if report_data["search"][0]["string"] != "":
+        return Response(json.dumps(reporter.filter_regexp_scroll(realm, report_data)))
     else:
-        return Response({"failure": "account identifier and realm is not an active match"})
+        return Response(json.dumps(reporter.filter_list_scroll(realm, report_data)))
 
 @app.route('/api/v1/realms/<realm>/reports/filter/scroll/data', methods=["GET"])
+@active_realm_member
 def report_scroll_data(realm):
 
     scroll_id = request.args.get('_scroll_id')
     report_type = request.args.get('report_type')
-    account = Account(ES)
     reporter = Reporter(ES, report_type)
-    account_email = json.loads(request.cookies.get('account'))["email"]
-
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(reporter.filter_scroll_data(realm, scroll_id)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
+    return Response(json.dumps(reporter.filter_scroll_data(realm, scroll_id)))
 
 @app.route('/api/v1/realms/<realm>/reports/agg', methods=["POST"])
+@active_realm_member
 def report_agg(realm):
 
     report_data = request.get_json()['report']
-    account = Account(ES)
     reporter = Reporter(ES, report_data["object"]["name"])
-    account_email = json.loads(request.cookies.get('account'))["email"]
-
-    if account.is_active_realm_member(account_email, realm):
-        if report_data["search"][0]["string"] != "":
-            return Response(json.dumps(reporter.filter_agg_data(realm, report_data)))
-        else:
-            return Response(json.dumps(reporter.list_agg_data(realm, report_data)))
+    if report_data["search"][0]["string"] != "":
+        return Response(json.dumps(reporter.filter_agg_data(realm, report_data)))
     else:
-        return Response({"failure": "account identifier and realm is not an active match"})
+        return Response(json.dumps(reporter.list_agg_data(realm, report_data)))
 
 @app.route('/api/v1/realms/<realm>/reports/scroll', methods=["POST"])
+@active_realm_member
 def report_scroll(realm):
 
     report_data = request.get_json()['report']
-    account = Account(ES)
     reporter = Reporter(ES, report_data["object"]["name"])
-    account_email = json.loads(request.cookies.get('account'))["email"]
+    return Response(json.dumps(reporter.filter_scroll(realm, report_scroll)))
 
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(reporter.filter_scroll(realm, report_scroll)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
+# * *********************************************************************************************************
+# *
+# * REQUEST PART -*- REQUEST PART -*- REQUEST PART -*- REQUEST PART -*- REQUEST PART -*- REQUEST PART -*-
+# * *********************************************************************************************************
+@app.route('/api/v1/realms/<realm>/requests', methods=["POST"])
+@active_realm_member
+def request_add(realm):
+    """
+        this function add a new request
+    """
+    req = Request(ES)
+    payload = request.get_json()["request"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
+    return Response(json.dumps(req.add(account_email, payload)))
+
+@app.route('/api/v1/realms/<realm>/requests/actions', methods=["POST"])
+@active_realm_member
+def request_actions(realm):
+    """
+        this function add a new request
+    """
+    req = Request(ES)
+    request_id = request.get_json()["requestData"]["requestId"]
+    user_action = request.get_json()["requestData"]["userAction"]
+    account_email = json.loads(request.cookies.get('account'))["email"]
+    return Response(json.dumps(req.action(account_email, request_id, user_action)))
+
+@app.route('/api/v1/realms/<realm>/requests', methods=["GET"])
+@active_realm_member
+def request_list_account(realm):
+    """
+        this function returns all the requests where the account email
+        is equal to the sender value or the receiver value
+    """
+    req = Request(ES)
+    account_email = json.loads(request.cookies.get('account'))["email"]
+    return Response(json.dumps(req.list_by_account(account_email)))
+
+@app.route('/api/v1/realms/<realm>/requests/states/<state>', methods=["GET"])
+@active_realm_member
+def request_list_by_account_and_state(realm, state):
+    """
+        this function returns all the requests where the account email
+        is equal to the sender value or the receiver value and the state is
+        equal to the state passed
+    """
+    req = Request(ES)
+    account_email = json.loads(request.cookies.get('account'))["email"]
+    return Response(json.dumps(req.list_by_account_and_state(account_email, state)))
+
+@app.route('/api/v1/realms/<realm>/requests/<id>', methods=["GET"])
+@active_realm_member
+def request_list_by_id(realm, id):
+    """
+        this function returns all the requests where the account email
+        is equal to the sender value or the receiver value
+    """
+    req = Request(ES)
+    account_email = json.loads(request.cookies.get('account'))["email"]
+    return Response(json.dumps(req.list_by_id(account_email, id)))
 
 # * *********************************************************************************************************
 # *
 # * SCENARIO PART -*- SCENARIO PART -*- SCENARIO PART -*- SCENARIO PART -*- SCENARIO PART -*- SCENARIO
 # * *********************************************************************************************************
 @app.route('/api/v1/realms/<realm>/scenarios', methods=["POST"])
+@active_realm_member
 def scenario_add(realm):
     """ This function add a new scenario """
     sco = Scenario(ES)
-    account = Account(ES)
-    scenarios = request.get_json()["scenarios"]
+    payload = request.get_json()["scenario"]
     account_email = json.loads(request.cookies.get('account'))["email"]
-
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(sco.__add__(account_email, realm, scenarios)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
+    return Response(json.dumps(sco.add(account_email, realm, payload)))
 
 @app.route('/api/v1/realms/<realm>/scenarios', methods=["PUT"])
+@active_realm_member
 def scenario_update(realm):
     """ This function update one or more than one scenarios """
     sco = Scenario(ES)
-    account = Account(ES)
-    data = request.get_json()
+    payload = request.get_json()
     account_email = json.loads(request.cookies.get('account'))["email"]
+    return Response(json.dumps(sco.update(account_email, realm, payload)))
 
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(sco.update(account_email, realm, data)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
-
-@app.route('/api/v1/realms/<realm>/scenarios/ids', methods=['GET'])
-def scenario_list_by_ids(realm):
+@app.route('/api/v1/realms/<realm>/scenarios/<scenario_id>', methods=['GET'])
+@active_realm_member
+def scenario_list_by_ids(realm, scenario_id):
     """ this function returns the doc matching the infrastructure id """
     sco = Scenario(ES)
-    account = Account(ES)
-    account_email = json.loads(request.cookies.get('account'))["email"]
-    scenario_ids = request.args.getlist('ids[]')
-
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(sco.list_by_ids(realm, scenario_ids)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
+    return Response(json.dumps(sco.list_by_id(realm, scenario_id)))
 
 @app.route('/api/v1/realms/<realm>/scenarios', methods=["GET"])
+@active_realm_member
 def scenario_list_all(realm):
     """ This function returns all the scenarios present in a given realm """
     sco = Scenario(ES)
-    account = Account(ES)
-    account_email = json.loads(request.cookies.get('account'))["email"]
-
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(sco.__list__(realm)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
+    return Response(json.dumps(sco.list(realm)))
 
 @app.route('/api/v1/realms/<realm>/scenarios/ids', methods=["DELETE"])
+@active_realm_member
 def scenario_delete_by_ids(realm):
     """ This function delete one or more scenarios identified by given ids from a given realm """
     sco = Scenario(ES)
-    account = Account(ES)
     ids = request.args.getlist('ids[]')
     account_email = json.loads(request.cookies.get('account'))["email"]
-
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(sco.__delete__(account_email, realm, ids)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
+    return Response(json.dumps(sco.delete(account_email, realm, ids)))
 
 @app.route('/api/v1/realms/<realm>/scenarios/execute', methods=["POST"])
+@active_realm_member
 def scenario_execute_oneshot(realm):
     """
     This function executes one scenario of a given realm
@@ -810,76 +838,50 @@ def scenario_execute_oneshot(realm):
     scenario ids
     """
     sco = Scenario(ES)
-    account = Account(ES)
-    scenario = request.get_json()
+    payload = request.get_json()
     account_email = json.loads(request.cookies.get('account'))["email"]
-    scenario["realm"] = realm
-    scenario["account_email"] = account_email
+    payload["realm"] = realm
+    payload["account_email"] = account_email
     scenario_id = request.get_json()["scenario_id"] if "scenario_id" in request.get_json().keys() else None
-
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(sco.execute(scenario=scenario, scenario_realm=realm, scenario_id=scenario_id)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
+    return Response(json.dumps(sco.execute(scenario=payload, scenario_realm=realm, scenario_id=scenario_id)))
 
 # * *********************************************************************************************************
 # *
 # * SCHEDULER PART -*- SCHEDULER PART -*- SCHEDULER PART -*- SCHEDULER PART -*- SCHEDULER PART -*- SCHEDULER
 # * *********************************************************************************************************
 @app.route('/api/v1/realms/<realm>/schedulers', methods=["POST"])
+@active_realm_member
 def scheduler_add(realm):
     """ this function add a new schedule management scenario into the scheduler doc """
     scheduler = Scheduler(ES)
-    account = Account(ES)
     data = request.get_json()
     account_email = json.loads(request.cookies.get('account'))["email"]
-    data["realm"] = realm
-    data["account_email"] = json.loads(request.cookies.get('account'))["email"]
-
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(scheduler.__add__(data)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
+    return Response(json.dumps(scheduler.add(account_email, realm, data)))
 
 @app.route('/api/v1/realms/<realm>/schedulers', methods=["GET"])
+@active_realm_member
 def scheduler_all(realm):
     """ this function list all scheduler """
     scheduler = Scheduler(ES)
-    account = Account(ES)
-    account_email = json.loads(request.cookies.get('account'))["email"]
+    return Response(json.dumps(scheduler.list(realm)))
 
-    if account.is_active_realm_member(account_email, realm) or account_email == SCHEDULER_EMAIL:
-        return Response(json.dumps(scheduler.__list__(realm)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
-
-@app.route('/api/v1/realms/<realm>/schedulers/ids', methods=["GET"])
-def scheduler_list_by_id(realm):
+@app.route('/api/v1/realms/<realm>/schedulers/<scheduler_id>', methods=["GET"])
+@active_realm_member
+def scheduler_list_by_id(realm, scheduler_id):
     """ this function list scheduler by id """
     scheduler = Scheduler(ES)
-    account = Account(ES)
-    account_email = json.loads(request.cookies.get('account'))["email"]
-    scheduler_ids = request.args.getlist('ids[]')
-
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(scheduler.list_by_ids(realm, scheduler_ids)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
+    return Response(json.dumps(scheduler.list_by_id(realm, scheduler_id)))
 
 @app.route('/api/v1/realms/<realm>/schedulers/action', methods=["POST"])
+@active_realm_member
 def scheduler_action(realm):
     """ this function update schedule action for specific schedule """
     scheduler = Scheduler(ES)
-    account = Account(ES)
     data = request.get_json()
     account_email = json.loads(request.cookies.get('account'))["email"]
     data["account_email"] = account_email
     data["realm"] = realm
-
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(scheduler.action(data)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
+    return Response(json.dumps(scheduler.action(data)))
 
 @app.route('/api/v1/realms/<realm>/schedulers/execute', methods=["POST"])
 def scheduler_execute(realm):
@@ -895,28 +897,37 @@ def scheduler_execute(realm):
 # * SETTING PART -*- SETTING PART -*- SETTING PART -*- SETTING PART -*- SETTING PART -*- SETTING PART -*-
 # * *********************************************************************************************************
 @app.route('/api/v1/realms/<realm>/settings', methods=["GET"])
+@active_realm_member
 def list_settings(realm):
     """ this function returns the settings per realm """
     setting = Setting(ES)
-    account = Account(ES)
-    account_email = json.loads(request.cookies.get('account'))["email"]
-
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(setting.__list__(id)))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
+    return Response(json.dumps(setting.list(realm)))
 
 @app.route('/api/v1/realms/<realm>/settings/<id>', methods=["PUT"])
+@active_realm_member
 def save_setting(realm, id):
     """ this function save the setting of a particular realm """
     setting = Setting(ES)
-    account = Account(ES)
-    account_email = json.loads(request.cookies.get('account'))["email"]
+    ssh_certificate = '' if "ssh_certificate" in request.form.keys() else request.files["ssh_certificate"]
+    ansible_certificate = '' if "ansible_certificate" in request.form.keys() else request.files["ansible_certificate"]
+    setting_data = {
+        "ssh": {
+            "username": request.form["ssh_username"],
+            "password": request.form["ssh_password"],
+            "certificate": ssh_certificate,
+            "location": request.form["ssh_location"]
+        },
+        "ansible": {
+            "username": request.form["ansible_username"],
+            "password": request.form["ansible_password"],
+            "certificate": ansible_certificate,
+            "inventory": {
+                "location": request.form["ansible_inventory_location"]
+            }
+        }
+    }
+    return Response(json.dumps(setting.save(id, setting_data)))
 
-    if account.is_active_realm_member(account_email, realm):
-        return Response(json.dumps(setting.save(id, request.get_json())))
-    else:
-        return Response({"failure": "account identifier and realm is not an active match"})
 
 # * *********************************************************************************************************
 # *

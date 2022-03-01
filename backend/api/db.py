@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 """
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -16,24 +16,49 @@
 """
 
 import os
+import re
+import sys
 import yaml
+from cryptography.fernet import Fernet
 from elasticsearch import Elasticsearch
 
-# _CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
-# _SERVER_DIR = os.path.dirname(_CURRENT_DIR)
-# _SERVER_CONFIG = os.path.join(_SERVER_DIR, 'backend.yml')
+
 _BACKEND_CONFIG = "/etc/blast.eu.com/backend.yml"
-if os.path.isfile(_BACKEND_CONFIG):
-    with open(_BACKEND_CONFIG, 'r') as f:
-        data = yaml.load(f, Loader=yaml.FullLoader)
-        ES_HOSTNAME = data["elasticsearch"]["ip"]
-        ES_PORT = data["elasticsearch"]["port"]
-        ES_PROTOCOL = data["elasticsearch"]["protocol"]
+_BACKEND_KEYSTORE = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), '.keystore')
+
+
+def recover_secure_auth_info():
+    try:
+        with open(_BACKEND_KEYSTORE, 'r') as f:
+            h = bytes(f.readline(), 'UTF-8')
+
+        FERNET = Fernet(h)
+        return os.environ['BLAST_ELASTIC_USER'], FERNET.decrypt(bytes(os.environ['BLAST_ELASTIC_USER_PWD'], 'UTF-8')).decode('UTF-8')
+
+    except FileNotFoundError as e:
+        sys.exit(e)
 
 
 class ESConnector:
     def __init__(self):
-        self.es = Elasticsearch([ES_HOSTNAME], port=ES_PORT, scheme=ES_PROTOCOL)
+
+        try:
+            with open(_BACKEND_CONFIG, 'r') as f:
+                data = yaml.load(f, Loader=yaml.FullLoader)
+                self.ES_HOSTNAME = data["elasticsearch"]["ip"]
+                self.ES_PORT = data["elasticsearch"]["port"]
+                self.ES_PROTOCOL = data["elasticsearch"]["protocol"]
+                self.ES_AUTHENTICATE = data["elasticsearch"]["authenticate"]
+
+            if re.fullmatch(r'http', self.ES_PROTOCOL, re.IGNORECASE):
+                if self.ES_AUTHENTICATE:
+                    self.ES_USER, self.ES_USER_PWD = recover_secure_auth_info()
+                    self.es = Elasticsearch([self.ES_HOSTNAME], port=self.ES_PORT, http_auth=(self.ES_USER, self.ES_USER_PWD), scheme=self.ES_PROTOCOL)
+                else:
+                    self.es = Elasticsearch([self.ES_HOSTNAME], port=self.ES_PORT, scheme=self.ES_PROTOCOL)
+
+        except FileNotFoundError as e:
+            sys.exit(e)
 
     def close(self):
         self.es.transport.close()

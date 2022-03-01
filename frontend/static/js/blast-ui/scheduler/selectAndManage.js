@@ -1,5 +1,5 @@
 /*
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -81,6 +81,27 @@ var SchedulerSelectAndManage = class {
         return schedulerDataFiltered
     }
 
+    schedulerRunCoreRow = (record) => {
+        let html = `
+            <li>
+                <div class="selectAndManageRow">
+                    <div class="selectAndManageField selectAndManageFieldImg"><img src="/img/object/schedule.svg" height="24" width="24"/></div>
+                    <div class="selectAndManageField selectAndManageFieldName"><a href="/html/scheduler-details.html?id=` + record["_id"] + `">` + record["_source"]["name"] + `</a></div>
+                    <div class="selectAndManageField selectAndManageFieldDescription">` + record["_source"]["description"] + `</div>
+                    <div class="selectAndManageField selectAndManageFieldState">` + record["_source"]["status"] + `</div>
+                    <div class="selectAndManageField selectAndManageFieldControl">
+                        <img src="/img/bootstrap-icons-1.0.0-alpha5/three-dots.svg" class="dropdown-toggle" id="` + record["_id"] + `" data-bs-toggle="dropdown" aria-expanded="false" />
+                        <ul class="dropdown-menu" aria-labelledby="` + record["_id"] + `">
+                            <li><button class="dropdown-item" type="button" onclick="switchMemberRole() ;">Restart</button></li>
+                            <li><button class="dropdown-item" type="button" onclick="switchMemberRole() ;">Start</button></li>
+                            <li><button class="dropdown-item" type="button" onclick="switchMemberRole() ;">Stop</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </li>`
+        return html
+    }
+
     schedulerRunCoreData = (schedulerData) => {
         let filterStr = this.schedulerStringSearch()
         let schedulerDataFiltered = this.filterSchedulerData(schedulerData, filterStr)
@@ -88,21 +109,13 @@ var SchedulerSelectAndManage = class {
         let lastRec = ( this.curPageNum * this.numRecord )
         let html = '<table class="table table-sm"><tr>'
         if (schedulerDataFiltered.length < lastRec ) { lastRec = schedulerDataFiltered.length }
-        for (let i=firstRec; i<lastRec; i++) {
-            html = html + `<tr style="display:table-row">
-            <td width="50px"><input name="scheduler" value="` + schedulerDataFiltered[i]["_id"] + `" type="checkbox" style="margin-left: 10px"/></td>
-            <td width="50px"><img src="/img/object/schedule.svg" height="24" width="24"/></td>
-            <td width="512px"><a href="/html/scheduler-details.html?id=` + schedulerDataFiltered[i]["_id"] + `">` + schedulerDataFiltered[i]["_source"]["name"] + `</a></td>
-            <td>` + schedulerDataFiltered[i]["_source"]["description"] + `</td>
-            <td>` + schedulerDataFiltered[i]["_source"]["status"] + `</td>
-            </tr>`
-        }
+        for (let i=firstRec; i<lastRec; i++) { html = html + this.schedulerRunCoreRow(schedulerDataFiltered[i]) }
         $("#schedulerRunWindowFrameCore").html(html)
         return true
     }
 
     schedulerRunWindowInteractive() {
-        $("#schedulerRunWindowInteractive").html(`
+        let html = `
             <div id="schedulerListPerPage" class="col-2 mt-2">
                 <select class="form-select" id="schedulerSelSamplePerPage" onchange="schedulerRunDisplayNewRange()">
                     <option value="10">10</option>
@@ -110,17 +123,11 @@ var SchedulerSelectAndManage = class {
                     <option value="50">50</option>
                 </select>
             </div>
-            <div class="col-5 mt-2">
+            <div class="col-10 mt-2">
                 <nav><ul id="schedulerRunWindowFramePagination" class="pagination"></ul></nav>
             </div>
-            <div id="schedulerMenuActions" class="col-5 mt-2">
-                <div class="btn-group" style="float: right">
-                    <button type="button" class="btn blast-btn" onclick="startScheduler();">Start</button>
-                    <button type="button" class="btn blast-btn" onclick="stopScheduler();">Stop</button>
-                    <button type="button" class="btn blast-btn" onclick="restartScheduler();">Restart</button>
-                </div>
-            </div>
-        `)
+        `
+        $("#schedulerRunWindowInteractive").html(html)
     }
 
     schedulerRunWindowPagination = () => {
@@ -201,7 +208,6 @@ var SchedulerSelectAndManage = class {
     scheduleChecked() {
         let schedulers = []
         $("input[name='scheduler']").each(function(data, tag) {
-            console.log(tag)
             if ( tag.checked ) { schedulers.push(tag.value) }
         })
         return schedulers

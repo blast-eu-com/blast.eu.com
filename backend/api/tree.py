@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 """
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -56,8 +56,8 @@ def infrastructure_subtree(infra, clusters, nodes) -> dict:
 
 def realm_infrastructure_tree(ESConnector, realm: str) -> list:
 
-    infrastructures = Infra(ESConnector).__list__(realm)
-    clusters = Cluster(ESConnector).__list__(realm)
-    nodes = Node(ESConnector).__list__(realm)
+    infrastructures = Infra(ESConnector).list(realm)
+    clusters = Cluster(ESConnector).list(realm)
+    nodes = Node(ESConnector).list(realm)
     return [infrastructure_subtree(infra, clusters, nodes) for infra in infrastructures["hits"]["hits"]]
 

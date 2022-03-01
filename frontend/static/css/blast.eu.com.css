@@ -1,5 +1,5 @@
 /*
- *   Copyright 2021 Jerome DE LUCCHI
+ *   Copyright 2022 Jerome DE LUCCHI
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -15,6 +15,12 @@
 */
 
 @font-face { font-family: "nasa"; src: url('fonts/nasa.ttf') format('TrueType') }
+@font-face { font-family: "roboto"; src: url('fonts/Roboto-Light.ttf') format('TrueType') }
+
+body {
+    font-family: "roboto";
+    color: #3c4043;
+}
 
 a {
     color: #212529;
@@ -24,6 +30,10 @@ a {
 a:hover {
     text-decoration: none;
     color: #212529;
+}
+
+li {
+    list-style-type: none;
 }
 
 a#cluster-img:hover {
@@ -88,6 +98,18 @@ pre {
     transform: scale(1.02)
 }
 
+.blast-login-btn {
+    font-weight: bold;
+    background-color: #00BB4F;
+    color: white;
+}
+
+.blast-login-btn:hover {
+    color: white;
+    background-color: #00BB4F;
+    transform: scale(1.02)
+}
+
 .blast-btn-no-shadow {
     color: #212529;
     padding: 0;
@@ -140,12 +162,19 @@ pre {
     background-color: #0995D3;
 }
 
+.blast-obj-title {
+    position: fixed;
+    z-index: 1000;
+    top: 65px;
+    width: 88%;
+}
+
 .blast-sidenav {
     position: fixed;
     left: 0;
     width: 12%;
     float: left;
-    margin-top: -33px;
+    margin-top: 66px;
     border-right: 1px solid #e9ecef;
     z-index: 1;
     background-color: #FFF;
@@ -155,7 +184,7 @@ pre {
     position: absolute;
     left: 12%;
     width: 88%;
-    margin-top: -33px;
+    margin-top: 120px;
     background-color: #FAFAFA;
     float: left;
     z-index: 0;

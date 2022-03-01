@@ -1,5 +1,5 @@
 /*
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,11 +15,9 @@
    limitations under the License.
 */
 
-import Account from '../../aaa.js'
 import FrontendConfig from '../../frontend.js'
 import Realm from '../../realm.js'
 
-var account = new Account()
 var config = new FrontendConfig()
 var realm = new Realm()
 
@@ -32,17 +30,15 @@ const RealmSwitch = class {
             <div class="input-group">
             <select name="realm_to_switch" class="form-select">
         `
-        account.listById(config.session.accountId).then((acc) => {
-            console.log(acc)
-            acc["hits"]["hits"][0]["_source"]["realm"].forEach((accRealm) => {
-                console.log(accRealm)
-                if ( ! accRealm["favorite"] ) {
-                    html = html + '<option value="' + accRealm["name"] + '">' + accRealm["name"] + '</option>'
+        realm.listByMember(config.session.accountEmail).then((realms) => {
+            realms["hits"]["hits"].forEach((realmDetails) => {
+                if ( ! realmDetails["_source"]["active"] ) {
+                    html = html + '<option value="' + realmDetails["_source"]["name"] + '">' + realmDetails["_source"]["name"] + '</option>'
                 }
             })
             html = html + `
                 </select>
-                <button id="btnSwitchRealm" class="btn blast-btn" onclick="switchRealm()">switch</a>
+                <button id="btnSwitchRealm" class="btn blast-btn" onclick="realmSwitchRealm()">switch</button>
                 <div>
             `
             $("#" + this.parentName).html(html)
@@ -50,8 +46,8 @@ const RealmSwitch = class {
     }
 
     switchRealm = () => {
-        let newRealm = $('select[name=realm_to_switch]').val()
-        realm.switch(newRealm)
+        let newRealm = $('select[name="realm_to_switch"]').val()
+        realm.switchActive(newRealm)
     }
 
     render = (parentName) => {

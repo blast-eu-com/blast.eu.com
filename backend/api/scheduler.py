@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 """
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -24,25 +24,29 @@ from api import schedulerManager
 
 class Scheduler:
 
-    def __init__(self, ESConnector):
-        self.ES = ESConnector
+    def __init__(self, connector):
+        self.ES = connector
         self.STATISTIC = statistic.Statistic(self.ES)
         self.STATISTIC_DATA = self.STATISTIC.STATISTIC_DATA
         self.STATISTIC_DATA["object_type"] = "scheduler"
         self.DB_INDEX = 'blast_obj_scheduler'
 
-    def __add__(self, data: dict):
-
+    def add(self, account_email: str, realm: str, scheduler_data: dict):
         """ create a new scheduler """
+
         try:
-            self.STATISTIC_DATA["object_action"] = 'create'
-            self.STATISTIC_DATA["object_name"] = data["name"]
-            self.STATISTIC_DATA["timestamp"] = statistic.UTC_time()
-            self.STATISTIC_DATA["account_email"] = data["account_email"]
-            self.STATISTIC_DATA["realm"] = data["realm"]
-            data.pop("account_email")
-            self.STATISTIC.__add__(self.STATISTIC_DATA)
-            return self.ES.index(index=self.DB_INDEX, body=json.dumps(data), refresh=True)
+            scheduler_data["realm"] = realm
+            scheduler_data["state"] = 'new'
+            scheduler_add_res = self.ES.index(index=self.DB_INDEX, body=json.dumps(scheduler_data), refresh=True)
+            if scheduler_add_res["result"] == "created":
+                self.STATISTIC_DATA["object_action"] = 'create'
+                self.STATISTIC_DATA["object_name"] = scheduler_data["name"]
+                self.STATISTIC_DATA["timestamp"] = statistic.UTC_time()
+                self.STATISTIC_DATA["account_email"] = account_email
+                self.STATISTIC_DATA["realm"] = realm
+                self.STATISTIC.add(self.STATISTIC_DATA)
+
+            return scheduler_add_res
 
         except Exception as e:
             print("backend Error: file:scheduler:class:scheduler:function:add")
@@ -88,7 +92,7 @@ class Scheduler:
             print(e)
             return {'failure': str(e)}
 
-    def __list__(self, realm: str):
+    def list(self, realm: str):
 
         """ list all the scheduler which belong to the provided realm """
         try:
@@ -135,7 +139,37 @@ class Scheduler:
             print(e)
             return {"failure": str(e)}
 
-    def list_by_ids(self, realm: str, scheduler_ids: list):
+    def list_by_scenario(self, realm: str, scenario_id: str):
+
+        try:
+            req = json.dumps(
+                {
+                    "query": {
+                        "bool": {
+                            "filter": [
+                                {
+                                    "realm": {
+                                        "term": realm
+                                    }
+                                },
+                                {
+                                    "scenario_ids": {
+                                        "term": scenario_id
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            )
+
+            return self.ES.search(index=self.DB_INDEX, body=req)
+
+        except Exception as e:
+            print(e)
+            return {"failure": str(e)}
+
+    def list_by_id(self, realm: str, scheduler_id: str):
 
         """ list the schedule for the specific id"""
         try:
@@ -151,7 +185,7 @@ class Scheduler:
                                 },
                                 {
                                     "terms": {
-                                        "_id": scheduler_ids
+                                        "_id": scheduler_id
                                     }
                                 }
                             ]

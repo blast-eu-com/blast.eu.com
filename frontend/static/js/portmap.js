@@ -1,5 +1,5 @@
 /*
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -16,23 +16,16 @@
 
 import FrontendConfig from './frontend.js'
 let config = new FrontendConfig()
-const rampartUrl = config.proxyAPI + '/api/' + config.frontend.version
 
 const PortMap = class {
-    list = function() {
-        return new Promise(function(resolve, reject) {
-            $.ajax({
-                url: config.proxyAPI + '/realms/' + config.session.realm + '/portmaps',
-                type: "GET",
-                headers: {"Authorization": config.session.httpToken},
-                success: function(Resp) {
-                    if ( typeof Resp === 'string' ) { Resp = JSON.parse(Resp) }
-                    if ( "tokenExpired" in Resp ) { logout() }
-                    else if ( "failure" in Resp ) { console.log(Resp["failure"]) }
-                    else { resolve(Resp) }
-                }
-            })
-        })
+    list = async () => {
+        let url = config.proxyAPI + '/realms/' + config.session.realm + '/portmaps'
+        let header = { 'Authorization': config.session.httpToken}
+        let response = await fetch(url, {method: "GET", headers: header})
+        if (response.ok) {
+            response = JSON.parse(await response.text())
+            if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+        }
     }
 }
 

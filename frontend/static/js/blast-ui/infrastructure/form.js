@@ -1,5 +1,5 @@
 /*
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -15,8 +15,12 @@
 */
 
 import Infrastructure from '../../infrastructure.js'
-
+import Toast from '../main/notification/toast.js'
+import {dictionary} from '../main/message/en/dictionary.js'
 var infrastructure = new Infrastructure()
+var toast = new Toast()
+toast.msgPicture = '../../../img/object/infrastructure.svg'
+
 
 const InfrastructureForm = class {
 
@@ -56,12 +60,19 @@ const InfrastructureForm = class {
 
     addInfrastructure = () => {
         this.setFormData()
-        infrastructure.add([this.formData]).then((Resp) => {
-            for ( let idx in Resp ) {
-                if ( Resp[idx]["result"] === "created" ) {
-                    location.reload()
-                }
+        let actionRes, infrastructureData = this.formData
+        infrastructure.add(infrastructureData).then((Resp) => {
+            if ( Resp["result"] === "created" ) {
+                toast.msgTitle = "Infrastructure create Success"
+                toast.msgText = dictionary["infrastructure"]["add"].replace('%infrastructureName%', infrastructureData["name"])
+                actionRes = "success"
+            } else if ( Object.keys(Resp).includes("failure") ) {
+                toast.msgTitle = "Infrastructure create Failure"
+                toast.msgText = Resp["failure"]
+                actionRes = "failure"
             }
+            toast.notify(actionRes)
+            setTimeout(() => { location.reload() }, 2000)
         })
     }
 

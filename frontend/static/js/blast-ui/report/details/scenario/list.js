@@ -1,5 +1,5 @@
 /*
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -122,22 +122,17 @@ const ReportScenarioList = class {
         filterScrollData('scenario', this.reportDataScrollId).then((reportData) => {
             this.reportData = reportData["hits"]["hits"]
             this.reportDataScrollId = reportData["_scroll_id"]
-            this.reportData.forEach((scenarioData) => {
-                this.addReporterList(scenarioData)
-            })
+            this.reportData.forEach((scenarioData) => { this.addReporterList(scenarioData) })
         })
     }
 
-    render = (parentName, formData) => {
+    render = async (parentName, formData) => {
         this.parentName = parentName
         this.addFrame()
-        filterScroll(formData).then((reportData) => {
-            this.reportData = reportData["hits"]["hits"]
-            this.reportDataScrollId = reportData["_scroll_id"]
-            this.reportData.forEach((scenarioData) => {
-                this.addReporterList(scenarioData)
-            })
-        })
+        let reportData = await filterScroll(formData)
+        this.reportData = reportData["hits"]["hits"]
+        this.reportDataScrollId = reportData["_scroll_id"]
+        this.reportData.forEach((scenarioData) => { this.addReporterList(scenarioData) })
 
         let options = {
             "root": document.querySelector("#reporterScenarioListContainer"),

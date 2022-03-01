@@ -1,5 +1,5 @@
 /*
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,11 +20,7 @@ const ClusterListInfo = class {
     constructor() { }
 
     addListInfo = (cluster) => {
-        let htmlTableHeader = `
-            <img style="margin-left: 1rem; margin-bottom: 1rem" src="/img/object/cluster.svg" height="56" width="56" />
-            <table class="table">
-                <thead></thead>
-                <tr><td><b>Cluster id</b></td><td>` + cluster.id + `</td></tr>`
+        let htmlTableHeader = `<table class="table"><thead></thead><tr><td><b>Cluster id</b></td><td>` + cluster.id + `</td></tr>`
         let htmlTableCore = ''
         let htmlTableFooter = '</table>'
 

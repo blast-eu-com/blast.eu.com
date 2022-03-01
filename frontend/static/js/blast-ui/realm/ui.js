@@ -1,5 +1,5 @@
 /*
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,4 +33,4 @@ function main() {
 
 window.main = main
 window.addRealm = realmForm.addRealm
-window.switchRealm = realmSwitch.switchRealm
+window.realmSwitchRealm = realmSwitch.switchRealm

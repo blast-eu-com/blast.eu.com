@@ -1,5 +1,5 @@
 /*
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ const ScriptContent = class {
     constructor() { }
 
     addContent = (script) => {
-        $("#" + this.parentName).html(`<code><pre>` + script.rawData["content"] + `</pre></code>`)
+        $("#" + this.parentName).html(`<code><pre style="border-radius: 5px;">` + script.rawData["content"] + `</pre></code>`)
     }
 
     render = (parentName, script) => {

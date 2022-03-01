@@ -1,0 +1,42 @@
+
+.selectAndManageRow {
+    width: 100%;
+    /* border: solid thin #cecece; border-radius: 5px; */
+    padding: 2px;
+    margin-top: 1px;
+    vertical-align: middle;
+    border-bottom: solid thin #dee2e6;
+}
+
+.selectAndManageField {
+    display: inline-block;
+    padding: 5px;
+    margin: 0;
+}
+
+.selectAndManageFieldImg {
+    width: 5%;
+    margin-left: 5px;
+}
+
+.selectAndManageFieldName {
+    width: 20%;
+    text-align: left;
+}
+
+.selectAndManageFieldDescription {
+    width: 55%;
+    text-align: left;
+}
+
+.selectAndManageFieldState {
+    width: 10%;
+    text-align: left;
+}
+
+.selectAndManageFieldControl {
+    float: right;
+    width: 5%;
+    margin-right: 5px;
+    text-align: center;
+}

@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 """
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import hashlib
 import datetime
 import subprocess
 from api.discovery import SSH
-from api.setting import Setting, decrypt_password
+from api.setting import Setting
 from api import script
 from api import reporter
 from api import node
@@ -276,7 +276,7 @@ class ScriptManager:
                 }
             }
             script_reporter = reporter.Reporter(self.ES, report_type="script")
-            resp = script_reporter.__add__(self.script_report)
+            resp = script_reporter.add(self.script_report)
             print(resp)
             if resp["result"] == "created":
                 self.script_report_id = resp["_id"]
@@ -289,11 +289,11 @@ class ScriptManager:
             print(e)
             return {"failure": str(e)}
 
-    def node_details(self, realm: str, node_id: list):
+    def node_details(self, realm: str, node_id: str):
 
         try:
             nod = node.Node(self.ES)
-            return nod.list_by_ids(realm, node_id)
+            return nod.list_by_id(realm, node_id)
 
         except Exception as e:
             print("backend Exception, file:scriptManager:class:scriptManager:func:node_details")
@@ -304,7 +304,7 @@ class ScriptManager:
 
         try:
             scr = script.Script(self.ES)
-            return scr.list_by_ids(realm, script_id.split(" "))["hits"]["hits"][0]
+            return scr.list_by_id(realm, script_id)["hits"]["hits"][0]
 
         except Exception as e:
             print("backend Exception, file:scriptManager:class:scriptManager:func:script_details")
@@ -317,7 +317,7 @@ class ScriptManager:
             print(" >>> Enter file:scenarioManager:class:scenarioManager:func:ssh_connector")
             return SSH(node, **{"username": self.realm_settings["hits"]["hits"][0]["_source"]["ssh"]["username"],
                                 "password": self.settings.list_ssh_password_by_realm(realm),
-                                "certificate": self.realm_settings["hits"]["hits"][0]["_source"]["ssh"]["certificate"]})
+                                "certificate": self.settings.list_ssh_certificate_by_realm(realm)})
 
         except Exception as e:
             print("backend Exception, file:scriptManager:class:scriptManager:func:ssh_connector")
@@ -460,8 +460,8 @@ class ScriptManager:
 
                 crypto = self.realm_settings["hits"]["hits"][0]["_source"]["crypto"]
                 ansible_user = self.realm_settings["hits"]["hits"][0]["_source"]["ansible"]["username"]
-                ansible_password = self.realm_settings["hits"]["hits"][0]["_source"]["ansible"]["password"]
-                ansible_certificate = self.realm_settings["hits"]["hits"][0]["_source"]["ansible"]["certificate"]
+                ansible_password = self.settings.list_ansible_password_by_realm(self.script_realm)
+                ansible_certificate = self.settings.list_ansible_certificate_by_realm(self.script_realm)
 
                 # write the inventory ansible group to tag with the session id
                 # to tag the nodes targeted by this session.
@@ -478,8 +478,7 @@ class ScriptManager:
                 inventory.write('ansible_user=' + ansible_user + '\n')
 
                 if ansible_password != "":
-                    inventory.write(
-                        str('ansible_password=' + decrypt_password(crypto, ansible_password) + '\n'))
+                    inventory.write(str('ansible_password=' + ansible_password + '\n'))
                 elif ansible_certificate != "":
                     inventory.write(str(' ansible_ssh_private_key_file=' + ansible_certificate + '\n'))
                 else:
@@ -518,7 +517,8 @@ class ScriptManager:
         try:
             print(" >>> Enter file:scriptManager:class:scriptManager:function:run_ansible_script")
             node_name = []
-            for node_data in self.node_details(self.script_realm, self.node_id)["hits"]["hits"]:
+            for ansible_node_id in self.node_id:
+                node_data = self.node_details(self.script_realm, ansible_node_id)["hits"]["hits"][0]
                 if node_data["_source"]["scan_by_ip"]:
                     node_name.append(node_data["_source"]["ip_reference"])
                 else:

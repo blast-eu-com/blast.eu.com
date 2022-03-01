@@ -1,35 +1,37 @@
 {
-  "index_patterns": "blast_obj_node",
-  "order": 99,
-  "mappings" : {
-    "dynamic": false,
-    "properties" : {
-      "description" : { "type" : "text" },
-      "name": { "type" : "keyword" },
-      "ip": { "type": "ip" },
-      "ip_reference": { "type": "ip" },
-      "scan_by_ip": { "type": "boolean" },
-      "container": { "type": "boolean" },
-      "mode": { "type": "keyword" },
-      "type": { "type": "keyword" },
-      "realm": { "type": "keyword" },
-      "peers": { "type": "ip" },
-      "roles": {
-        "type": "nested",
-        "properties": {
-            "port": { "type": "keyword" },
-            "protocol": { "type": "keyword" },
-            "application": { "type": "keyword" },
-            "description": { "type": "keyword" }
+    "index_patterns": "blast_obj_node",
+    "priority": 99,
+    "template": {
+        "mappings" : {
+            "dynamic": false,
+            "properties" : {
+                "description" : { "type" : "text" },
+                "name": { "type" : "keyword" },
+                "ip": { "type": "ip" },
+                "ip_reference": { "type": "ip" },
+                "scan_by_ip": { "type": "boolean" },
+                "container": { "type": "boolean" },
+                "mode": { "type": "keyword" },
+                "type": { "type": "keyword" },
+                "realm": { "type": "keyword" },
+                "peers": { "type": "ip" },
+                "roles": {
+                    "type": "nested",
+                    "properties": {
+                        "port": { "type": "keyword" },
+                        "protocol": { "type": "keyword" },
+                        "application": { "type": "keyword" },
+                        "description": { "type": "keyword" }
+                    }
+                }
+            }
+        },
+        "settings" : {
+            "index" : {
+                "number_of_shards" : "1",
+                "number_of_replicas" : "0",
+                "refresh_interval": "1s"
+            }
         }
-      }
     }
-  },
-  "settings" : {
-    "index" : {
-        "number_of_shards" : "1",
-        "number_of_replicas" : "0",
-        "refresh_interval": "1s"
-    }
-  }
 }

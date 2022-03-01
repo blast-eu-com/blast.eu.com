@@ -1,5 +1,5 @@
 /*
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ const runReportFilter = () => {
         reportForm.setFormData()
         reportSchedulerUI(reportForm.formData)
     } else if ($("#reportScenario").hasClass('active')) {
-        console.log("asasas")
         reportForm.objectNameSelected = 'scenario'
         reportForm.setFormData()
         reportScenarioUI(reportForm.formData)

@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 """
-   Copyright 2021 Jerome DE LUCCHI
+   Copyright 2022 Jerome DE LUCCHI
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -17,18 +17,57 @@
 
 import os
 import json
-import elasticsearch
 from cryptography.fernet import Fernet
 
 
-def encrypt_password(crypto, password_to_encrypt):
+def encrypt_string(crypto, string_to_encrypt):
     f = Fernet(crypto)
-    return f.encrypt(password_to_encrypt.encode('utf-8')).decode('utf-8')
+    return f.encrypt(string_to_encrypt.encode('utf-8')).decode('utf-8')
 
 
-def decrypt_password(crypto, encrypted_password):
+def decrypt_string(crypto, encrypted_string):
     f = Fernet(crypto)
-    return f.decrypt(encrypted_password.encode('utf-8')).decode('utf-8')
+    return f.decrypt(encrypted_string.encode('utf-8')).decode('utf-8')
+
+
+def update_ssh_pwd(setting, data):
+    # encrypt the new ssh password
+    if data["ssh"]["password"] != '':
+        data["ssh"]["password"] = encrypt_string(setting["_source"]["crypto"].encode('utf-8'), data["ssh"]["password"])
+        data["ssh"]["is_password_set"] = True
+    else:
+        data["ssh"]["password"] = setting["_source"]["ssh"]["password"]
+    return data
+
+
+def update_ansible_pwd(setting, data):
+    # encrypt the new ansible password
+    if data["ansible"]["password"] != '':
+        data["ansible"]["password"] = encrypt_string(setting["_source"]["crypto"].encode('utf-8'), data["ansible"]["password"])
+        data["ansible"]["is_password_set"] = True
+    else:
+        data["ansible"]["password"] = setting["_source"]["ansible"]["password"]
+    return data
+
+
+def update_ssh_certificate(setting, data):
+    # encrypt the new ssh certificate
+    if data["ssh"]["certificate"] != '':
+        data["ssh"]["certificate"] = encrypt_string(setting["_source"]["crypto"].encode('utf-8'), data["ssh"]["certificate"].read().decode('utf-8'))
+        data["ssh"]["is_certificate_set"] = True
+    else:
+        data["ssh"]["certificate"] = setting["_source"]["ssh"]["certificate"]
+    return data
+
+
+def update_ansible_certificate(setting, data):
+    # encrypt the new ssh certificate
+    if data["ansible"]["certificate"] != '':
+        data["ansible"]["certificate"] = encrypt_string(setting["_source"]["crypto"].encode('utf-8'), data["ansible"]["certificate"].read().decode('utf-8'))
+        data["ansible"]["is_certificate_set"] = True
+    else:
+        data["ansible"]["certificate"] = setting["_source"]["ansible"]["certificate"]
+    return data
 
 
 def provision_realm_settings(realm):
@@ -42,8 +81,8 @@ def provision_realm_settings(realm):
 
 class Portmap:
 
-    def __init__(self, ESConnector):
-        self.ES = ESConnector
+    def __init__(self, connector):
+        self.ES = connector
         self.DB_INDEX = 'blast_port_map'
 
     def __delete__(self, id: str):
@@ -51,8 +90,8 @@ class Portmap:
         try:
             return self.ES.delete(index=self.DB_INDEX, id=id)
 
-        except (elasticsearch.exceptions.ConnectionError, elasticsearch.exceptions.NotFoundError) as e:
-            return {"failure": e}
+        except Exception as e:
+            return {"failure": str(e)}
 
     def delete_by_realm(self, realm: str):
         """ this function delete the portmap link to this realm """
@@ -70,8 +109,8 @@ class Portmap:
             }}})
             return self.ES.search(index=self.DB_INDEX, body=req)
 
-        except (elasticsearch.exceptions.NotFoundError, elasticsearch.exceptions.ConnectionError) as e:
-            return {"failure": e}
+        except Exception as e:
+            return {"failure": str(e)}
 
     def map_socket(self, realm: str, socket: str):
         """ this function returns the application name assigned to this port """
@@ -83,17 +122,17 @@ class Portmap:
             ]}}})
             return self.ES.search(index=self.DB_INDEX, body=req)
 
-        except (elasticsearch.exceptions.NotFoundError, elasticsearch.exceptions.ConnectionError) as e:
-            return {"failure": e}
+        except Exception as e:
+            return {"failure": str(e)}
 
 
 class Setting:
 
-    def __init__(self, ESConnector):
-        self.ES = ESConnector
-        self.DB_INDEX = 'setting'
+    def __init__(self, connector):
+        self.ES = connector
+        self.DB_INDEX = 'blast_setting'
 
-    def __add__(self, realm: str):
+    def add(self, realm: str):
         """ this function add a new setting document into the database """
         print(" >>> Enter file:setting:class:Setting:function:__add__")
         try:
@@ -105,11 +144,10 @@ class Setting:
             print(e)
             return {"failure": str(e)}
 
-    def __delete__(self, id: str):
+    def delete(self, id: str):
         """ this function delete the setting identified as id part of the realm id as passed in arg """
-        print(" >>> Enter file:setting:class:Setting:function:__delete__")
+        print(" >>> Enter file:setting:class:Setting:function:delete")
         try:
-            setting = self.list_by_id(id)
             return self.ES.delete(index=self.DB_INDEX, id=id, refresh=True)
 
         except Exception as e:
@@ -120,18 +158,23 @@ class Setting:
         """ this function delete a setting linked to a specific realm """
         print(" >>> Enter file:setting:class:Setting:function:delete_by_realm")
         settings = self.list_by_realm(realm)
-        [self.__delete__(setting["_id"]) for setting in settings["hits"]["hits"]]
+        [self.delete(setting["_id"]) for setting in settings["hits"]["hits"]]
 
-    def __list__(self, realm: str):
+    def list(self, realm: str):
         """ this function returns all the settings attached to the realm id passed as arg """
-        print(" >>> Enter file:setting:class:Setting:function:__list__")
+        print(" >>> Enter file:setting:class:Setting:function:list")
         try:
-            req = json.dumps({"query": {"bool": {
-                "must": {"match_all": {}},
-                "filter": {"match": {"realm": realm}}
-            }}})
+            req = json.dumps(
+                {
+                    "query": {
+                        "term": {
+                            "realm": realm
+                        }
+                    }
+                }
+            )
             return self.ES.search(index=self.DB_INDEX, body=req,
-                                  _source_excludes="ansible.password, ssh.password, git.password")
+                                  _source_excludes="ansible.password, ssh.password, ansible.certificate, ssh.certificate, crypto")
 
         except Exception as e:
             return {"failure": str(e)}
@@ -143,38 +186,71 @@ class Setting:
             return self.ES.get(index=self.DB_INDEX, id=id)
 
         except Exception as e:
-            return {"failure": e}
+            return {"failure": str(e)}
 
     def list_by_realm(self, realm: str):
         """ this function returns the settings linked to the realm id passed as arg """
         print(" >>> Enter file:setting:class:Setting:function:list_by_realm")
         try:
-            req = json.dumps({"query": {"match": {"realm": realm}}})
+            req = json.dumps(
+                {
+                    "query": {
+                        "match": {
+                            "realm": realm
+                        }
+                    }
+                }
+            )
             return self.ES.search(index=self.DB_INDEX, body=req)
 
         except Exception as e:
-            return {"failure": e}
-
-    def list_by_realm_no_passwd(self, realm:str):
-        print(" >>> Enter file:setting:class:Setting:function:list_by_realm_no_passwd")
-        try:
-            setting = self.list_by_realm(realm)
-            print(setting)
-            del setting["hits"]["hits"][0]["_source"]["ansible"]["password"]
-            del setting["hits"]["hits"][0]["_source"]["ssh"]["password"]
-            del setting["hits"]["hits"][0]["_source"]["crypto"]
-            return setting
-
-        except Exception as e:
-            return {"failure": e}
+            return {"failure": str(e)}
 
     def list_ssh_password_by_realm(self, realm: str):
         """ this function returns the ssh password decrypted """
         print(" >>> Enter file:setting:class:Setting:function:list_ssh_password_by_realm")
-        setting = self.list_by_realm(realm)
-        if setting["hits"]["total"]["value"] == 1:
-            return decrypt_password(setting["hits"]["hits"][0]["_source"]["crypto"],
-                                    setting["hits"]["hits"][0]["_source"]["ssh"]["password"])
+        try:
+            setting = self.list_by_realm(realm)
+            if setting["hits"]["total"]["value"] == 1:
+                return decrypt_string(setting["hits"]["hits"][0]["_source"]["crypto"],
+                                      setting["hits"]["hits"][0]["_source"]["ssh"]["password"])
+
+        except Exception as e:
+            return {"failure": str(e)}
+
+    def list_ssh_certificate_by_realm(self, realm: str):
+        """ this function returns the ssh certificate decrypted """
+        print(" >>> Enter file:setting:class:Setting:function:list_ssh_certificate_by_realm")
+        try:
+            setting = self.list_by_realm(realm)
+            return decrypt_string(setting["hits"]["hits"][0]["_source"]["crypto"],
+                                  setting["hits"]["hits"][0]["_source"]["ssh"]["certificate"])
+
+        except Exception as e:
+            return {"failure": str(e)}
+
+    def list_ansible_password_by_realm(self, realm: str):
+        """ this function returns the ansible password decrypted """
+        print(" >>> Enter file:setting:class:Setting:function:list_ansible_password_by_realm")
+        try:
+            setting = self.list_by_realm(realm)
+            if setting["hits"]["total"]["value"] == 1:
+                return decrypt_string(setting["hits"]["hits"][0]["_source"]["crypto"],
+                                      setting["hits"]["hits"][0]["_source"]["ansible"]["password"])
+
+        except Exception as e:
+            return {"failure": str(e)}
+
+    def list_ansible_certificate_by_realm(self, realm: str):
+        """ this function returns the ansible certificate decrypted """
+        print(" >>> Enter file:setting:class:Setting:function:list_ansible_certificate_by_realm")
+        try:
+            setting = self.list_by_realm(realm)
+            return decrypt_string(setting["hits"]["hits"][0]["_source"]["crypto"],
+                                  setting["hits"]["hits"][0]["_source"]["ansible"]["certificate"])
+
+        except Exception as e:
+            return {"failure": str(e)}
 
     def save(self, id: str, data: dict):
         """ this function save the settings """
@@ -182,23 +258,11 @@ class Setting:
         try:
             setting = self.list_by_id(id)
             if setting["found"]:
-
-                # encrypt the new ssh password
-                if data["ssh"]["password"] != "":
-                    data["ssh"]["password"] = encrypt_password(setting["_source"]["crypto"].encode('utf-8'),
-                                                               data["ssh"]["password"])
-                else:
-                    data["ssh"]["password"] = setting["_source"]["ssh"]["password"]
-
-                # encrypt the new ansible password
-                if data["ansible"]["password"] != "":
-                    data["ansible"]["password"] = encrypt_password(setting["_source"]["crypto"].encode('utf-8'),
-                                                                   data["ansible"]["password"])
-                else:
-                    data["ansible"]["password"] = setting["_source"]["ansible"]["password"]
-
-            print(data)
+                data = update_ssh_pwd(setting, data)
+                data = update_ssh_certificate(setting, data)
+                # data = update_ansible_pwd(setting, data)
+                # data = update_ansible_certificate(setting, data)
             return self.ES.update(index=self.DB_INDEX, id=id, body=json.dumps({"doc": data}), refresh=True)
 
         except Exception as e:
-            return {"failure": e}
+            return {"failure": str(e)}
