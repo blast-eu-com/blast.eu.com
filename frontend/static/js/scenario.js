@@ -148,14 +148,23 @@ let Scenario = class {
         }
     }
 
-    getFormData = () => {
-        return {
-            "name" : this.name,
-            "description" : this.description,
-            "scripts" : this.scripts,
-            "nodes" : this.nodes,
-            "ansibleFirst": this.ansibleFirst,
-            "parallelMode": this.execMode
+    executeById = async (scenarioId) => {
+        let url = config.proxyAPI + '/realms/' + config.session.realm + '/scenarios/execute/' + scenarioId
+        let header = { 'Authorization': config.session.httpToken }
+        let response = await fetch(url, {method: 'GET', headers: header})
+        if (response.ok) {
+            response = await response.text()
+            response = JSON.parse(response)
+            if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+        }
+    }
+
+    setFormData = async () => {
+        this.formData = {
+            "name": $("#scenarioName").val(),
+            "description": $("#scenarioDescription").val(),
+            "flag_parallel_mode": $("#scenarioParallelMode").is(":checked") ? true : false,
+            "max_parallel_thread": $("#maxParallelThread").val()
         }
     }
 

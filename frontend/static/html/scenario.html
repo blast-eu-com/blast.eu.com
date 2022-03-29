@@ -27,6 +27,7 @@
         <link rel="icon" href="/img/favicon.ico" />
         <link rel="stylesheet" type="text/css" href="/css/bootstrap-5.1.3-dist/css/bootstrap.min.css" />
         <link rel="stylesheet" type="text/css" href="/css/blast.eu.com.css" />
+        <link rel="stylesheet" type="text/css" href="/css/pagination.css" />
         <link rel="stylesheet" type="text/css" href="/js/fancytree-2.38.0/skin-xp/ui.fancytree.min.css"/>
         <!-- script starts here -->
         <script src="/js/bootstrap-5.1.3-dist/js/bootstrap.min.js"></script>
@@ -34,6 +35,7 @@
         <script src="/js/popper-2.11.2/popper.min.js"></script>
         <script src="/js/fancytree-2.38.0/jquery.fancytree-all-deps.min.js"></script>
         <script src="/js/jquery-cookie-1.4.1/jquery.cookie.js"></script>
+        <script src="/js/pagination-2.1.5/pagination.min.js"></script>
         <script src="/js/blast-ui/scenario/ui.js" type="module"></script>
         <script src="/js/blast-ui/main/navBars/ui.js" type="module"></script>
     </head>
@@ -68,47 +70,87 @@
                         </ol>
                     </nav>
 
+                    <div class="row m-3">
+                        <div class="col-md-2">
+                            <div class="list-group shadow-sm" id="scenarioListTab" role="tablist">
+                                <a id="scenarioForm" class="list-group-item list-group-item-action active"
+                                   data-bs-toggle="list" role="tab" href="#form"
+                                   aria-controls="Form">Form</a>
 
-                    <div class="row h-100 m-3">
-                        <div class="col-3" style="padding: 0;">
-                            <div class="card blast-card shadow-sm h-100 rounded">
-                                <!-- <div class="card-title p-2">Management tree</div> -->
-                                <div class="card-body">
-                                    <div class="card-text">
-                                        <div id="scenarioNodesTree" class="col s4"></div>
-                                    </div>
-                                </div>
+                                <a id="scenarioManage" class="list-group-item list-group-item-action"
+                                   data-bs-toggle="list" role="tab" href="#manage"
+                                   aria-controls="Manage">Manage</a>
+
+                                <a id="scenarioReport" class="list-group-item list-group-item-action"
+                                   data-bs-toggle="list" role="tab" href="#run"
+                                   aria-controls="Report">Report</a>
                             </div>
                         </div>
-                        <div class="col" style="padding-right: 0;">
-                            <div class="card blast-card shadow-sm rounded">
-                                <div class="card-body">
-                                    <div class="card-title row">
-                                        <h4 class="col-md-10 fs-4">Scenario Form</h4>
-                                        <div class="col-md-2">
-                                            <button onclick="saveScenario();" class="btn blast-btn ">Save</button>
-                                           <button onclick="oneShotScenario();" class="btn blast-btn">Run</button>
+
+                        <div class="col-md-10">
+
+                            <div class="tab-content" id="scenarioTabContent">
+                                <div class="tab-pane fade show active" id="form" role="tabpanel"
+                                     aria-labelledby="scenarioForm">
+
+                                    <div class="row h-100">
+
+                                        <div class="col-3 pe-1" style="padding: 0;">
+                                            <div class="card blast-card shadow-sm h-100 rounded">
+                                            <!-- <div class="card-title p-2">Management tree</div> -->
+                                                <div class="card-body">
+                                                    <p id="scenarioNodesTree" class="card-text col s4"></p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col" style="padding: 0;">
+                                            <div class="card blast-card shadow-sm rounded">
+                                                <div class="card-body">
+                                                    <div class="card-title mb-4">
+                                                        <div class="row">
+                                                            <h4 class="col-md-9">Scenario Form</h4>
+                                                            <div class="col-md-3">
+                                                                <button onclick="saveScenario();" class="btn blast-btn ">Save</button>
+                                                                <button onclick="oneShotScenario();" class="btn blast-btn">Run</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <p id="scenarioFormContainer" class="card-text"></p>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div id="scenarioForm" class="card-text"></div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card blast-card shadow-sm m-3 rounded">
-                        <div class="card-body">
-                            <div class="card-title row">
-                                <h4 class="col-md-10">Scenario Last</h4>
-                                <div class="col-md-2">
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox"
-                                               id="switchScenarioReportLast"
-                                               onclick="switchScenarioReportLast();">
-                                        <label class="form-check-label" for="switchScenarioReportLast">Activate Refresh</label>
+
+                                <div class="tab-pane fade" id="manage" role="tabpanel"
+                                     aria-labelledby="scenarioManage">
+                                    <div id="scenarioContainer"></div>
+                                    <div id="scenarioPaginationContainer"></div>
+
+                                </div>
+
+                                <div class="tab-pane fade" id="run" role="tabpanel"
+                                     aria-labelledby="scenarioReport">
+
+                                    <div class="card blast-card shadow-sm m-3 rounded">
+                                        <div class="card-body">
+                                            <div class="card-title row">
+                                                <h4 class="col-md-10">Scenario Last</h4>
+                                                <div class="col-md-2">
+                                                    <div class="form-check form-switch">
+                                                        <input class="form-check-input" type="checkbox"
+                                                                id="switchScenarioReportLast"
+                                                                onclick="switchScenarioReportLast();">
+                                                        <label class="form-check-label" for="switchScenarioReportLast">Activate Refresh</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div id="scenarioLast" class="card-text"></div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <div id="scenarioLast" class="card-text"></div>
                         </div>
                     </div>
                 </div>

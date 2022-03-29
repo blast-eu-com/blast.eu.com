@@ -15,12 +15,6 @@
    limitations under the License.
 */
 
-import Scenario from '../../scenario.js'
-import Toast from '../main/notification/toast.js'
-import {dictionary} from '../main/message/en/dictionary.js'
-var scenario = new Scenario()
-var toast = new Toast()
-toast.msgPicture = '../../../img/object/scenario.svg'
 
 const ScenarioForm = class {
 
@@ -74,6 +68,18 @@ const ScenarioForm = class {
     set formData(fd) { this._fd = fd }
     get formData() { return this._fd }
 
+    addForm = () => {
+        $("#scenarioNameContainer").html(this.inputScenarioName)
+        $("#scenarioDescriptionContainer").html(this.inputScenarioDescription)
+        $("#scenarioParallelModeContainer").html(this.inputScenarioParallelMode)
+        $("#scenarioParallelThreadContainer").html(this.inputScenarioParallelThread)
+    }
+
+    addFrame = () => {
+        $("#" + this.parentName).html(this.frame)
+        this.addForm()
+    }
+
     setFormData = async () => {
         this.formData = {
             "name": $("#scenarioName").val(),
@@ -83,61 +89,8 @@ const ScenarioForm = class {
         }
     }
 
-    addFrame = () => {
-        $("#" + this.parentName).html(this.frame)
-    }
-
-    addForm = () => {
-        $("#scenarioNameContainer").html(this.inputScenarioName)
-        $("#scenarioDescriptionContainer").html(this.inputScenarioDescription)
-        $("#scenarioParallelModeContainer").html(this.inputScenarioParallelMode)
-        $("#scenarioParallelThreadContainer").html(this.inputScenarioParallelThread)
-    }
-
-    oneShotScenario = async () => {
-        let actionRes, scenarioData = this.setFormData()
-        this.formData["nodes"] = await this.scenarioNodesTree.runNodesId()
-        this.formData["scripts"] = await this.scriptFilterAndSelect.runScriptsId()
-        scenario.execute(this.formData).then((Resp) => {
-            if (Resp["result"] === "created") {
-                toast.msgTitle = "Scenario execute Success"
-                toast.msgText = "Scenario execute"
-                actionRes = "success"
-            } else if ( Object.keys(Resp).includes("failure") ) {
-                toast.msgTitle = "Scenario execute Failure"
-                toast.msgText = Resp["failure"]
-                actionRes = "failure"
-            }
-            toast.notify(actionRes)
-            setTimeout(() => { location.reload() }, 2000)
-        })
-    }
-
-    saveScenario = async () => {
-        this.setFormData()
-        this.formData["nodes"] = await this.scenarioNodesTree.runNodesId()
-        this.formData["scripts"] = await this.scriptFilterAndSelect.runScriptsId()
-        let actionRes, scenarioData = this.formData
-        scenario.add(scenarioData).then((Resp) => {
-            if (Resp["result"] === "created") {
-                toast.msgTitle = "Scenario create Success"
-                toast.msgText = dictionary["scenario"]["add"].replace('%scenarioName%', scenarioData["name"])
-                actionRes = "success"
-            } else if ( Object.keys(Resp).includes("failure") ) {
-                toast.msgTitle = "Scenario create Failure"
-                toast.msgText = Resp["failure"]
-                actionRes = "failure"
-            }
-            toast.notify(actionRes)
-            setTimeout(() => { location.reload() }, 2000)
-        })
-    }
-
-    render = (scenarioNodesTree, scriptFilterAndSelect) => {
-        this.scenarioNodesTree = scenarioNodesTree
-        this.scriptFilterAndSelect = scriptFilterAndSelect
+    render = () => {
         this.addFrame()
-        this.addForm()
     }
 }
 

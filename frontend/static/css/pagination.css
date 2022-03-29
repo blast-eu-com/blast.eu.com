@@ -1,0 +1,46 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.paginationjs-prev {
+    display: inline-flex;
+    padding: 5px;
+    border-radius: 5px 0 0 5px;
+    border: 0.1px solid #c0c0c0;
+}
+
+.paginationjs-prev:hover {
+    background-color: #c0c0c0;
+}
+
+.paginationjs-page {
+    display: inline-flex;
+    padding: 5px;
+    border: thin solid #c0c0c0;
+}
+
+.paginationjs-page.active {
+    background-color: #c0c0c0;
+    color: #fff;
+}
+
+.paginationjs-next {
+    display: inline-flex;
+    padding: 5px;
+    border-radius: 0 5px 5px 0;
+    border: 0.1px solid #c0c0c0;
+}
+
+.paginationjs-next:hover {
+    background-color: #c0c0c0;
+}
