@@ -178,6 +178,87 @@ class Script:
             print(e)
             return {"failure": str(e)}
 
+    def list_by_type(self, realm: str, type: str):
+        """
+            List scripts by given realm and given type
+        """
+        try:
+            req = json.dumps({
+                "size": 10000,
+                "query": {
+                    "bool": {
+                        "filter": [
+                            {
+                                "term": {
+                                    "realm": realm
+                                }
+                            },
+                            {
+                                "term": {
+                                    "type": type
+                                }
+                            }
+                        ]
+                    }
+                },
+                "sort": [
+                    {
+                        "name": {
+                            "order": "asc"
+                        }
+                    }
+                ]
+            })
+            return self.ES.search(index=self.DB_INDEX, body=req)
+
+        except Exception as e:
+            print("backend Exception, file:script:class:script:func:list_by_type")
+            print(e)
+            return {"failure": str(e)}
+
+    def list_by_name_and_type(self, realm: str, name: str, type: str):
+        """
+            List scripts by given realm, name and type
+        """
+        try:
+            req = json.dumps({
+                "size": 10000,
+                "query": {
+                    "bool": {
+                        "filter": {
+                            {
+                                "term": {
+                                    "realm": realm
+                                }
+                            },
+                            {
+                                "term": {
+                                    "name": name
+                                }
+                            },
+                            {
+                                "term": {
+                                    "type": type
+                                }
+                            }
+                        }
+                    }
+                },
+                "sort": [
+                    {
+                        "name": {
+                            "order": "asc"
+                        }
+                    }
+                ]
+            })
+            return self.ES.search(index=self.DB_INDEX, body=req)
+
+        except Exception as e:
+            print("backend Exception, file:script:class:script:func:list_by_name_and_type")
+            print(e)
+            return {"failure": str(e)}
+
     def list_by_id(self, realm: str, id: str):
         """
             List a script by id of a given realm
