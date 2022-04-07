@@ -22,8 +22,8 @@ var scenario = new Scenario()
 
 const ScenarioManage = class {
 
-    construct() {
-        this._pn
+    constructor(parentName) {
+        this.parentName = parentName
         this.frame = `
             <div id="scenarioContainer"></div>
             <div id="scenarioPaginationContainer"></div>
@@ -31,46 +31,41 @@ const ScenarioManage = class {
 
     }
 
-    set parentName(pn) { this._pn = pn }
-
-    get parentName() { return this.pn }
-
     addFrame = () => {
-        // $("#" + this.parentName).html(this.frame)
-        console.log($("#scenarioContainer"))
-        this.loadData()
+        $("#" + this.parentName).html(this.frame)
+        console.log(this.parentName)
     }
 
-    modelData = (data) => {
+    templateScenario = (scenarioData) => {
 
         var html = `<table class="table">`
-        data.forEach((scenario) => {
+        scenarioData.forEach((sce) => {
             html = html + `<tr>
             <td style="vertical-align: middle;"><img src="/img/object/scenario.svg" height="24px" width="24px" /></td>
-            <td style="vertical-align: middle;">` + scenario["_source"]["name"] + `</td>
-            <td style="vertical-align: middle;">` + scenario["_source"]["description"] + `</td>
+            <td style="vertical-align: middle;">` + sce["_source"]["name"] + `</td>
+            <td style="vertical-align: middle;">` + sce["_source"]["description"] + `</td>
             <td style="vertical-align: middle;"><a class="blast-btn btn" onclick="runSavedScenario('` + scenario["_id"] + `')">Run</a></td>
             </tr>`
         })
         return html
     }
 
-    loadData = () => {
-        scenario.list().then((myData) => {
+    loadScenario = () => {
+        scenario.list().then((scenarioData) => {
             $("#scenarioPaginationContainer").pagination({
-                dataSource: myData["hits"]["hits"],
+                dataSource: scenarioData["hits"]["hits"],
                 pageSize: 5,
                 callback: (data, pagination) => {
-                    let html = this.modelData(data)
+                    let html = this.templateScenario(data)
                     $("#scenarioContainer").html(html)
                 }
             })
         })
     }
 
-    render = (parentName) => {
-        this.parentName = parentName
+    render = () => {
         this.addFrame()
+        this.loadScenario()
     }
 
 }

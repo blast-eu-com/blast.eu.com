@@ -17,34 +17,26 @@
 import Script from './script.js'
 import Account from './account.js'
 import Node from './node.js'
-import Windower from './windower.js'
 import FrontendConfig from './frontend.js'
 
 var config = new FrontendConfig()
 var script = new Script()
 var account = new Account()
 var node = new Node()
-var windower = new Windower()
 
 let Scenario = class {
 
     constructor() {
         // all related to management run
-        this._id = undefined
-        this.scenarioName = undefined
-        this.scenarioDescription = undefined
+        this._id
+        this.scenarioName
+        this.scenarioDescription
         this.scenarioScripts = []
         this.scenarioNodes = []
-        this.scenarioAccountEmail = undefined
-        this.scenarioParallelMode = undefined
-        this.scenarioScriptThreads = undefined
-        this._rd = undefined
-
-        // all related to script management
-        this.scriptPerPage = 10
-        this.scriptPageNum = 1
-        this.scriptPageMax = 1
-        this.scriptFiltered = []
+        this.scenarioAccountEmail
+        this.scenarioParallelMode
+        this.scenarioScriptThreads
+        this._rd
 
     }
 
@@ -58,11 +50,6 @@ let Scenario = class {
     set max_parallel_script_threads(sst) { this.scenarioScriptThreads = sst }
     set rawData(rd) { this._rd = rd }
 
-    set scenarioScriptPerPage(SPP) { this.scriptPerPage = SPP }
-    set scenarioScriptPageNum(SPN) { this.scriptPageNum = SPN }
-    set scenarioScriptPageMax(SPM) { this.scriptPageMax = SPM }
-    set scenarioScriptFiltered(SMF) { this.scriptFiltered = SMF }
-
     get id() { return this._id }
     get name() { return this.scenarioName }
     get description() { return this.scenarioDescription }
@@ -72,11 +59,6 @@ let Scenario = class {
     get account_email() { return this.scenarioAccountEmail }
     get max_parallel_script_threads() { return this.scenarioScriptThreads }
     get rawData() { return this._rd }
-
-    get scenarioScriptPerPage() { return this.scriptPerPage }
-    get scenarioScriptPageNum() { return this.scriptPageNum }
-    get scenarioScriptPageMax() { return this.scriptPageMax }
-    get scenarioScriptFiltered() { return this.scriptFiltered }
 
     add = async (scenario) => {
         let url = config.proxyAPI + '/realms/' + config.session.realm + '/scenarios'
@@ -127,6 +109,17 @@ let Scenario = class {
 
     listByScriptRunId = async (scriptRunId) => {
         let url = config.proxyAPI + '/realm/' + config.session.realm + '/management/scriptrun/' + scriptRunId
+        let header = { 'Authorization': config.session.httpToken }
+        let response = await fetch(url, {method: 'GET', headers: header})
+        if (response.ok) {
+            response = await response.text()
+            response = JSON.parse(response)
+            if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+        }
+    }
+
+    searchByName = async (scenarioName) => {
+        let url = config.proxyAPI + '/realms/' + config.session.realm + '/scenarios/names/' + scenarioName + '/search'
         let header = { 'Authorization': config.session.httpToken }
         let response = await fetch(url, {method: 'GET', headers: header})
         if (response.ok) {

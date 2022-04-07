@@ -280,6 +280,33 @@ class Scenario:
             print(e)
             return {"failure": str(e)}
 
+    def search_by_name(self, realm: str, name: str):
+        """ """
+        try:
+            req = json.dumps({
+                "size": 10000,
+                "query": {
+                    "bool": {
+                        "filter": {
+                            "term": {
+                                "realm": realm
+                            }
+                        },
+                        "must": {
+                            "wildcard": {
+                                "name": name + '*'
+                            }
+                        }
+                    }
+                }
+            })
+            return self.ES.search(index=self.DB_INDEX, body=req)
+
+        except Exception as e:
+            print("backend Exception, file:scenario:class:scenario:func:search_by_name")
+            print(e)
+            return {"failure": str(e)}
+
     def map_id_name(self, realm: str, scenario_id: str):
 
         try:

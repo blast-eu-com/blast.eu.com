@@ -308,7 +308,7 @@ def script_list_by_types(realm, script_type):
     script = Script(ES)
     return Response(json.dumps(script.list_by_type(realm, script_type)))
 
-@app.route('/api/v1/realms/<realm>/scripts/names/<script_name>/types/<script_type>', method=["GET"])
+@app.route('/api/v1/realms/<realm>/scripts/names/<script_name>/types/<script_type>', methods=["GET"])
 @active_realm_member
 def script_list_by_name_and_type(realm, script_name, script_type):
     """ this function returns the scripts for the given name and the given type"""
@@ -829,14 +829,20 @@ def scenario_list_all(realm):
     sco = Scenario(ES)
     return Response(json.dumps(sco.list(realm)))
 
-@app.route('/api/v1/realms/<realm>/scenarios/ids', methods=["DELETE"])
+@app.route('/api/v1/realms/<realm>/scenarios/names/<scenario_name>/search', methods=["GET"])
 @active_realm_member
-def scenario_delete_by_ids(realm):
+def scenario_search_by_name(realm, scenario_name):
+    """ This function returns all the scenarios present in a given realm with a specific name """
+    sco = Scenario(ES)
+    return Response(json.dumps(sco.search_by_name(realm, scenario_name)))
+
+@app.route('/api/v1/realms/<realm>/scenarios/<scenario_id>', methods=["DELETE"])
+@active_realm_member
+def scenario_delete_by_ids(realm, scenario_id):
     """ This function delete one or more scenarios identified by given ids from a given realm """
     sco = Scenario(ES)
-    ids = request.args.getlist('ids[]')
     account_email = json.loads(request.cookies.get('account'))["email"]
-    return Response(json.dumps(sco.delete(account_email, realm, ids)))
+    return Response(json.dumps(sco.delete(account_email, realm, scenario_id)))
 
 @app.route('/api/v1/realms/<realm>/scenarios/execute', methods=["POST"])
 @active_realm_member

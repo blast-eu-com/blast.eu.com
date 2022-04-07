@@ -25,7 +25,7 @@ import {dictionary} from '../main/message/en/dictionary.js'
 
 var scenarioForm = new ScenarioForm('scenarioFormContainer')
 var scenarioNodesTree = new ScenarioNodesTree('scenarioNodesTree')
-var scenarioManage = new ScenarioManage('scenarioManage')
+var scenarioManage = new ScenarioManage('scenarioManager')
 var scenarioLast = new ScenarioLast('scenarioLast')
 var scriptFilterAndSelect = new ScriptFilterAndSelect('managementUIScriptFrame')
 var scenario = new Scenario()
@@ -104,7 +104,7 @@ window.oneShotScenario = runOneShotScenario
 window.runSavedScenario = runSavedScenario
 window.saveScenario = saveScenario
 window.switchScenarioReportLast = scenarioLast.switchScenarioReportLast
-window.scriptSearchString = scriptFilterAndSelect.scriptSearchString
+window.scriptSearchString = scriptFilterAndSelect.filterScript
 window.scriptSelectAndSearchGoToPrevPage = scriptFilterAndSelect.scriptSelectAndSearchGoToPrevPage
 window.scriptSelectAndSearchGoToThisPage = scriptFilterAndSelect.scriptSelectAndSearchGoToThisPage
 window.scriptSelectAndSearchGoToNextPage = scriptFilterAndSelect.scriptSelectAndSearchGoToNextPage
