@@ -118,7 +118,7 @@ class Script:
 
     def list(self, realm: str):
         """
-            List all script of a given realm present in the db
+            List all scripts of a given realm present in the db
         """
         try:
             req = json.dumps(
@@ -147,7 +147,10 @@ class Script:
 
     def list_by_name(self, realm: str, name: str):
         """
-            List a script by name of a given realm
+            This function is strict only one output is expected
+            the name must be complete not regexp will be allowed
+
+            List a script by a given realm and name
         """
         try:
             req = json.dumps(
@@ -180,7 +183,7 @@ class Script:
 
     def list_by_type(self, realm: str, type: str):
         """
-            List scripts by given realm and given type
+            List scripts by given realm and type
         """
         try:
             req = json.dumps({
@@ -233,13 +236,13 @@ class Script:
                             },
                             {
                                 "term": {
-                                    "name": name
-                                }
-                            },
-                            {
-                                "term": {
                                     "type": type
                                 }
+                            }
+                        },
+                        "must": {
+                            "wildcard": {
+                                "name": name + '*'
                             }
                         }
                     }
