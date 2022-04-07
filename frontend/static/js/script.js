@@ -115,8 +115,8 @@ class Script {
         }
     }
 
-    listByName = async (name) => {
-        let url = config.proxyAPI + '/realms/' + config.session.realm + '/scripts/name/' + name
+    listByName = async (scriptName) => {
+        let url = config.proxyAPI + '/realms/' + config.session.realm + '/scripts/names/' + scriptName
         let header = { "Authorization": config.session.httpToken }
         let response = await fetch(url, {method: 'GET', headers: header})
         if (response.ok) {
@@ -125,8 +125,28 @@ class Script {
         }
     }
 
-    listByRole = async (role) => {
-        let url = config.proxyAPI + '/realms/' + config.session.realm + '/scripts/roles/' + role
+    listByType = async (scriptType) => {
+        let url = config.proxyAPI + '/realms/' + config.session.realm + '/scripts/types/' + scriptType
+        let header = { "Authorization": config.session.httpToken }
+        let response = await fetch(url, {method: 'GET', headers: header})
+        if (response.ok) {
+            response = JSON.parse(await response.text())
+            if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+        }
+    }
+
+    listByRole = async (scriptRole) => {
+        let url = config.proxyAPI + '/realms/' + config.session.realm + '/scripts/roles/' + scriptRole
+        let header = { "Authorization": config.session.httpToken }
+        let response = await fetch(url, {method: 'GET', headers: header})
+        if (response.ok) {
+            response = JSON.parse(await response.text())
+            if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+        }
+    }
+
+    listByNameAndType = async (scriptName, scriptType) => {
+        let url = config.proxyAPI + '/realms/' + config.session.realm + '/scripts/names/' + scriptName + '/types/' + scriptType
         let header = { "Authorization": config.session.httpToken }
         let response = await fetch(url, {method: 'GET', headers: header})
         if (response.ok) {

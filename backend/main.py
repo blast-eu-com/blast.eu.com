@@ -241,7 +241,7 @@ def aaa_load_profile(email):
 
 # * *********************************************************************************************************
 # *
-# * ANSIBLE PART -*- ANSIBLE PART -*- ANSIBLE PART -*- ANSIBLE PART -*- ANSIBLE PART -*- ANSIBLE PART
+# * SCRIPT PART -*- SCRIPT PART -*- SCRIPT PART -*- SCRIPT PART -*- SCRIPT PART -*- SCRIPT PART
 # *
 # * *********************************************************************************************************
 @app.route('/api/v1/realms/<realm>/scripts', methods=['POST'])
@@ -294,19 +294,33 @@ def script_list_by_ids(realm, script_id):
     script = Script(ES)
     return Response(json.dumps(script.list_by_id(realm, script_id)))
 
-@app.route('/api/v1/realms/<realm>/scripts/name/<name>', methods=["GET"])
+@app.route('/api/v1/realms/<realm>/scripts/names/<script_name>', methods=["GET"])
 @active_realm_member
-def script_list_by_names(realm, name):
+def script_list_by_names(realm, script_name):
     """ this function returns the script for the given name """
     script = Script(ES)
-    return Response(json.dumps(script.list_by_name(realm, name)))
+    return Response(json.dumps(script.list_by_name(realm, script_name)))
 
-@app.route('/api/v1/realms/<realm>/scripts/roles/<role>', methods=["GET"])
+@app.route('/api/v1/realms/<realm>/scripts/types/<script_type>', methods=["GET"])
 @active_realm_member
-def script_list_by_roles(realm, role):
+def script_list_by_types(realm, script_type):
+    """ this function returns the scripts for the given type """
+    script = Script(ES)
+    return Response(json.dumps(script.list_by_type(realm, script_type)))
+
+@app.route('/api/v1/realms/<realm>/scripts/names/<script_name>/types/<script_type>', method=["GET"])
+@active_realm_member
+def script_list_by_name_and_type(realm, script_name, script_type):
+    """ this function returns the scripts for the given name and the given type"""
+    script = Script(ES)
+    return Response(json.dumps(script.list_by_name_and_type(realm, script_name, script_type)))
+
+@app.route('/api/v1/realms/<realm>/scripts/roles/<script_role>', methods=["GET"])
+@active_realm_member
+def script_list_by_roles(realm, script_role):
     """ this function returns the script for the given roles """
     script = Script(ES)
-    return Response(json.dumps(script.list_by_role(realm, role)))
+    return Response(json.dumps(script.list_by_role(realm, script_role)))
 
 @app.route('/api/v1/scripts/langs', methods=["GET"])
 def script_list_langs():
