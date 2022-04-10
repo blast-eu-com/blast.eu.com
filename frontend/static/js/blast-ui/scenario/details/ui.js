@@ -28,7 +28,7 @@ async function main() {
     let urlParams = new URLSearchParams(window.location.href.split('?')[1])
     if (urlParams.has("id")) {
         let scenario_id = urlParams.get("id")
-        let scenarioData = await scenario.listByIds([scenario_id])
+        let scenarioData = await scenario.listById(scenario_id)
         scenario.load(scenarioData["hits"]["hits"][0])
         setPageTitle(scenario.name)
         scenarioListInfo.render("scenarioListInfo", scenario)

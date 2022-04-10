@@ -264,7 +264,7 @@ class Scenario:
                                     }
                                 },
                                 {
-                                    "terms": {
+                                    "term": {
                                         "_id": scenario_id
                                     }
                                 }
