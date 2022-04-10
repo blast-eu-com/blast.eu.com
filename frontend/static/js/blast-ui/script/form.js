@@ -29,16 +29,16 @@ toast.msgPicture = '../../../img/object/script.svg'
 
 const ScriptForm = class {
 
-    constructor() {
-        this.pn = ''
+    constructor(parentName) {
+        this.parentName = parentName
         this.fd = {}
-        this.scrName = undefined
-        this.scrType = undefined
-        this.scrDescription = undefined
-        this.scrFilename = undefined
-        this.scrShareable = undefined
-        this.scrRawData = undefined
-        this.scrLogoImgPath = undefined
+        this.scrName
+        this.scrType
+        this.scrDescription
+        this.scrFilename
+        this.scrShareable
+        this.scrRawData
+        this.scrLogoImgPath
         this.scrRoles = []
         this.scrShareableRealms = []
         this.frame = `
@@ -91,10 +91,6 @@ const ScriptForm = class {
             <div id="scriptFileHelp" class="form-text">The script name will be set as the filename.</div>
         `
     }
-
-    set parentName(pn) { this.pn = pn }
-
-    get parentName() { return this.pn }
 
     setFormData = () => {
         this.formData = {
@@ -273,8 +269,7 @@ const ScriptForm = class {
         })
     }
 
-    render = (parentName) => {
-        this.parentName = parentName
+    render = () => {
         this.addForm()
     }
 

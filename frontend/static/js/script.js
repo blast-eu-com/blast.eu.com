@@ -145,7 +145,17 @@ class Script {
         }
     }
 
-    listByNameAndType = async (scriptName, scriptType) => {
+    listLang = async () => {
+        let url = config.proxyAPI + '/scripts/langs'
+        let header = { "Authorization": config.session.httpToken }
+        let response = await fetch(url, {method: 'GET', headers: header})
+        if (response.ok) {
+            response = JSON.parse(await response.text())
+            if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+        }
+    }
+
+    searchByNameAndType = async (scriptName, scriptType) => {
         let url = config.proxyAPI + '/realms/' + config.session.realm + '/scripts/names/' + scriptName + '/types/' + scriptType
         let header = { "Authorization": config.session.httpToken }
         let response = await fetch(url, {method: 'GET', headers: header})
@@ -155,8 +165,8 @@ class Script {
         }
     }
 
-    listLang = async () => {
-        let url = config.proxyAPI + '/scripts/langs'
+    searchByName = async (scriptName) => {
+        let url = config.proxyAPI + '/realms/' + config.session.realm + '/scripts/names/' + scriptName + '/search'
         let header = { "Authorization": config.session.httpToken }
         let response = await fetch(url, {method: 'GET', headers: header})
         if (response.ok) {
@@ -179,23 +189,6 @@ class Script {
             this.logoImgPath = "/img/bootstrap-icons/file-code.svg"
         }
     }
-
-    listByFilter = (scriptStr, scriptType) => {
-        let scriptList = []
-        return new Promise((resolve, reject) => {
-            this.list().then((Resp) => {
-                if ( Resp["hits"]["hits"].length > 0 ) {
-                    Resp["hits"]["hits"].forEach((record) => {
-                        let filterType = scriptObj.filterByScriptType(scriptType, record["_source"]["type"])
-                        let filterStr = scriptObj.filterByScriptName(scriptStr, record["_source"]["name"])
-                        if (filterType && filterStr) { scriptList.push(record) }
-                    })
-                }
-                resolve(scriptList)
-            })
-        })
-    }
-
 
 }
 

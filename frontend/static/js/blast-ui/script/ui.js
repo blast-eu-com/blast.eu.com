@@ -16,12 +16,12 @@
 
 import ScriptList from './list.js'
 import ScriptForm from './form.js'
-var scriptList = new ScriptList()
-var scriptForm = new ScriptForm()
+var scriptList = new ScriptList('scriptList')
+var scriptForm = new ScriptForm('scriptForm')
 
 const main = function() {
-    scriptForm.render('scriptForm')
-    scriptList.render('scriptList')
+    scriptForm.render()
+    scriptList.render()
 }
 
 window.main = main

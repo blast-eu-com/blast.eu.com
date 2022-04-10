@@ -147,9 +147,6 @@ class Script:
 
     def list_by_name(self, realm: str, name: str):
         """
-            This function is strict only one output is expected
-            the name must be complete not regexp will be allowed
-
             List a script by a given realm and name
         """
         try:
@@ -219,49 +216,6 @@ class Script:
             print(e)
             return {"failure": str(e)}
 
-    def list_by_name_and_type(self, realm: str, name: str, type: str):
-        """
-            List scripts by given realm, name and type
-        """
-        try:
-            req = json.dumps({
-                "size": 10000,
-                "query": {
-                    "bool": {
-                        "filter": {
-                            {
-                                "term": {
-                                    "realm": realm
-                                }
-                            },
-                            {
-                                "term": {
-                                    "type": type
-                                }
-                            }
-                        },
-                        "must": {
-                            "wildcard": {
-                                "name": name + '*'
-                            }
-                        }
-                    }
-                },
-                "sort": [
-                    {
-                        "name": {
-                            "order": "asc"
-                        }
-                    }
-                ]
-            })
-            return self.ES.search(index=self.DB_INDEX, body=req)
-
-        except Exception as e:
-            print("backend Exception, file:script:class:script:func:list_by_name_and_type")
-            print(e)
-            return {"failure": str(e)}
-
     def list_by_id(self, realm: str, id: str):
         """
             List a script by id of a given realm
@@ -328,6 +282,81 @@ class Script:
             return self.ES.search(index=self.DB_INDEX, body=req)
 
         except Exception as e:
+            print(e)
+            return {"failure": str(e)}
+
+    def search_by_name(self, realm, script_name):
+        """ search scripts by given realm and name using wildcard """
+        try:
+            req = json.dumps({
+                "size": 10000,
+                "query": {
+                    "bool": {
+                        "filter": {
+                            "term": {
+                                "realm": realm
+                            }
+                        },
+                        "must": {
+                            "wildcard": {
+                                "name": script_name + '*'
+                            }
+                        }
+                    }
+                },
+                "sort": [
+                    {
+                        "name": {
+                            "order": "asc"
+                        }
+                    }
+                ]
+            })
+            return self.ES.search(index=self.DB_INDEX, body=req)
+
+        except Exception as e:
+            print("backend Exception, file:script:class:script:func:search_by_name")
+            print(e)
+            return {"failure": str(e)}
+
+    def search_by_name_and_type(self, realm: str, script_name: str, type: str):
+        """ search scripts by given realm, name using wildcard and type """
+        try:
+            req = json.dumps({
+                "size": 10000,
+                "query": {
+                    "bool": {
+                        "filter": [
+                            {
+                                "term": {
+                                    "realm": realm
+                                }
+                            },
+                            {
+                                "term": {
+                                    "type": type
+                                }
+                            }
+                        ],
+                        "must": {
+                            "wildcard": {
+                                "name": script_name + '*'
+                            }
+                        }
+                    }
+                },
+                "sort": [
+                    {
+                        "name": {
+                            "order": "asc"
+                        }
+                    }
+                ]
+            })
+            return self.ES.search(index=self.DB_INDEX, body=req)
+
+        except Exception as e:
+            print("backend Exception, file:script:class:script:func:search_by_name_and_type")
             print(e)
             return {"failure": str(e)}
 
