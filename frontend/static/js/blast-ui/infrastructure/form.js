@@ -24,16 +24,17 @@ toast.msgPicture = '../../../img/object/infrastructure.svg'
 
 const InfrastructureForm = class {
 
-    constructor() {
+    constructor(parentName) {
         this._formData = {}
+        this.parentName = parentName
 
         this.frame = `
-        <form>
-            <div class="row">
-                <div id="infrastructureNameContainer" class="col-md-6"></div>
-                <div id="infrastructureDescriptionContainer" class="col-md-6"></div>
-            </div>
-        </form>
+            <form>
+                <div class="row">
+                    <div id="infrastructureNameContainer" class="col-md-6"></div>
+                    <div id="infrastructureDescriptionContainer" class="col-md-6"></div>
+                </div>
+            </form>
         `
         this.inputInfrastructureName = `
             <label for="infraName" class="form-label">Infrastructure Name</label>
@@ -85,8 +86,7 @@ const InfrastructureForm = class {
         $("#infrastructureDescriptionContainer").html(this.inputInfrastructureDescription)
     }
 
-    render = (parentName) => {
-        this.parentName = parentName
+    render = () => {
         this.addFrame()
         this.addForm()
     }

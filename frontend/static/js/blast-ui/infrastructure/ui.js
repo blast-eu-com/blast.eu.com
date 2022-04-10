@@ -17,12 +17,12 @@
 
 import InfrastructureForm from './form.js'
 import InfrastructureList from './list.js'
-var infrastructureForm = new InfrastructureForm()
-var infrastructureList = new InfrastructureList()
+var infrastructureForm = new InfrastructureForm('infrastructureForm')
+var infrastructureList = new InfrastructureList('infrastructureList')
 
 function main() {
-    infrastructureForm.render('infrastructureForm')
-    infrastructureList.render('infrastructureList')
+    infrastructureForm.render()
+    infrastructureList.render()
 }
 
 window.main = main
