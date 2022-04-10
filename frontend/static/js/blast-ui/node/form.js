@@ -27,8 +27,9 @@ toast.msgPicture = '../../../img/object/node.svg'
 
 const NodeForm = class {
 
-    constructor() {
+    constructor(parentName) {
 
+        this.parentName = parentName
         this._nn
         this._ni
         this._nd
@@ -132,8 +133,8 @@ const NodeForm = class {
         // $("#nodeContainer").html(this.inputNodeContainer)
     }
 
-    addFrame = (parentName) => {
-        $("#" + parentName).html(this.frame)
+    addFrame = () => {
+        $("#" + this.parentName).html(this.frame)
     }
 
     addNode = () => {
@@ -154,9 +155,8 @@ const NodeForm = class {
         })
     }
 
-    render = (parentName) => {
-        this.parentName = parentName
-        this.addFrame(this.parentName)
+    render = () => {
+        this.addFrame()
         this.addForm()
     }
 

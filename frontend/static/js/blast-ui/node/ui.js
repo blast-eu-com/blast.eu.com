@@ -16,12 +16,12 @@
 
 import NodeForm from './form.js'
 import NodeList from './list.js'
-var nodeForm = new NodeForm()
-var nodeList = new NodeList()
+var nodeForm = new NodeForm('nodeForm')
+var nodeList = new NodeList('nodeList')
 
 function main() {
-    nodeForm.render('nodeForm')
-    nodeList.render('nodeList')
+    nodeForm.render()
+    nodeList.render()
 }
 
 window.main = main
