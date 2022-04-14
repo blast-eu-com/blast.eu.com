@@ -29,7 +29,7 @@ const NodeListInfo = class {
 
     addListInfo = (node) => {
         let html = `
-        <table class="table"><thead></thead><tr><td><b>Node id</b></td><td>` + node.id + `</td></tr>`
+        <table class="table"><tr><td><b>Node id</b></td><td>` + node.id + `</td></tr>`
         $.each(node.rawData, function(idx, val) {
             if ( idx === "ip" ) {
                 html = html + '<tr><td><b>' + idx.charAt(0).toUpperCase() + idx.slice(1) + '</b></td><td>'

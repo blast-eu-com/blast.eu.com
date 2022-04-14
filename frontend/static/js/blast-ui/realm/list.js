@@ -14,34 +14,47 @@
    limitations under the License.
 */
 
+import Realm from '../../realm.js'
 import FrontendConfig from '../../frontend.js'
 
 var config = new FrontendConfig()
+var realm = new Realm()
 
 const RealmList = class {
 
     constructor() { }
 
-    addList = (realm) => {
-        let html = `<table class="table">`
+    templateList = (realms) => {
+        let html = `<table class="table table-sm" style="font-size: small">
+        <thead><tr><th></th><th>Name</th><th>State</th></tr></thead>`
         let activeRealm = ''
-        realm.listByUniqName().then((realms) => {
-            realms["aggregations"]["aggregate_by_name"]["buckets"].forEach((record) => {
-                if ( record["key"] === config.session.realm ) { activeRealm = 'Active' } else { activeRealm = ''}
-                html = html + `
-                    <tr>
-                    <td width="40px"><img src="/img/bootstrap-icons/circle.svg" height="24" width="24" /></td>
-                    <td><a href="/html/realm-details.html?realm_name=` + record["key"] + `">` + record["key"] + `</a></td>
-                    <td>` + activeRealm + `</td>
-                    </tr>`
-                    $("#" + this.parentName).html(html)
+        realms.forEach((rlm) => {
+            if ( rlm["key"] === config.session.realm ) { activeRealm = 'Active' } else { activeRealm = ''}
+            html = html + `
+                <tr>
+                <td width="40px"><img src="/img/bootstrap-icons/circle.svg" height="24" width="24" /></td>
+                <td><a href="/html/realm-details.html?realm_name=` + rlm["key"] + `">` + rlm["key"] + `</a></td>
+                <td>` + activeRealm + `</td>
+                </tr>`
+        })
+        return html
+    }
+
+    loadRealmList = () => {
+        realm.listByUniqName().then((realmData) => {
+            $("#realmListPagination").pagination({
+                dataSource: realmData["aggregations"]["aggregate_by_name"]["buckets"],
+                pageSize: 60,
+                callback: (data, pagination) => {
+                    let html = this.templateList(data)
+                    $("#realmList").html(html)
+                }
             })
         })
     }
 
-    render = (parentName, realm) => {
-        this.parentName = parentName
-        this.addList(realm)
+    render = () => {
+        this.loadRealmList()
     }
 
 }

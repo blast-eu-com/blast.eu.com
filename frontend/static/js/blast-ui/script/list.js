@@ -13,23 +13,16 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
+
 import Script from '../../script.js'
 var script = new Script()
+
 var ScriptList = class {
 
-    constructor(parentName) {
-        this.parentName = parentName
-        this.frame = `
-            <div id="simpleWindowFrameCore" class="mt-2"></div>
-            <div id="simpleWindowInteractive" class="row p-1 m-1"></div>
-        `
+    constructor() {
         this.msgScriptNotFound = `<div class="p-5" style="text-align: center;">
         <img src="/img/object/script.svg" width="92" height="92"><b><h3 class="mt-3">SCRIPT NOT FOUND</h3></b>
         Add a script from this page\'s form to see it appearing into this list.</div>`
-    }
-
-    addFrame = (parentName) => {
-        $('#' + this.parentName).html(this.frame)
     }
 
     templateScript = (scriptData) => {
@@ -62,22 +55,21 @@ var ScriptList = class {
         return html
     }
 
-    loadScript = () => {
+    loadScriptList = () => {
         script.list().then((scriptData) => {
-            $("#simpleWindowInteractive").pagination({
+            $("#scriptListPagination").pagination({
                 dataSource: scriptData["hits"]["hits"],
                 pageSize: 60,
                 callback: (data, pagination) => {
                     let html = this.templateScript(data)
-                    $("#simpleWindowFrameCore").html(html)
+                    $("#scriptList").html(html)
                 }
             })
         })
     }
 
     render = () => {
-        this.addFrame()
-        this.loadScript()
+        this.loadScriptList()
     }
 }
 

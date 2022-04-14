@@ -53,10 +53,21 @@ let Scheduler = class {
     get realm() { return this._realm }
     get rawData() { return this._data}
 
-    add = async (formData) => {
+    add = async (scheduler_data) => {
         let url = config.proxyAPI + '/realms/' + config.session.realm + '/schedulers'
-        let header = { 'Authorization': config.session.httpToken }
-        let data = JSON.stringify(formData)
+        let header = { 'Authorization': config.session.httpToken, 'Content-Type': "application/json; charset=utf-8" }
+        let data = JSON.stringify({"scheduler": scheduler_data})
+        let response = await fetch(url, {method: "POST", headers: header, body: data})
+        if (response.ok) {
+            response = JSON.parse(await response.text())
+            if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
+        }
+    }
+
+    action = async (scheduler_data) => {
+        let url = config.proxyAPI + '/realms/' + config.session.realm + '/schedulers/action'
+        let header = { 'Authorization': config.session.httpToken, 'Content-Type': "application/json; charset=utf-8"}
+        let data = JSON.stringify(scheduler_data)
         let response = await fetch(url, {method: "POST", headers: header, body: data})
         if (response.ok) {
             response = JSON.parse(await response.text())
@@ -84,11 +95,10 @@ let Scheduler = class {
         }
     }
 
-    action = async (scheduler_data) => {
-        let url = config.proxyAPI + '/realms/' + config.session.realm + '/schedulers/action'
-        let header = { 'Authorization': config.session.httpToken, 'Content-Type': "application/json; charset=utf-8"}
-        let data = JSON.stringify(scheduler_data)
-        let response = await fetch(url, {method: "POST", headers: header, body: data})
+    searchByName = async (schedulerName) => {
+        let url = config.proxyAPI + '/realms/' + config.session.realm + '/schedulers/names/' + schedulerName + '/search'
+        let header = { 'Authorization': config.session.httpToken }
+        let response = await fetch(url, {method: "GET", headers: header})
         if (response.ok) {
             response = JSON.parse(await response.text())
             if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }

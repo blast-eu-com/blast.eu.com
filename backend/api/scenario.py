@@ -121,8 +121,10 @@ class Scenario:
             if len(scenario["scripts"]) == 0:
                 raise Exception("Scenario scripts is required to execute. Select one script at least.")
 
+            if scenario_id is None:
+                scenario_id = str("oneshot-" + base64.urlsafe_b64encode(''.join([random.choice(string.ascii_letters + string.digits) for n in range(16)]).encode('utf-8')).decode("utf-8"))
+
             scenario_manager = scenarioManager.ScenarioManager(self.ES)
-            scenario_id = str("oneshot-" + base64.urlsafe_b64encode(''.join([random.choice(string.ascii_letters + string.digits) for n in range(16)]).encode('utf-8')).decode("utf-8"))
             execute_scenario_kwargs = {
                 "scenario_realm": scenario_realm,
                 "scenario": scenario,

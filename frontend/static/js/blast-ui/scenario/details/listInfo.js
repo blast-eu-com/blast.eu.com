@@ -18,7 +18,7 @@
 const ScenarioListInfo = class {
 
     constructor() {
-        this._pn = undefined
+        this._pn
     }
 
     set parentName(pn) { this._pn = pn }
@@ -28,9 +28,7 @@ const ScenarioListInfo = class {
     addListInfo = (scenario) => {
 
         let html = `
-            <img style="margin-left: 1rem; margin-bottom: 1rem" src="/img/object/scenario.svg" height="56" width="56" />
             <table class="table">
-            <thead></thead>
             <tr><td>id</td><td>` + scenario.id + `</td></tr>`
 
         $.each(scenario.rawData, (key, val) => {

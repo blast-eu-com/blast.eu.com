@@ -18,7 +18,8 @@ import Scheduler from '../../scheduler.js'
 var scheduler = new Scheduler()
 var SchedulerSelectAndManage = class {
 
-    constructor() {
+    constructor(parentName) {
+        this.parentName = parentName
         this.frame = `
              <div class="input-group">
                 <div class="input-group-text">
@@ -30,178 +31,64 @@ var SchedulerSelectAndManage = class {
             <div id="schedulerRunWindowFrameCore" class="mt-2"></div>
             <div id="schedulerRunWindowInteractive" class="row p-1 m-1"></div>
         `
-        this.nr = 10                // number of record per page
-        this.cn = 0                 // current number of record
-        this.lp = 1                 // last page
-        this.fp = 1                 // first page
-        this.cp = 1                 // current page
     }
 
-    set numRecord(nr) { this.nr = nr }
-    set curNumRecord(cn) { this.cn = cn }
-    set lastPage(lp) { this.lp = lp }
-    set firstPage(fp) { this.fp = fp }
-    set curPageNum(cp) { this.cp = cp }
-
-    get numRecord() { return this.nr }
-    get curNumRecord() { return this.cn }
-    get lastPage() { return this.lp }
-    get firstPage() { return this.fp }
-    get curPageNum() { return this.cp }
-
-    addFrame = (parentName) => {
-        $("#" + parentName).html(this.frame)
+    addFrame = () => {
+        $("#" + this.parentName).html(this.frame)
     }
 
     schedulerStringSearch() {
         return $("input#schedulerNameSearch").val()
     }
 
-    schedulerPageLength() {
-        return $("select#schedulerSelSamplePerPage option:selected").val()
-    }
-
-    filterStrMatch(str, ref) {
-        if ( str !== '') {
-            let regexp = new RegExp('.*' + str + '.*')
-            var bool = (regexp.test(ref)) ? true : false }
-        else { var bool = true }
-        return bool
-    }
-
-    filterSchedulerData = (schedulerData, filterStr) => {
-        let schedulerDataFiltered = []
-        for (let i=0; i<schedulerData.length; i++) {
-            let record = schedulerData[i]
-            if (this.filterStrMatch(filterStr, record["_source"]["name"])) {
-                schedulerDataFiltered.push(record)
-            }
-        }
-        this.curNumRecord = schedulerDataFiltered.length
-        return schedulerDataFiltered
-    }
-
-    schedulerRunCoreRow = (record) => {
-        let html = `
-            <li>
-                <div class="selectAndManageRow">
-                    <div class="selectAndManageField selectAndManageFieldImg"><img src="/img/object/schedule.svg" height="24" width="24"/></div>
-                    <div class="selectAndManageField selectAndManageFieldName"><a href="/html/scheduler-details.html?id=` + record["_id"] + `">` + record["_source"]["name"] + `</a></div>
-                    <div class="selectAndManageField selectAndManageFieldDescription">` + record["_source"]["description"] + `</div>
-                    <div class="selectAndManageField selectAndManageFieldState">` + record["_source"]["status"] + `</div>
-                    <div class="selectAndManageField selectAndManageFieldControl">
-                        <img src="/img/bootstrap-icons-1.0.0-alpha5/three-dots.svg" class="dropdown-toggle" id="` + record["_id"] + `" data-bs-toggle="dropdown" aria-expanded="false" />
-                        <ul class="dropdown-menu" aria-labelledby="` + record["_id"] + `">
+    templateScheduler = (schedulerData) => {
+        let html = `<table class="table table-sm" style="font-size: small;">
+        <thead><tr><th></th><th>Name</th><th>Description</th><th>State</th><th>Action</th></tr></thead>`
+        schedulerData.forEach((sched) => {
+            html = html + `
+                <tr>
+                    <td><img src="/img/object/schedule.svg" height="24" width="24"/></td>
+                    <td><a href="/html/scheduler-details.html?id=` + sched["_id"] + `">` + sched["_source"]["name"] + `</a></td>
+                    <td>` + sched["_source"]["description"] + `</td>
+                    <td>` + sched["_source"]["status"] + `</td>
+                    <td>
+                        <img src="/img/bootstrap-icons-1.0.0-alpha5/three-dots.svg" class="dropdown-toggle" id="` + sched["_id"] + `" data-bs-toggle="dropdown" aria-expanded="false" />
+                        <ul class="dropdown-menu" aria-labelledby="` + sched["_id"] + `">
                             <li><button class="dropdown-item" type="button" onclick="switchMemberRole() ;">Restart</button></li>
                             <li><button class="dropdown-item" type="button" onclick="switchMemberRole() ;">Start</button></li>
                             <li><button class="dropdown-item" type="button" onclick="switchMemberRole() ;">Stop</button></li>
                         </ul>
-                    </div>
-                </div>
-            </li>`
+                    </td>
+                </tr>
+            `
+        })
         return html
     }
 
-    schedulerRunCoreData = (schedulerData) => {
-        let filterStr = this.schedulerStringSearch()
-        let schedulerDataFiltered = this.filterSchedulerData(schedulerData, filterStr)
-        let firstRec = ( this.curPageNum - 1 ) * this.numRecord
-        let lastRec = ( this.curPageNum * this.numRecord )
-        let html = '<table class="table table-sm"><tr>'
-        if (schedulerDataFiltered.length < lastRec ) { lastRec = schedulerDataFiltered.length }
-        for (let i=firstRec; i<lastRec; i++) { html = html + this.schedulerRunCoreRow(schedulerDataFiltered[i]) }
-        $("#schedulerRunWindowFrameCore").html(html)
-        return true
-    }
-
-    schedulerRunWindowInteractive() {
-        let html = `
-            <div id="schedulerListPerPage" class="col-2 mt-2">
-                <select class="form-select" id="schedulerSelSamplePerPage" onchange="schedulerRunDisplayNewRange()">
-                    <option value="10">10</option>
-                    <option value="25">25</option>
-                    <option value="50">50</option>
-                </select>
-            </div>
-            <div class="col-10 mt-2">
-                <nav><ul id="schedulerRunWindowFramePagination" class="pagination"></ul></nav>
-            </div>
-        `
-        $("#schedulerRunWindowInteractive").html(html)
-    }
-
-    schedulerRunWindowPagination = () => {
-        this.curNumRecord > 1 ? this.firstPage = 1 : this.firstPage = 0
-        this.curNumRecord > 1 ? this.lastPage = Math.ceil(this.curNumRecord/this.numRecord) : this.lastPage = 0
-        let html = ''
-        if (this.curNumRecord > 0 ) {
-            this.schedulerRunWindowInteractive()
-            if (this.curNumRecord > this.numRecord) {
-                if ( this.lastPage > this.firstPage ) {
-                    let html = `<li class="page-item" onclick="schedulerRunGoToPrevPage();">
-                        <a class="page-link blast-page-link" href="#">Previous</a></li>`
-                    for ( let i = this.firstPage; i<this.lastPage; i++) {
-                        html = html + `<li class="page-item">
-                            <a class="page-link blast-page-link" onclick="schedulerRunGoToThisPage(` + i + `);">` + i + `</a></li>`
-                    }
-                    html = html + `<li class="page-item" onclick="schedulerRunGoToNextPage();">
-                        <a class="page-link blast-page-link" href="#">Next</a></li>`
-                }
-            }
-        }
-        $("#schedulerRunWindowFramePagination").html(html)
-        return true
-    }
-
-    schedulerRunGoToNextPage = (curPageNum, lastPage) => {
-        let nextPage = curPageNum + 1
-        if ( nextPage <= lastPage ) {
-            this.curPageNum = nextPage
-            scheduler.list().then((scenarios) => {
-                if (scenarios["hits"]["total"]["value"] > 0) {
-                    this.schedulerRunCoreData(scenarios["hits"]["hits"])
-                    this.schedulerRunWindowPagination()
+    loadScheduler = () => {
+        scheduler.list().then((schedulerData) => {
+            $("#schedulerRunWindowInteractive").pagination({
+                dataSource: schedulerData["hits"]["hits"],
+                pageSize: 60,
+                callback: (data, pagination) => {
+                    let html = this.templateScheduler(data)
+                    $("#schedulerRunWindowFrameCore").html(html)
                 }
             })
-        }
-    }
-
-    // navigate thru data
-    // go to the previous page of the current
-    schedulerRunGoToPrevPage = (curPageNum) => {
-        let prevPage = curPageNum - 1
-        if ( prevPage > 0 ) {
-            this.curPageNum = prevPage
-            scheduler.list().then((schedulers) => {
-                if (schedulers["hits"]["total"]["value"] > 0) {
-                    this.schedulerRunCoreData(schedulers["hits"]["hits"])
-                    this.schedulerRunWindowPagination()
-                }
-            })
-        }
-    }
-
-    // navigate thru data
-    // go to the specified page
-    schedulerRunGoToThisPage = (pageNum) => {
-        this.curPageNum = pageNum
-        scheduler.list().then((schedulers) => {
-            if (schedulers["hits"]["total"]["value"] > 0) {
-                this.schedulerRunCoreData(schedulers["hits"]["hits"])
-                this.schedulerRunWindowPagination()
-            }
         })
     }
 
-    // fulfill the frame of the scheduler select and manage window
-    schedulerRunWindowCoreData = () => {
-        let pageLength = this.schedulerPageLength()
-        pageLength === undefined ? this.numRecord = 10 : this.numRecord = parseInt(pageLength)
-        scheduler.list().then((schedulers) => {
-            if (schedulers["hits"]["total"]["value"] > 0) {
-                this.schedulerRunCoreData(schedulers["hits"]["hits"])
-                this.schedulerRunWindowPagination()
-            }
+    loadSchedulerByName = () => {
+        let schedulerName = this.schedulerStringSearch()
+        scheduler.searchByName(schedulerName).then((schedulerData) => {
+            $("#schedulerRunWindowInteractive").pagination({
+                dataSource: schedulerData["hits"]["hits"],
+                pageSize: 60,
+                callback: (data, pagination) => {
+                    let html = this.templateScheduler(data)
+                    $("#schedulerRunWindowFrameCore").html(html)
+                }
+            })
         })
     }
 
@@ -233,9 +120,9 @@ var SchedulerSelectAndManage = class {
     }
 
     // return the render of the scheduler select and Manage window
-    render = (parentName) => {
-        this.addFrame(parentName)
-        this.schedulerRunWindowCoreData()
+    render = () => {
+        this.addFrame()
+        this.loadScheduler()
     }
 
 }

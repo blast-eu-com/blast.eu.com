@@ -141,17 +141,6 @@ let Scenario = class {
         }
     }
 
-    executeById = async (scenarioId) => {
-        let url = config.proxyAPI + '/realms/' + config.session.realm + '/scenarios/execute/' + scenarioId
-        let header = { 'Authorization': config.session.httpToken }
-        let response = await fetch(url, {method: 'GET', headers: header})
-        if (response.ok) {
-            response = await response.text()
-            response = JSON.parse(response)
-            if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
-        }
-    }
-
     setFormData = async () => {
         this.formData = {
             "name": $("#scenarioName").val(),

@@ -19,20 +19,10 @@ var infrastructure = new Infrastructure()
 
 var InfrastructureList = class {
 
-    constructor(parentName) {
-        this.parentName = parentName
-        this.frame = `
-            <div id="simpleWindowFrameCore" class="mt-2"></div>
-            <div id="simpleWindowInteractive" class="row p-1 m-1"></div>
-        `
+    constructor() {
         this.msgInfrastructureNotFound = `<div class="p-5" style="text-align: center;">
         <img src="/img/object/infrastructure.svg" width="92" height="92"><b><h3 class="mt-3">INFRASTRUCTURE NOT FOUND</h3></b>
         Add a infrastructure from this page\'s form to see it appearing into this list.</div>`
-    }
-
-
-    addFrame = () => {
-        $('#' + this.parentName).html(this.frame)
     }
 
     templateInfrastructure(infrastructureData) {
@@ -66,22 +56,21 @@ var InfrastructureList = class {
         return html
     }
 
-    loadInfrastructure = () => {
+    loadInfrastructureList = () => {
         infrastructure.list().then((infrastructureData) => {
-            $("#simpleWindowInteractive").pagination({
+            $("#infrastructureListPagination").pagination({
                 dataSource: infrastructureData["hits"]["hits"],
                 pageSize: 60,
                 callback: (data, pagination) => {
                     let html = this.templateInfrastructure(data)
-                    $("#simpleWindowFrameCore").html(html)
+                    $("#infrastructureList").html(html)
                 }
             })
         })
     }
 
     render = () => {
-        this.addFrame()
-        this.loadInfrastructure()
+        this.loadInfrastructureList()
     }
 }
 

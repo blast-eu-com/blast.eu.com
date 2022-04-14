@@ -43,22 +43,14 @@ const ScenarioLast = class {
             "search": [
                 {
                     "field": "scenario_id",
-                    "string": "oneshot-*"
+                    "string": "*"
                 }
             ]
         }
         let res_query_data = await filterScroll(query_data)
-        let html = `
-            <table class="table table-sm">
-                <thead>
-                    <th>Execution Id</th>
-                    <th>Scenario Id</th>
-                    <th>Start At</th>
-                    <th>End At</th>
-                    <th>Status</th>
-                    <th>Elapsed</th>
-                </thead>
-        `
+        let html = `<table class="table table-sm" style="font-size: small;">
+        <thead><tr><th>Execution Id</th><th>Scenario Id</th><th>Start At</th><th>End At</th><th>Status</th>
+        <th>Elapsed</th></tr></thead>`
 
         res_query_data["hits"]["hits"].forEach((report) => {
 

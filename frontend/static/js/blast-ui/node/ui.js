@@ -17,7 +17,7 @@
 import NodeForm from './form.js'
 import NodeList from './list.js'
 var nodeForm = new NodeForm('nodeForm')
-var nodeList = new NodeList('nodeList')
+var nodeList = new NodeList()
 
 function main() {
     nodeForm.render()

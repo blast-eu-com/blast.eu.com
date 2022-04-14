@@ -29,7 +29,8 @@ toast.msgPicture = '../../../img/object/cluster.svg'
 
 const ClusterForm = class {
 
-    constructor() {
+    constructor(parentName) {
+        this.parentName = parentName
         this._fd
         this._cn
         this._cd
@@ -67,7 +68,6 @@ const ClusterForm = class {
             }
         })
 
-        this._parentName = undefined
 
     }
 
@@ -123,8 +123,7 @@ const ClusterForm = class {
         $("#clusterInfrastructureContainer").html(this.inputClusterInfrastructure)
     }
 
-    render = (parentName) => {
-        this.parentName = parentName
+    render = () => {
         this.addForm()
     }
 

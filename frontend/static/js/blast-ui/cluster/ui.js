@@ -17,12 +17,12 @@
 
 import ClusterForm from './form.js'
 import ClusterList from './list.js'
-var clusterForm = new ClusterForm()
+var clusterForm = new ClusterForm('clusterForm')
 var clusterList = new ClusterList()
 
 function main() {
-    clusterForm.render('clusterForm')
-    clusterList.render('clusterList')
+    clusterForm.render()
+    clusterList.render()
 }
 
 window.main = main

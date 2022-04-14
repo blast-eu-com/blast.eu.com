@@ -18,7 +18,9 @@ import { filterScroll } from '../../reporter.js'
 
 const SchedulerOnGoing = class {
 
-    constructor() { }
+    constructor(parentName) {
+        this.parentName = parentName
+    }
 
     addOnGoing = () => {
 
@@ -44,8 +46,8 @@ const SchedulerOnGoing = class {
             ]
         }
 
-        let html = `<table class="table" style="font-size: 12px;">
-        <thead><th>Execution Id</th><th>Scheduler Name</th><th>Status</th><th>Start Time</th><th>Progress Bar</th></thead>`
+        let html = `<table class="table" style="font-size: small">
+        <thead><tr><th>Execution Id</th><th>Scheduler Name</th><th>Status</th><th>Start Time</th><th>Progress Bar</th></tr></thead>`
 
         filterScroll(report_data).then((res_query_scroll) => {
             res_query_scroll["hits"]["hits"].forEach((report) => {
@@ -78,8 +80,7 @@ const SchedulerOnGoing = class {
         this.addOnGoing()
     }
 
-    render = (parentName) => {
-        this.parentName = parentName
+    render = () => {
         this.addOnGoing()
     }
 }

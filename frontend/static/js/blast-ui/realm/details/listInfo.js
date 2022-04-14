@@ -24,8 +24,6 @@ const RealmListInfo = class {
         let html = `
             <img style="margin-left: 1rem; margin-bottom: 1rem" src="/img/object/realm.svg" height="56" width="56" />
             <table class="table">
-            <thead>
-            </thead>
             <tr><td><b>Realm id</b></td><td>` + realm.id + `</td></tr>
         `
         $.each(realm.rawData, function(idx, val) {

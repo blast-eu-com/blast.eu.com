@@ -73,8 +73,10 @@ const runOneShotScenario = async () => {
 }
 
 const runSavedScenario = async (scenarioId) => {
-    let actionRes
-    scenario.executeById(scenarioId).then((Resp) => {
+    let actionRes, scenarioData, sce = await scenario.listById(scenarioId)
+    scenarioData = sce["hits"]["hits"][0]["_source"]
+    scenarioData["scenario_id"] = scenarioId
+    scenario.execute(scenarioData).then((Resp) => {
         if (Resp["result"] === "created") {
             toast.msgTitle = "Scenario execute Success"
             toast.msgText = "Scenario execute"

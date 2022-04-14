@@ -108,16 +108,16 @@
                                         <!-- Scenario form -->
                                         <div class="col" style="padding: 0;">
                                             <div class="card blast-card shadow-sm rounded">
-                                                <div class="card-body">
-                                                    <div class="card-title mb-4">
-                                                        <div class="row">
-                                                            <h4 class="col-md-9">Scenario Form</h4>
-                                                            <div class="col-md-3">
-                                                                <button onclick="saveScenario();" class="btn blast-btn ">Save</button>
-                                                                <button onclick="oneShotScenario();" class="btn blast-btn">Run</button>
-                                                            </div>
+                                                <div class="card-header blast-card-header">
+                                                    <div class="row">
+                                                        <h4 class="col-md-9">Scenario Form</h4>
+                                                        <div class="col-md-3">
+                                                            <button onclick="saveScenario();" class="btn blast-btn ">Save</button>
+                                                            <button onclick="oneShotScenario();" class="btn blast-btn">Run</button>
                                                         </div>
                                                     </div>
+                                                </div>
+                                                <div class="card-body">
                                                     <p id="scenarioFormContainer" class="card-text"></p>
                                                 </div>
                                             </div>
@@ -125,28 +125,29 @@
                                     </div>
                                 </div>
 
-                                <div class="tab-pane fade" id="manage" role="tabpanel"
-                                     aria-labelledby="scenarioManage">
-                                    <div id="scenarioManager"></div>
+                                <div class="tab-pane fade" id="manage" role="tabpanel" aria-labelledby="scenarioManage">
+                                    <div id="scenarioManager" class="row h-100"></div>
                                 </div>
 
-                                <div class="tab-pane fade" id="run" role="tabpanel"
-                                     aria-labelledby="scenarioReport">
-
-                                    <div class="card blast-card shadow-sm m-3 rounded">
-                                        <div class="card-body">
-                                            <div class="card-title row">
-                                                <h4 class="col-md-10">Scenario Last</h4>
-                                                <div class="col-md-2">
-                                                    <div class="form-check form-switch">
-                                                        <input class="form-check-input" type="checkbox"
-                                                                id="switchScenarioReportLast"
-                                                                onclick="switchScenarioReportLast();">
-                                                        <label class="form-check-label" for="switchScenarioReportLast">Activate Refresh</label>
+                                <div class="tab-pane fade" id="run" role="tabpanel" aria-labelledby="scenarioReport">
+                                    <div id="scenarioReporter" class="row h-100">
+                                        <div id="scenarioReportContainer" class="col-12 p-0">
+                                            <div class="card blast-card shadow-sm rounded">
+                                                <div class="card-body">
+                                                    <div class="card-title row">
+                                                        <h4 class="col-md-10">Scenario last one hour</h4>
+                                                        <div class="col-md-2">
+                                                            <div class="form-check form-switch">
+                                                                <input class="form-check-input" type="checkbox"
+                                                                        id="switchScenarioReportLast"
+                                                                        onclick="switchScenarioReportLast();">
+                                                                <label class="form-check-label" for="switchScenarioReportLast">Auto refresh</label>
+                                                            </div>
+                                                        </div>
                                                     </div>
+                                                    <div id="scenarioLast" class="card-text"></div>
                                                 </div>
                                             </div>
-                                            <div id="scenarioLast" class="card-text"></div>
                                         </div>
                                     </div>
                                 </div>

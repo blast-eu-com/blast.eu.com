@@ -16,7 +16,6 @@
 """
 
 import json
-import elasticsearch
 import threading
 from api import statistic
 from api import schedulerManager
@@ -113,7 +112,7 @@ class Scheduler:
             })
             return self.ES.search(index=self.DB_INDEX, body=req)
 
-        except (elasticsearch.exceptions.ConnectionError, elasticsearch.exceptions.NotFoundError) as e:
+        except Exception as e:
             return {"failure": e}
 
     def list_all(self):
@@ -162,7 +161,6 @@ class Scheduler:
                     }
                 }
             )
-
             return self.ES.search(index=self.DB_INDEX, body=req)
 
         except Exception as e:
@@ -184,7 +182,7 @@ class Scheduler:
                                     }
                                 },
                                 {
-                                    "terms": {
+                                    "term": {
                                         "_id": scheduler_id
                                     }
                                 }
@@ -200,12 +198,44 @@ class Scheduler:
                     ]
                 }
             )
-            print(req)
             return self.ES.search(index=self.DB_INDEX, body=req)
 
         except Exception as e:
             print(e)
             return {"failure": e}
+
+    def search_by_name(self, realm: str, scheduler_name: str):
+
+        try:
+            req = json.dumps({
+                "query": {
+                    "bool": {
+                        "filter": {
+                            "term": {
+                                "realm": realm
+                            }
+                        },
+                        "must": {
+                            "wildcard": {
+                                "name": scheduler_name + '*'
+                            }
+                        }
+                    }
+                },
+                "sort": [
+                    {
+                        "name": {
+                            "order": "asc"
+                        }
+                    }
+                ]
+            })
+            return self.ES.search(index=self.DB_INDEX, body=req)
+
+        except Exception as e:
+            print("backend Exception, file:scheduler:class:scheduler:func:search_by_name")
+            print(e)
+            return {'failure': str(e)}
 
     def update(self, schedule_id: str, schedule_data: dict):
 

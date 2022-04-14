@@ -21,7 +21,9 @@ var schedulerOnGoing = new SchedulerOnGoing()
 
 const SchedulerLast = class {
 
-    constructor() { }
+    constructor(parentName) {
+        this.parentName = parentName
+    }
 
     addChart = (reports) => {
         let ctx = $("#schedulerLastChart")
@@ -57,15 +59,9 @@ const SchedulerLast = class {
     addLast = (reports) => {
 
         let html = `
-            <table class="table" style="font-size: 12px;">
-            <thead>
-                <th>Execution Id</th>
-                <th>Scheduler Name</th>
-                <th>Status</th>
-                <th>Start Time</th>
-                <th>End Time</th>
-                <th>Duration Time</th>
-            </thead>
+            <table class="table table-sm" style="font-size: small;">
+            <thead><tr><th>Execution Id</th><th>Scheduler Name</th><th>Status</th><th>Start Time</th>
+            <th>End Time</th><th>Duration Time</th></tr></thead>
         `
 
         reports["hits"]["hits"].forEach((report) => {
@@ -117,8 +113,7 @@ const SchedulerLast = class {
         this.addChartAndLast()
     }
 
-    render = (parentName) => {
-        this.parentName = parentName
+    render = () => {
         this.addChartAndLast()
     }
 }

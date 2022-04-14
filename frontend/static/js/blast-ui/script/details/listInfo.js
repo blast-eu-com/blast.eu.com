@@ -23,7 +23,7 @@ const ScriptListInfo = class {
     addListInfo = (script) => {
         console.log(script)
         let html = `
-            <table style="margin-top: 1rem" class="table"><thead></thead>
+            <table style="margin-top: 1rem" class="table">
             <tr><td>script id</td><td>` + script.id + `</td></tr>
         `
         $.each(script.rawData, function(idx, val) {

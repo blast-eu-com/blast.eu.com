@@ -35,9 +35,9 @@ async function main() {
 
     let urlParams = new URLSearchParams(window.location.href.split('?')[1])
     if ( urlParams.has("id") ) {
-        let scheduler_id = urlParams.get("id")
-        let scheduler_data = await scheduler.listByIds([scheduler_id])
-        scheduler.load(scheduler_data["hits"]["hits"][0])
+        let schedulerId = urlParams.get("id")
+        let schedulerData = await scheduler.listById(schedulerId)
+        scheduler.load(schedulerData["hits"]["hits"][0])
         setPageTitle(scheduler.name)
         setButtonDeleteAction(scheduler)
         schedulerListInfo.render('schedulerListInfo', scheduler)

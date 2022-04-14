@@ -28,7 +28,7 @@ const infrastructureListInfo = class {
 
     addListInfo = (infrastructure) => {
         let html = `
-        <table class="table"><thead></thead><tr><td><b>Infrastructure id</b></td><td>` + infrastructure.id + `</td></tr>`
+        <table class="table"><tr><td><b>Infrastructure id</b></td><td>` + infrastructure.id + `</td></tr>`
         $.each(infrastructure.rawData, function(idx, val) {
             if ( idx !== "clusters" ) { html = html + '<tr><td><b>' + idx.charAt(0).toUpperCase() + idx.slice(1) + '</b></td><td>' + val + '</td></tr>' }
         })

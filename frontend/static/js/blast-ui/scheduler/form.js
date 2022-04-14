@@ -20,13 +20,13 @@ import Toast from '../main/notification/toast.js'
 import {dictionary} from '../main/message/en/dictionary.js'
 var toast = new Toast()
 var scheduler = new Scheduler()
-var scenarioFilterAndSelect = new ScenarioFilterAndSelect()
+var scenarioFilterAndSelect = new ScenarioFilterAndSelect('schedulerListScenariosContainer')
 toast.msgPicture = '../../../img/object/scheduler.svg'
 
 var SchedulerForm = class {
 
-    constructor() {
-
+    constructor(parentName) {
+        this.parentName = parentName
         this.frame = `
             <div class="row mb-3">
                 <div id="schedulerNameContainer" class="col-md-6"></div>
@@ -103,10 +103,8 @@ var SchedulerForm = class {
     }
 
     set formData(fd) { this._fd = fd }
-    set parentName(pn) { this._pn = pn }
 
     get formData() { return this._fd }
-    get parentName() { return this._pn }
 
     setFormData = () => {
         this.formData = {}
@@ -181,10 +179,9 @@ var SchedulerForm = class {
         return scenarioName
     }
 
-    render = (parentName) => {
-        this.parentName = parentName
+    render = () => {
         this.addForm()
-        scenarioFilterAndSelect.render('schedulerListScenariosContainer')
+        scenarioFilterAndSelect.render()
         this.addFormSelectInterval('min')
         this.addFormSelectInterval('sec')
         this.addFormSelectTime()

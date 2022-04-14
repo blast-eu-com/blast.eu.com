@@ -20,7 +20,7 @@ const ClusterListInfo = class {
     constructor() { }
 
     addListInfo = (cluster) => {
-        let htmlTableHeader = `<table class="table"><thead></thead><tr><td><b>Cluster id</b></td><td>` + cluster.id + `</td></tr>`
+        let htmlTableHeader = `<table class="table"><tr><td><b>Cluster id</b></td><td>` + cluster.id + `</td></tr>`
         let htmlTableCore = ''
         let htmlTableFooter = '</table>'
 

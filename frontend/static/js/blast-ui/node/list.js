@@ -19,19 +19,10 @@ var node = new Node()
 
 var NodeList = class {
 
-    constructor(parentName) {
-        this.parentName = parentName
-        this.frame = `
-            <div id="simpleWindowFrameCore" class="mt-2"></div>
-            <div id="simpleWindowInteractive" class="row p-1 m-1"></div>
-        `
+    constructor() {
         this.msgNodeNotFound = `<div class="p-5" style="text-align: center;">
         <img src="/img/object/node.svg" width="92" height="92"><b><h3 class="mt-3">NODE NOT FOUND</h3></b>
         Add a node from this page\'s form to see it appearing into this list.</div>`
-    }
-
-    addFrame = () => {
-        $('#' + this.parentName).html(this.frame)
     }
 
     templateNode(nodeData) {
@@ -63,22 +54,21 @@ var NodeList = class {
         return html
     }
 
-    loadNode = () => {
+    loadNodeList = () => {
         node.list().then((nodeData) => {
-            $("#simpleWindowInteractive").pagination({
+            $("#nodeListPagination").pagination({
                 dataSource: nodeData["hits"]["hits"],
                 pageSize: 60,
                 callback: (data, pagination) => {
                     let html = this.templateNode(data)
-                    $("#simpleWindowFrameCore").html(html)
+                    $("#nodeList").html(html)
                 }
             })
         })
     }
 
     render = () => {
-        this.addFrame()
-        this.loadNode()
+        this.loadNodeList()
     }
 }
 

@@ -40,10 +40,10 @@ let Cluster = class {
     get rawData() { return this._data }
     get nodes() { return this._nodes }
 
-    add = async (cluster) => {
+    add = async (cluster_data) => {
         let url = config.proxyAPI + '/realms/' + config.session.realm + '/clusters'
         let header = { 'Authorization': config.session.httpToken, 'Content-Type': "application/json; charset=utf-8" }
-        let data = JSON.stringify({ "cluster": cluster })
+        let data = JSON.stringify({ "cluster": cluster_data})
         let response = await fetch(url, {method: 'POST', headers: header, body: data})
         if (response.ok) {
             response = JSON.parse(await response.text())

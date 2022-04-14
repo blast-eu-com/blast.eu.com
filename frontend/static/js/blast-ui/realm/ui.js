@@ -15,19 +15,17 @@
    limitations under the License.
 */
 
-import Realm from '../../realm.js'
 import RealmForm from './form.js'
 import RealmList from './list.js'
 import RealmSwitch from './switch.js'
 
-var realm = new Realm()
 var realmForm = new RealmForm()
 var realmList = new RealmList()
 var realmSwitch = new RealmSwitch()
 
 function main() {
     realmForm.render("realmForm")
-    realmList.render("realmList", realm)
+    realmList.render()
     realmSwitch.render("realmSwitch")
 }
 

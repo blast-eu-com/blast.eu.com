@@ -25,26 +25,31 @@ const ScenarioManage = class {
     constructor(parentName) {
         this.parentName = parentName
         this.frame = `
-            <div id="scenarioContainer"></div>
-            <div id="scenarioPaginationContainer"></div>
+            <div id="scenarioContainer" class="col-12 p-0">
+                <div class="card blast-card shadow-sm h-100 rounded">
+                    <div class="card-header blast-card-header">Manage scenario</div>
+                    <div id="scenarioManageContainer" class="card-body"></div>
+                    <div id="scenarioPaginationContainer" class="card-footer blast-card-footer"></div>
+                </div>
+            </div>
         `
-
     }
 
     addFrame = () => {
         $("#" + this.parentName).html(this.frame)
-        console.log(this.parentName)
     }
 
     templateScenario = (scenarioData) => {
 
-        var html = `<table class="table">`
+        var html = `<table class="table table-sm" style="font-size: small;">
+        <thead><tr><th></th><th>Name</th><th>Description</th><th>Action</th></tr></thead>`
+
         scenarioData.forEach((sce) => {
             html = html + `<tr>
             <td style="vertical-align: middle;"><img src="/img/object/scenario.svg" height="24px" width="24px" /></td>
-            <td style="vertical-align: middle;">` + sce["_source"]["name"] + `</td>
+            <td style="vertical-align: middle;"><a href="/html/scenario-details.html?id=` + sce["_id"] + `">` + sce["_source"]["name"] + `</a></td>
             <td style="vertical-align: middle;">` + sce["_source"]["description"] + `</td>
-            <td style="vertical-align: middle;"><a class="blast-btn btn" onclick="runSavedScenario('` + scenario["_id"] + `')">Run</a></td>
+            <td style="vertical-align: middle;"><a class="blast-btn btn btn-sm" onclick="runSavedScenario('` + sce["_id"] + `')">Run</a></td>
             </tr>`
         })
         return html
@@ -54,10 +59,10 @@ const ScenarioManage = class {
         scenario.list().then((scenarioData) => {
             $("#scenarioPaginationContainer").pagination({
                 dataSource: scenarioData["hits"]["hits"],
-                pageSize: 5,
+                pageSize: 25,
                 callback: (data, pagination) => {
                     let html = this.templateScenario(data)
-                    $("#scenarioContainer").html(html)
+                    $("#scenarioManageContainer").html(html)
                 }
             })
         })

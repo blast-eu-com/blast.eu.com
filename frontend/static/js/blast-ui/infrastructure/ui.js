@@ -18,7 +18,7 @@
 import InfrastructureForm from './form.js'
 import InfrastructureList from './list.js'
 var infrastructureForm = new InfrastructureForm('infrastructureForm')
-var infrastructureList = new InfrastructureList('infrastructureList')
+var infrastructureList = new InfrastructureList()
 
 function main() {
     infrastructureForm.render()

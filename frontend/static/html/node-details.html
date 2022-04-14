@@ -70,8 +70,8 @@
                     </nav>
 
                     <div class="card blast-card shadow-sm m-3 rounded">
-                        <div class="card-body">
-                            <div class="card-title row">
+                        <div class="card-header blast-card-header">
+                            <div class="row">
                                 <div class="col-10">
                                     <img style="margin-left: 1rem; margin-bottom: 1rem" src="/img/object/node.svg" height="56" width="56" />
                                 </div>
@@ -80,8 +80,8 @@
                                     <a id="btnRescanNode" type="button" class="btn blast-btn">Rescan</a>
                                 </div>
                             </div>
-                            <div id="nodeDetails"></div>
                         </div>
+                        <div id="nodeDetails" class="card-body"></div>
                     </div>
                     <!-- <div class="card blast-card shadow-sm m-3 rounded ">
                         <div class="card-body">
@@ -96,10 +96,12 @@
                         </div>
                     </div> -->
                     <div class="card blast-card shadow-sm m-3 rounded">
-                        <div class="card-body">
-                            <div class="card-title fs-4">Node peers</div>
-                            <div class="card-text" id="nodePeers"></div>
+                        <div class="card-header blast-card-header">
+                            <div class="row">
+                                <div class="col-12">Node peers</div>
+                            </div>
                         </div>
+                        <div id="nodePeers" class="card-body"></div>
                     </div>
                 </div>
             </div>

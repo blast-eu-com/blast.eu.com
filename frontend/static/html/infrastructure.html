@@ -68,19 +68,22 @@
                     </nav>
 
                     <div class="card blast-card shadow-sm m-3 rounded">
-                        <div class="card-body">
-                            <div class="card-title row fs-4">
-                                <div class="col-11">Infrastructure Form</div>
+                        <div class="card-header blast-card-header">
+                            <div class="row">
+                                <div class="col-11">Infrastructure form</div>
                                 <div class="col-1"><a onclick="addInfrastructure();" role="button" class="btn blast-btn">Add</a></div>
                             </div>
-                            <p id="infrastructureForm" class="card-text"></p>
                         </div>
+                        <div id="infrastructureForm" class="card-body"></div>
                     </div>
                     <div class="card blast-card shadow-sm m-3 rounded">
-                        <div class="card-body">
-                            <div class="card-title fs-4">Infrastructure List</div>
-                            <p id="infrastructureList" class="card-text"></p>
+                        <div class="card-header blast-card-header">
+                            <div class="row">
+                                <div class="col-12">Infrastructure list</div>
+                            </div>
                         </div>
+                        <div id="infrastructureList" class="card-body"></div>
+                        <div id="infrastructureListPagination" class="card-footer blast-card-footer"></div>
                     </div>
                 </div>
             </div>

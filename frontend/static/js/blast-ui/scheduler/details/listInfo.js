@@ -19,8 +19,7 @@ const SchedulerListInfo = class {
     addListInfo = (scheduler) => {
         console.log(scheduler)
         let html = `
-            <img style="margin-left: 1rem" src="/img/object/schedule.svg" width="56" height="56" />
-            <table class="table mt-2"><thead></thead>
+            <table class="table">
             <tr><td><b>Scheduler id</b></td><td>` + scheduler["_id"] + `</td></tr>
         `
         $.each(scheduler.rawData, (idx, val) => {

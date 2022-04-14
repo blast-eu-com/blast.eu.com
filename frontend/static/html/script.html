@@ -67,21 +67,24 @@
 
                     <div class="accordion" id="accordionScript">
                         <div class="card blast-card shadow-sm m-3 rounded">
-                            <div class="card-body">
-                                <div class="card-title mb-4 row">
-                                    <div class="col-11 fs-4">Script Form</div>
+                            <div class="card-header blast-card-header">
+                                <div class="row">
+                                    <div class="col-11 fs-4">Script form</div>
                                     <div class="col-1"><a onclick="addScript();" role="button" class="btn blast-btn">Add</a></div>
                                 </div>
-                                <p id="scriptForm" class="card-text"></p>
                             </div>
+                            <div id="scriptForm" class="card-body"></div>
                         </div>
                     </div>
 
                     <div class="card blast-card shadow-sm m-3 rounded">
-                        <div class="card-body">
-                            <h4 class="card-title mb-4">Script List</h4>
-                            <p class="card-text" id="scriptList"></p>
+                        <div class="card-header blast-card-header">
+                            <div class="row">
+                                <div class="col-12">Script list</div>
+                            </div>
                         </div>
+                        <div id="scriptList" class="card-body"></div>
+                        <div id="scriptListPagination" class="card-footer blast-card-footer"></div>
                     </div>
 
                     <div id="react-test"></div>

@@ -308,13 +308,6 @@ def script_list_by_types(realm, script_type):
     script = Script(ES)
     return Response(json.dumps(script.list_by_type(realm, script_type)))
 
-@app.route('/api/v1/realms/<realm>/scripts/names/<script_name>/types/<script_type>', methods=["GET"])
-@active_realm_member
-def script_list_by_name_and_type(realm, script_name, script_type):
-    """ this function returns the scripts for the given name and the given type"""
-    script = Script(ES)
-    return Response(json.dumps(script.list_by_name_and_type(realm, script_name, script_type)))
-
 @app.route('/api/v1/realms/<realm>/scripts/roles/<script_role>', methods=["GET"])
 @active_realm_member
 def script_list_by_roles(realm, script_role):
@@ -326,6 +319,20 @@ def script_list_by_roles(realm, script_role):
 def script_list_langs():
     scriptlang = Scriptlang(ES)
     return Response(json.dumps(scriptlang.list()))
+
+@app.route('/api/v1/realms/<realm>/scripts/names/<script_name>/types/<script_type>', methods=["GET"])
+@active_realm_member
+def script_search_by_name_and_type(realm, script_name, script_type):
+    """ this function returns the scripts for the given name using wildcard and the given type"""
+    script = Script(ES)
+    return Response(json.dumps(script.search_by_name_and_type(realm, script_name, script_type)))
+
+@app.route('/api/v1/realms/<realm>/scripts/names/<script_name>/search', methods=["GET"])
+@active_realm_member
+def script_search_by_name(realm, script_name):
+    """ this function returns the scripts for the given pattern name using wildcard """
+    script = Script(ES)
+    return Response(json.dumps(script.search_by_name(realm, script_name)))
 
 # * *********************************************************************************************************
 # *
@@ -874,9 +881,9 @@ def scenario_execute_oneshot(realm):
 def scheduler_add(realm):
     """ this function add a new schedule management scenario into the scheduler doc """
     scheduler = Scheduler(ES)
-    data = request.get_json()
+    payload = request.get_json()["scheduler"]
     account_email = json.loads(request.cookies.get('account'))["email"]
-    return Response(json.dumps(scheduler.add(account_email, realm, data)))
+    return Response(json.dumps(scheduler.add(account_email, realm, payload)))
 
 @app.route('/api/v1/realms/<realm>/schedulers', methods=["GET"])
 @active_realm_member
@@ -897,20 +904,27 @@ def scheduler_list_by_id(realm, scheduler_id):
 def scheduler_action(realm):
     """ this function update schedule action for specific schedule """
     scheduler = Scheduler(ES)
-    data = request.get_json()
+    payload = request.get_json()
     account_email = json.loads(request.cookies.get('account'))["email"]
-    data["account_email"] = account_email
-    data["realm"] = realm
-    return Response(json.dumps(scheduler.action(data)))
+    payload["account_email"] = account_email
+    payload["realm"] = realm
+    return Response(json.dumps(scheduler.action(payload)))
 
 @app.route('/api/v1/realms/<realm>/schedulers/execute', methods=["POST"])
 def scheduler_execute(realm):
-
+    """ this function execute the scheduler pass in this request payload """
     scheduler = Scheduler(ES)
     schedule_data = request.get_json()["schedule_ids"]
     schedule_data["account_email"] = json.loads(request.cookies.get('account'))["email"]
     schedule_data["realm"] = realm
     return Response(json.dumps(scheduler.execute(schedule_data)))
+
+@app.route('/api/v1/realms/<realm>/schedulers/names/<scheduler_name>/search', methods=["GET"])
+@active_realm_member
+def scheduler_search_by_name(realm, scheduler_name):
+    """ this function list all schedulers for which the given scheduler name matches using the wildcard """
+    scheduler = Scheduler(ES)
+    return Response(json.dumps(scheduler.search_by_name(realm, scheduler_name)))
 
 # * *********************************************************************************************************
 # *

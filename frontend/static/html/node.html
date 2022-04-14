@@ -68,20 +68,23 @@
                     </nav>
 
                     <div class="card blast-card shadow-sm m-3 rounded">
-                        <div class="card-body">
-                            <div class="card-title row">
-                                <div class="col-11 fs-4">Node Form</div>
+                        <div class="card-header blast-card-header">
+                            <div class="row">
+                                <div class="col-11">Node form</div>
                                 <div class="col-1"><a onclick="addNode();" type="button" class="btn blast-btn">Add</a></div>
                             </div>
-                            <p id="nodeForm" class="card-text"></p>
                         </div>
+                        <div id="nodeForm" class="card-body"></div>
                     </div>
 
                     <div class="card blast-card shadow-sm m-3 rounded">
-                        <div class="card-body">
-                            <div class="card-title fs-4">Node List</div>
-                            <p id="nodeList" class="card-text"></p>
+                        <div class="card-header blast-card-header">
+                            <div class="row">
+                                <div class="col-12">Node list</div>
+                            </div>
                         </div>
+                        <div id="nodeList" class="card-body"></div>
+                        <div id="nodeListPagination" class="card-footer blast-card-footer"></div>
                     </div>
                 </div>
             </div>

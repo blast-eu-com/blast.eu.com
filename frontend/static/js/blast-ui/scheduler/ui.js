@@ -21,10 +21,10 @@ import SchedulerLast from './last.js'
 import ScenarioFilterAndSelect from '../scenario/filterAndSelect.js'
 var scheduler = new Scheduler()
 var scenarioFilterAndSelect = new ScenarioFilterAndSelect()
-var schedulerSelectAndManage = new SchedulerSelectAndManage()
-var schedulerForm = new SchedulerForm()
-var schedulerOnGoing = new SchedulerOnGoing()
-var schedulerLast = new SchedulerLast()
+var schedulerSelectAndManage = new SchedulerSelectAndManage('schedulerRun')
+var schedulerForm = new SchedulerForm('schedulerExecContainer')
+var schedulerOnGoing = new SchedulerOnGoing('schedulerOnGoing')
+var schedulerLast = new SchedulerLast('schedulerLast')
 var refresher
 
 const refresh = (refreshInterval) => {
@@ -52,30 +52,23 @@ const switchSchedulerReportRefresh = () => {
 }
 
 const main = function() {
-    schedulerForm.render('schedulerExecContainer')
+    schedulerForm.render()
     let scenarioPageLength = $("select#scenarioSelSamplePerPage option:selected").val()
     let schedulerPageLength = $("select#schedulerSelSamplePerPage option:selected").val()
-    schedulerSelectAndManage.render('schedulerRun', schedulerPageLength)
-    schedulerOnGoing.render('schedulerOnGoing')
-    schedulerLast.render('schedulerLast')
+    schedulerSelectAndManage.render()
+    schedulerOnGoing.render()
+    schedulerLast.render()
 }
 
 
 
 window.main = main
-window.scenarioDisplayNewRange = scenarioFilterAndSelect.scenarioWindowFrameCore
-window.scenarioSearchString = scenarioFilterAndSelect.scenarioSearchWindowFrameCore
-window.scenarioSearchGoToNextPage = scenarioFilterAndSelect.scenarioSearchGoToNextPage
-window.scenarioSearchGoToPrevPage = scenarioFilterAndSelect.scenarioSearchGoToPrevPage
-window.scenarioSearchGoToThisPage = scenarioFilterAndSelect.scenarioSearchGoToThisPage
+window.searchScenarioByName = scenarioFilterAndSelect.loadScenarioByName
 window.startScheduler = schedulerSelectAndManage.startSchedule
 window.stopScheduler = schedulerSelectAndManage.stopSchedule
 window.restartScheduler = schedulerSelectAndManage.restartSchedule
 window.schedulerRunDisplayNewRange = schedulerSelectAndManage.schedulerRunWindowCoreData
-window.schedulerRunSearchString = schedulerSelectAndManage.schedulerRunWindowCoreData
-window.schedulerRunGoToNextPage = schedulerSelectAndManage.schedulerRunGoToNextPage
-window.schedulerRunGoToPrevPage = schedulerSelectAndManage.schedulerRunGoToPrevPage
-window.schedulerRunGoToThisPage = schedulerSelectAndManage.schedulerRunGoToThisPage
+window.schedulerRunSearchString = schedulerSelectAndManage.loadSchedulerByName
 window.updateSetByMin = schedulerForm.updateSetByMin
 window.updateSetBySec = schedulerForm.updateSetBySec
 window.updateSetByTime = schedulerForm.updateSetByTime
