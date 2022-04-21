@@ -6,8 +6,8 @@
             "dynamic": false,
             "properties" : {
                 "port":{ "type": "keyword" },
+                "service_name": { "type": "keyword" },
                 "protocol": { "type": "keyword" },
-                "application": { "type": "keyword" },
                 "description": { "type": "keyword" },
                 "realm": { "type" : "keyword" }
             }
