@@ -10,11 +10,18 @@
                 "ip": { "type": "ip" },
                 "ip_reference": { "type": "ip" },
                 "scan_by_ip": { "type": "boolean" },
-                "container": { "type": "boolean" },
                 "mode": { "type": "keyword" },
                 "type": { "type": "keyword" },
                 "realm": { "type": "keyword" },
                 "peers": { "type": "ip" },
+                "os": {
+                    "type": "nested",
+                    "properties": {
+                        "type": { "type":  "keyword" },
+                        "release": { "type":  "keyword" },
+                        "version": { "type":  "keyword" }
+                    }
+                },
                 "roles": {
                     "type": "nested",
                     "properties": {

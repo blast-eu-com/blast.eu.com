@@ -1,5 +1,5 @@
 {
-    "index_patterns": "blast_node_type",
+    "index_patterns": "blast_node_os_type",
     "priority": 99,
     "template": {
         "mappings" : {
