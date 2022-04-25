@@ -15,7 +15,8 @@
                 "realm" : { "type": "keyword" },
                 "shareable": { "type": "boolean" },
                 "shareable_realms": { "type": "keyword" },
-                "type": { "type": "keyword" }
+                "lang": { "type": "keyword" },
+                "os": { "type": "keyword" }
             }
         },
         "settings" : {
