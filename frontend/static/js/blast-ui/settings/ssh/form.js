@@ -16,8 +16,9 @@
 
 const SshForm = class {
 
-    constructor() {
-        this._fd = undefined
+    constructor(parentName) {
+        this.parentName = parentName
+        this._fd
         this.frame = `
             <form>
                 <div class="row">
@@ -89,8 +90,7 @@ const SshForm = class {
         if (ssh["is_certificate_set"]) { $("#sshCertificateSet").prop("checked", true) }
     }
 
-    render = (parentName) => {
-        this.parentName = parentName
+    render = () => {
         this.addForm()
     }
 

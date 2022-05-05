@@ -17,14 +17,16 @@
 import FrontendConfig from '../../frontend.js'
 import AnsibleForm from './ansible/form.js'
 import SshForm from './ssh/form.js'
+import PortMapForm from './portMap/form.js'
 import Setting from '../../settings.js'
 import Account from '../../account.js'
 import Toast from '../main/notification/toast.js'
 import {dictionary} from '../main/message/en/dictionary.js'
 
 var config = new FrontendConfig()
-var ansibleForm = new AnsibleForm()
-var sshForm = new SshForm()
+var ansibleForm = new AnsibleForm("ansibleForm")
+var sshForm = new SshForm("sshForm")
+var portMapForm = new PortMapForm()
 var setting = new Setting()
 var account = new Account()
 var toast = new Toast()
@@ -69,10 +71,14 @@ function updateSettings() {
 }
 
 const main = function() {
-    ansibleForm.render("ansibleForm")
-    sshForm.render("sshForm")
+    ansibleForm.render()
+    sshForm.render()
+    portMapForm.render()
 }
 
 
 window.main = main
 window.updateSettings = updateSettings
+window.modifyPortMap = portMapForm.modify
+window.savePortMap = portMapForm.save
+window.cancelPortMap = portMapForm.cancel

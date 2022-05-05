@@ -85,10 +85,18 @@ class Portmap:
         self.ES = connector
         self.DB_INDEX = 'blast_port_map'
 
-    def __delete__(self, id: str):
-        print(" >>> Enter file:setting:class:Portmap:function:__delete__")
+    def update(self, port_map_id: str, port_map_data: dict):
+
         try:
-            return self.ES.delete(index=self.DB_INDEX, id=id)
+            return self.ES.update(index=self.DB_INDEX, id=port_map_id, body=json.dumps({"doc": port_map_data}), refresh=True)
+
+        except Exception as e:
+            return {"failure": str(e)}
+
+    def delete(self, port_map_id: str):
+        print(" >>> Enter file:setting:class:Portmap:function:delete")
+        try:
+            return self.ES.delete(index=self.DB_INDEX, id=port_map_id)
 
         except Exception as e:
             return {"failure": str(e)}
@@ -96,17 +104,30 @@ class Portmap:
     def delete_by_realm(self, realm: str):
         """ this function delete the portmap link to this realm """
         print(" >>> Enter file:setting:class:Portmap:function:delete_by_realm")
-        portmaps = self.__list__(realm)
-        [self.__delete__(portmap["_id"]) for portmap in portmaps["hits"]["hits"]]
+        portmaps = self.list(realm)
+        [self.delete(portmap["_id"]) for portmap in portmaps["hits"]["hits"]]
 
-    def __list__(self, realm: str):
+    def list(self, realm: str):
         """ this function returns the full list of ports mapping """
-        print(" >>> Enter file:setting:class:Portmap:function:__list__")
+        print(" >>> Enter file:setting:class:Portmap:function:list")
         try:
-            req = json.dumps({"size": 10000, "query": {"bool": {
-                "must": {"match_all": {}},
-                "filter": {"match": {"realm": realm}}
-            }}})
+            req = json.dumps(
+                {
+                    "size": 10000,
+                    "query": {
+                        "bool": {
+                            "filter": {
+                                "match": {"realm": realm}
+                            }
+                        }
+                    },
+                    "sort": {
+                        "port": {
+                            "order": "asc"
+                        }
+                    }
+                }
+            )
             return self.ES.search(index=self.DB_INDEX, body=req)
 
         except Exception as e:

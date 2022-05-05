@@ -14,13 +14,11 @@
    limitations under the License.
 */
 
-
-
 const AnsibleForm = class {
 
-    constructor() {
-
-        this._fd = undefined
+    constructor(parentName) {
+        this.parentName = parentName
+        this._fd
         this.frame = `
             <form>
                 <div id="ansible" class="row">

@@ -18,28 +18,30 @@ import FrontendConfig from './frontend.js'
 let config = new FrontendConfig()
 
 const PortMap = class {
-    add = async () => {
+    add = async (portMapData) => {
         let url = config.proxyAPI + '/realms/' + config.session.realm + '/portmaps'
         let header = { 'Authorization': config.session.httpToken, 'Content-Type': "application/json; charset=utf-8" }
-        let response = await fetch(url, {method: "POST", headers: header})
+        let data = JSON.stringify(portMapData)
+        let response = await fetch(url, {method: "POST", headers: header, body: data})
         if (response.ok) {
             response = JSON.parse(await response.text())
             if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
         }
     }
 
-    update = async (port_map_id) => {
-        let url = config.proxyAPI + '/realms/' + config.session.realm + '/portmaps/' + port_map_id
-        let header = { 'Authorization': config.session.httpToken, 'Content-Type': "applicatoin/json; charset=utf-8" }
-        let response = await fetch(url, {method: "PUT", headers: header})
+    update = async (portMapId, portMapData) => {
+        let url = config.proxyAPI + '/realms/' + config.session.realm + '/portmaps/' + portMapId
+        let header = { 'Authorization': config.session.httpToken, 'Content-Type': "application/json; charset=utf-8" }
+        let data = JSON.stringify(portMapData)
+        let response = await fetch(url, {method: "PUT", headers: header, body: data})
         if (response.ok) {
-            response = JSON.parse)(await response.text())
+            response = JSON.parse(await response.text())
             if (Object.keys(response).includes("tokenExpired")) { account.logout() } else { return response }
         }
     }
 
-    delete = async () => {
-        let url = config.proxyAPI + '/realms/' + config.session.realm + '/portmaps/' + port_map_id
+    delete = async (portMapId) => {
+        let url = config.proxyAPI + '/realms/' + config.session.realm + '/portmaps/' + portMapId
         let header = { 'Authorization': config.session.httpToken }
         let response = await fetch(url, {method: "DELETE", headers: header})
         if (response.ok) {
@@ -58,8 +60,8 @@ const PortMap = class {
         }
     }
 
-    list_by_name = async (port_map_name) => {
-        let url = config.proxyAPI + '/realms/' + config.session.realm + '/portmaps/names/' + port_map_name
+    listByName = async (portMapName) => {
+        let url = config.proxyAPI + '/realms/' + config.session.realm + '/portmaps/names/' + portMapName
         let header = { 'Authorization': config.session.httpToken }
         let response = await fetch(url, {method: "GET", headers: header})
         if (response.ok) {
@@ -68,8 +70,8 @@ const PortMap = class {
         }
     }
 
-    list_by_port = async (port_map_name) => {
-        let url = config.proxyAPI + '/realms/' + config.session.realm + '/portmaps/ports/' + port_map_port
+    listByPort = async (portMapPort) => {
+        let url = config.proxyAPI + '/realms/' + config.session.realm + '/portmaps/ports/' + portMapPort
         let header = { 'Authorization': config.session.httpToken }
         let response = await fetch(url, {method: "GET", headers: header})
         if (response.ok) {
@@ -78,8 +80,8 @@ const PortMap = class {
         }
     }
 
-    list_by_proto = async (port_map_proto) => {
-        let url = config.proxyAPI + '/realms/' + config.session.realm + '/portmaps/protos/' + port_map_proto
+    listByProto = async (portMapProto) => {
+        let url = config.proxyAPI + '/realms/' + config.session.realm + '/portmaps/protos/' + portMapProto
         let header = { 'Authorization': config.session.httpToken }
         let response = await fetch(url, {method: "GET", headers: header})
         if (response.ok) {
@@ -88,8 +90,8 @@ const PortMap = class {
         }
     }
 
-    list_by_port_and_proto = async (port_map_port, port_map_proto) => {
-        let url = config.proxyAPI + '/realms/' + config.session.realm + '/portmaps/ports/' + port_map_port + '/protos/' + port_map_proto
+    listByPortAndProto = async (portMapPort, portMapProto) => {
+        let url = config.proxyAPI + '/realms/' + config.session.realm + '/portmaps/ports/' + portMapPort + '/protos/' + portMapProto
         let header = { 'Authorization': config.session.httpToken }
         let response = await fetch(url, {method: "GET", headers: header})
         if (response.ok) {
