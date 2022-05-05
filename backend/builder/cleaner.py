@@ -31,6 +31,7 @@ _INDEX_NAME = [
     "blast_obj_node",
     "blast_node_mode",
     "blast_node_type",
+    "blast_node_os_type",
     "blast_obj_report",
     "blast_obj_scenario",
     "blast_obj_scheduler",

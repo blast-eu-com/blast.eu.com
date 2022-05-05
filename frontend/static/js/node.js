@@ -60,7 +60,7 @@ let Node = class {
     add = async (node) => {
         let url = config.proxyAPI + '/realms/' + config.session.realm + '/nodes'
         let header = { 'Authorization': config.session.httpToken, 'Content-Type': "application/json; charset=utf-8" }
-        let data = JSON.stringify({ "node": node })
+        let data = JSON.stringify(node)
         let response = await fetch(url, {method: 'POST', headers: header, body: data})
         if (response.ok) {
             response = JSON.parse(await response.text())

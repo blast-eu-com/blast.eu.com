@@ -16,30 +16,27 @@
 """
 
 import json
-from api import db
-
-
 
 
 class NodeType:
-    def __init__(self):
-        self.es = db.ESConnector().es
+    def __init__(self, connector):
+        self.ES = connector
         self.DB_INDEX = 'blast_node_type'
 
-    def add(self, nodeType: str):
+    def add(self, node_type: str):
 
         """ this function add a new node into the database """
         try:
-            self.es.index(index=self.DB_INDEX, body=json.dumps({"type": nodeType}))
+            self.ES.index(index=self.DB_INDEX, body=json.dumps({"type": node_type}))
 
         except Exception as e:
             return {"failure": e}
 
-    def delete(self, id: str):
+    def delete(self, node_type_id: str):
 
         """ this function delete an existing node type """
         try:
-            self.es.delete(index=self.DB_INDEX, id=id)
+            self.ES.delete(index=self.DB_INDEX, id=node_type_id)
 
         except Exception as e:
             return {"failure": e}
@@ -48,26 +45,15 @@ class NodeType:
 
         """ this function returns all the node type """
         try:
-            req = json.dumps({"size": 1000, "query": {"match_all": {}}})
-            return self.es.search(index=self.DB_INDEX, body=req)
-
-        except Exception as e:
-            return {"failure": e}
-
-    def list_by_id(self, id: str):
-
-        """ this function returns the node type object for which the id match """
-        try:
-            return self.es.get(index=self.DB_INDEX, id=id)
-
-        except Exception as e:
-            return {"failure": e}
-
-    def list_by_type(self, node_type: str):
-
-        """ this function returns the list of cluster nodes """
-        try:
-            return self.es.search(index=self.DB_INDEX, body='{"query":{"match":{"type":"' + node_type + '"}}}')
+            req = json.dumps(
+                {
+                    "size": 1000,
+                    "query": {
+                        "match_all": {}
+                    }
+                }
+            )
+            return self.ES.search(index=self.DB_INDEX, body=req)
 
         except Exception as e:
             return {"failure": e}

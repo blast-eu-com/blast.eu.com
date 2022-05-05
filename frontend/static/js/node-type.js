@@ -19,8 +19,8 @@ import FrontendConfig from './frontend.js'
 let config = new FrontendConfig()
 
 
-export async function nodeMode() {
-    let url = config.proxyAPI + '/realms/' + config.session.realm + '/node-mode'
+export async function nodeType() {
+    let url = config.proxyAPI + '/realms/' + config.session.realm + '/node-type'
     let header = { 'Authorization': config.session.httpToken }
     let response = await fetch(url, {method: "GET", headers: header})
     if (response.ok) {

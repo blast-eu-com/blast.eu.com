@@ -16,6 +16,9 @@
 
 import Node from '../../node.js'
 import Cluster from '../../cluster.js'
+import {nodeType} from '../../node-type.js'
+import {nodeOsType} from '../../node-os-type.js'
+import {nodeMode} from '../../node-mode.js'
 import FrontendConfig from '../../frontend.js'
 import Toast from '../main/notification/toast.js'
 import {dictionary} from '../main/message/en/dictionary.js'
@@ -30,11 +33,6 @@ const NodeForm = class {
     constructor(parentName) {
 
         this.parentName = parentName
-        this._nn
-        this._ni
-        this._nd
-        this._nd
-        this._ns
         this._fd
 
         this.frame = `
@@ -45,7 +43,9 @@ const NodeForm = class {
                     <div id="nodeClusterContainer" class="col-md-4"></div>
                 </div>
                 <div class="row mb-3">
-                    <div id="nodeDescriptionContainer" class="col-md-12"></div>
+                    <div id="nodeDescriptionContainer" class="col-md-6"></div>
+                    <div id="nodeTypeContainer" class="col-md-3"></div>
+                    <div id="nodeOsTypeContainer" class="col-md-3"></div>
                 </div>
                 <div class="row mb-3">
                     <div id="nodeScanByIpContainer" class="col-md-6"></div>
@@ -77,16 +77,43 @@ const NodeForm = class {
             <input type="checkbox" id="nodeContainer" name="nodeContainer" /> Node docker
             <div id="nodeContainerHelp" class="form-text">Check if the node is a container.</div>
         `
+        this.inputNodeType = ``
+        nodeType().then((ntypes) => {
+            if (ntypes["hits"]["total"]["value"] > 0) {
+                this.inputNodeType = this.inputNodeType + `
+                    <label for="selectNodeType" class="form-label">Node type</label>
+                    <select class="form-select" name="selectNodeType" id="selectNodeType">
+                `
+                ntypes["hits"]["hits"].forEach((ntype) => {
+                    this.inputNodeType = this.inputNodeType + `<option value="` + ntype["_source"]["name"] + `">` + ntype["_source"]["name"] + `</option>`
+                })
+                this.inputNodeType = this.inputNodeType + `</select><div class="form-text">Select the type of this node.</div>`
+            }
+        })
+
+        this.inputNodeOsType = ``
+        nodeOsType().then((nOsTypes) => {
+            if (nOsTypes["hits"]["total"]["value"] > 0) {
+                this.inputNodeOsType = this.inputNodeOsType + `
+                    <label for="selectNodeOsType" class="form-label">Node OS type</label>
+                    <select class="form-select" name="selectNodeOsType" id="selectNodeOsType">
+                `
+                nOsTypes["hits"]["hits"].forEach((nOsType) =>{
+                    this.inputNodeOsType = this.inputNodeOsType + `<option value="` + nOsType["_source"]["name"] + `">` + nOsType["_source"]["name"] + `</option>`
+                })
+                this.inputNodeOsType = this.inputNodeOsType + `</select><div class="form-text">Select the OS of this node.</div>`
+            }
+        })
 
         this.inputNodeCluster = ``
-        cluster.list(config.session.realm).then((clusters) => {
+        cluster.list().then((clusters) => {
             if (clusters["hits"]["total"]["value"] > 0) {
                 this.inputNodeCluster = this.inputNodeCluster + `
                     <label for="selectNodeCluster" class="form-label">Node cluster</label>
                     <select class="form-select" name="selectNodeCluster" id="selectNodeCluster">
                 `
-                clusters["hits"]["hits"].forEach((cluster) => {
-                    this.inputNodeCluster = this.inputNodeCluster + `<option value="` + cluster["_id"] + `">` + cluster["_source"]["name"] + `</option>`
+                clusters["hits"]["hits"].forEach((clu) => {
+                    this.inputNodeCluster = this.inputNodeCluster + `<option value="` + clu["_source"]["name"] + `">` + clu["_source"]["name"] + `</option>`
                 })
                 this.inputNodeCluster = this.inputNodeCluster + `</select><div class="form-text">Select the parent cluster for this node.</div>`
             }
@@ -95,32 +122,20 @@ const NodeForm = class {
     }
 
     set formData(fd) { this._fd = fd }
-    set name(nodeName) { this._nn = nodeName }
-    set ip(nodeIp) { this._ni = nodeIp }
-    set description(nodeDescription) { this._nd = nodeDescription }
-    set cluster(nodeCluster) { this._nc = nodeCluster }
-    set scan(nodeScan) { this._ns = nodeScan }
 
     get formData() { return this._fd }
-    get name() { return this._nn }
-    get ip() { return this._ni }
-    get description() { return this._nd }
-    get cluster() { return this._nc }
-    get scan() { return this._ns}
 
     setFormData = () => {
-        this.name = $("#nodeName").val()
-        this.ip = $("#nodeIp").val()
-        this.description = $("#nodeDesc").val()
-        this.scan = $("#nodeScanByIp").is(":checked") ? true : false
-        this.cluster = $("#selectNodeCluster").length ? $('select[name="selectNodeCluster"] option:selected').val() : ''
         this.formData = {
-            "name": this.name,
-            "ip": this.ip,
-            "description": this.description,
-            "scan_by_ip": this.scan,
-            "cluster": this.cluster
-            // "container": $("#nodeContainer").is(":checked") ? true : false,
+            "name": $("#nodeName").val(),
+            "ip": $("#nodeIp").val(),
+            "description": $("#nodeDesc").val(),
+            "scan_by_ip": $("#nodeScanByIp").is(":checked") ? true : false,
+            "cluster": $("#selectNodeCluster").length ? $('select[name="selectNodeCluster"] option:selected').val() : '',
+            "type": $('select[name="selectNodeType"] option:selected').val(),
+            "os": {
+                "type": $('select[name="selectNodeOsType"] option:selected').val()
+            }
         }
     }
 
@@ -130,7 +145,8 @@ const NodeForm = class {
         $("#nodeDescriptionContainer").html(this.inputNodeDescription)
         $("#nodeScanByIpContainer").html(this.inputNodeScanByIp)
         $("#nodeClusterContainer").html(this.inputNodeCluster)
-        // $("#nodeContainer").html(this.inputNodeContainer)
+        $("#nodeTypeContainer").html(this.inputNodeType)
+        $("#nodeOsTypeContainer").html(this.inputNodeOsType)
     }
 
     addFrame = () => {

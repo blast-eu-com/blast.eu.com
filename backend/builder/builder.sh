@@ -46,6 +46,9 @@ ${BUILDER_PATH}/build_db_node.py
 # BUILD NODE TYPES
 ${BUILDER_PATH}/build_db_node_type.py
 
+# BUILD NODE OS TYPES
+${BUILDER_PATH}/build_db_node_os_type.py
+
 # BUILD NODE MODE
 ${BUILDER_PATH}/build_db_node_mode.py
 

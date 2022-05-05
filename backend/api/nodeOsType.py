@@ -17,15 +17,32 @@
 import json
 
 
-class NodeMode:
+class NodeOsType:
+    def __init__(self, connector):
+        self.ES = connector
+        self.DB_INDEX = 'blast_node_os_type'
 
-    def __init__(self, ESConnector):
-        self.ES = ESConnector
-        self.DB_INDEX = 'blast_node_mode'
+    def add(self, node_os_type: str):
+
+        """ this function add a new node into the database """
+        try:
+            self.ES.index(index=self.DB_INDEX, body=json.dumps({"type": node_os_type}))
+
+        except Exception as e:
+            return {"failure": e}
+
+    def delete(self, node_os_type_id: str):
+
+        """ this function delete an existing node os type """
+        try:
+            self.ES.delete(index=self.DB_INDEX, id=node_os_type_id)
+
+        except Exception as e:
+            return {"failure": e}
 
     def list(self):
 
-        """ this function returns all the node mode """
+        """ this function returns all the node os type """
         try:
             req = json.dumps(
                 {

@@ -63,13 +63,15 @@ class Node:
                 if loopback_pattern.fullmatch(resolve_hostname):
                     raise Exception("Node name should not be a loopback alias.")
 
-            discovered_data = self.scan(realm, host_net_info)
+            discovered_data = self.scan(realm, node["type"], node["os"]["type"], host_net_info)
             if "failure" in discovered_data.keys():
                 raise Exception(discovered_data["failure"])
 
             node["ip"] = discovered_data["ip"]
             node["roles"] = discovered_data["roles"]
             node["peers"] = discovered_data["peers"]
+            node["os"]["release"] = discovered_data["os"]["release"]
+            node["os"]["version"] = discovered_data["os"]["version"]
             node["realm"] = realm
             node["mode"] = "running"
 
@@ -304,14 +306,14 @@ class Node:
             print(e)
             return {"failure": str(e)}
 
-    def scan(self, realm: str, name: str):
+    def scan(self, realm: str, node_type: str, node_os_type: str, name: str):
         print(" >>> Enter file:node:class:Node:function:scan")
         try:
             settings = self.SETTING.list_by_realm(realm)
             ssh_username = settings["hits"]["hits"][0]["_source"]["ssh"]["username"]
             ssh_password = self.SETTING.list_ssh_password_by_realm(realm)
             ssh_certificate = self.SETTING.list_ssh_certificate_by_realm(realm)
-            return discover(name, realm, **{"username": ssh_username, "password": ssh_password, "certificate": ssh_certificate})
+            return discover(name, node_type, node_os_type, realm, **{"username": ssh_username, "password": ssh_password, "certificate": ssh_certificate})
 
         except Exception as e:
             print("backend Exception, file:node:class:node:func:scan")

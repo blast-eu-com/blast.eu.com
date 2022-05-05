@@ -20,12 +20,13 @@ import os
 import json
 from env import _DATAMODEL_DIR, _ESC
 
-__DATAMODEL_NODE_TYPE_FILE = os.path.join(_DATAMODEL_DIR, 'node_type.template.mapping')
-__INDEX_NAME = "blast_node_type"
+__DATAMODEL_NODE_TYPE_FILE = os.path.join(_DATAMODEL_DIR, 'node_os_type.template.mapping')
+__INDEX_NAME = "blast_node_os_type"
 __INDEX_DATA = [
-    {"name": "bare_metal"},
-    {"name": "container"},
-    {"name": "vm"},
+    {"name": "Mac"},
+    {"name": "Linux"},
+    {"name": "Unix"},
+    {"name": "Windows"}
 ]
 __INDEX_TEMPLATE_DATA = json.load(open(__DATAMODEL_NODE_TYPE_FILE, "r"))
 
